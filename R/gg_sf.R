@@ -69,11 +69,11 @@ gg_sf <- function(data = NULL,
                   col_limits = NULL,
                   col_title = NULL,
                   facet_intervals = NULL,
-                  facet_labels = snakecase::to_sentence_case,
+                  facet_labels = NULL,
                   facet_ncol = NULL,
                   facet_nrow = NULL,
                   caption = NULL,
-                  theme = NULL) {
+                  theme = gg_theme(void = TRUE)) {
 
   #quote
   col <- rlang::enquo(col)
@@ -89,10 +89,6 @@ gg_sf <- function(data = NULL,
   data <- dplyr::ungroup(data)
 
   ###get default NULL values
-  if (rlang::is_null(theme)) {
-    theme <- gg_theme(void = TRUE)
-  }
-
   sf_geometry <- sf::st_geometry_type(data)
 
   if (rlang::is_null(alpha)) {
@@ -142,6 +138,7 @@ gg_sf <- function(data = NULL,
       aesthetics = c("col", "fill")
     )
 
+    if (rlang::is_null(col_title)) col_title
     col_legend_place <- "n"
   }
   else {
@@ -185,7 +182,6 @@ gg_sf <- function(data = NULL,
           breaks = col_breaks,
           limits = col_limits,
           na.value = pal_na,
-          name = col_title,
           aesthetics = c("col", "fill"),
           guide = ggplot2::guide_colorbar(title.position = col_title_position)
         )
@@ -212,7 +208,6 @@ gg_sf <- function(data = NULL,
           limits = col_levels,
           labels = col_labels,
           na.value = pal_na,
-          name = col_title,
           aesthetics = c("col", "fill"),
           guide = ggplot2::guide_legend(
             reverse = col_legend_rev,
@@ -244,7 +239,7 @@ gg_sf <- function(data = NULL,
       else col_legend_rev <- TRUE
 
       if (rlang::is_null(col_breaks)) col_breaks <- ggplot2::waiver()
-      if (rlang::is_null(col_labels)) col_labels <- snakecase::to_sentence_case
+      if (rlang::is_null(col_labels)) col_labels <- ggplot2::waiver()
 
       col_scale <- ggplot2::scale_colour_manual(
         values = pal,
@@ -252,7 +247,6 @@ gg_sf <- function(data = NULL,
         limits = col_limits,
         labels = col_labels,
         na.value = pal_na,
-        name = col_title,
         aesthetics = c("col", "fill"),
         guide = ggplot2::guide_legend(
           reverse = col_legend_rev,
@@ -320,6 +314,8 @@ gg_sf <- function(data = NULL,
     ggplot2::labs(
       title = title,
       subtitle = subtitle,
+      col = col_title,
+      fill = col_title,
       caption = caption
     ) +
     theme

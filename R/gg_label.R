@@ -24,7 +24,7 @@
 #' @param x_expand Add padding to the limits with the ggplot2::expansion function, or a vector of length 2.
 #' @param x_oob A scales::oob_* function for how to deal with out-of-bounds values.
 #' @param x_labels A function to format the scale labels, including in rlang lambda format. Use ~.x to remove default transformation. If numeric, accepts a vector. If categorical, accepts a named vector (e.g. c(value = "label", ...)).
-#' @param x_limits For a numeric or date variable, a vector of length 2 to determine the limits of the axis. Use c(NA, NA) for the min and max.
+#' @param x_limits For a numeric or date variable, a vector of length 2 to determine the limits of the axis. For a numeric variable, use c(NA, NA) to use the min and max as limits. For a date variable, load lubridate package and use c(NA_Date_, NA_Date_) to use the min and max as limits.
 #' @param x_title Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.
 #' @param x_zero For a numeric variable, TRUE or FALSE of whether the axis should include zero. Defaults to FALSE.
 #' @param x_zero_mid For a numeric variable, TRUE or FALSE of whether to put zero in the middle of the axis. Defaults to FALSE.
@@ -34,7 +34,7 @@
 #' @param y_expand Add padding to the limits with the ggplot2::expansion function, or a vector of length 2.
 #' @param y_oob A scales::oob_* function for how to deal with out-of-bounds values.
 #' @param y_labels A functiyon to format the scale labels, including in rlang lambda format. Use ~.x to remove default transformation. If numeric, accepts a vector. If categorical, accepts a named vector (e.g. c(value = "label", ...)).
-#' @param y_limits For a numeric or date variable, a vector of length 2 to determine the limits of the axis. Use c(NA, NA) for the min and max.
+#' @param y_limits For a numeric or date variable, a vector of length 2 to determine the limits of the axis. For a numeric variable, use c(NA, NA) to use the min and max as limits. For a date variable, load lubridate package and use c(NA_Date_, NA_Date_) to use the min and max as limits.
 #' @param y_title Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.
 #' @param y_zero For a numeric variable, TRUE or FALSE of whether the axis should include zero. Defaults to FALSE.
 #' @param y_zero_mid For a numeric variable, TRUE or FALSE of whether to put zero in the middle of the axis. Defaults to FALSE.
@@ -110,7 +110,7 @@ gg_label <- function(data = NULL,
                      col_limits = NULL,
                      col_title = NULL,
                      facet_intervals = NULL,
-                     facet_labels = snakecase::to_sentence_case,
+                     facet_labels = NULL,
                      facet_ncol = NULL,
                      facet_nrow = NULL,
                      facet_scales = "fixed",
@@ -226,6 +226,7 @@ gg_label <- function(data = NULL,
       aesthetics = c("col", "fill")
     )
 
+    if (rlang::is_null(col_title)) col_title
     col_legend_place <- "n"
   }
   else {
@@ -277,7 +278,6 @@ gg_label <- function(data = NULL,
           breaks = col_breaks,
           limits = col_limits,
           na.value = pal_na,
-          name = col_title,
           aesthetics = c("col", "fill"),
           guide = ggplot2::guide_colorbar(title.position = col_title_position)
         )
@@ -314,7 +314,6 @@ gg_label <- function(data = NULL,
           limits = col_levels,
           labels = col_labels,
           na.value = pal_na,
-          name = col_title,
           aesthetics = c("col", "fill"),
           guide = ggplot2::guide_legend(
             reverse = col_legend_rev,
@@ -359,7 +358,7 @@ gg_label <- function(data = NULL,
       else col_legend_rev <- FALSE
 
       if (rlang::is_null(col_breaks)) col_breaks <- ggplot2::waiver()
-      if (rlang::is_null(col_labels)) col_labels <- snakecase::to_sentence_case
+      if (rlang::is_null(col_labels)) col_labels <- ggplot2::waiver()
 
       col_scale <- ggplot2::scale_colour_manual(
         values = pal,
@@ -367,7 +366,6 @@ gg_label <- function(data = NULL,
         limits = col_limits,
         labels = col_labels,
         na.value = pal_na,
-        name = col_title,
         aesthetics = c("col", "fill"),
         guide = ggplot2::guide_legend(
           reverse = col_legend_rev,
@@ -504,7 +502,7 @@ gg_label <- function(data = NULL,
   if (!rlang::quo_is_null(x) & rlang::quo_is_null(y)) {
     if (is.character(rlang::eval_tidy(x, data)) | is.factor(rlang::eval_tidy(x, data))) {
       if (rlang::is_null(x_expand)) x_expand <- ggplot2::waiver()
-      if (rlang::is_null(x_labels)) x_labels <- snakecase::to_sentence_case
+      if (rlang::is_null(x_labels)) x_labels <- ggplot2::waiver()
 
       x_scale <- ggplot2::scale_x_discrete(expand = x_expand, labels = x_labels)
     }
@@ -574,7 +572,7 @@ gg_label <- function(data = NULL,
   if (!rlang::quo_is_null(y) & rlang::quo_is_null(x)) {
     if (is.character(rlang::eval_tidy(y, data)) | is.factor(rlang::eval_tidy(y, data))) {
       if (rlang::is_null(y_expand)) y_expand <- ggplot2::waiver()
-      if (rlang::is_null(y_labels)) y_labels <- snakecase::to_sentence_case
+      if (rlang::is_null(y_labels)) y_labels <- ggplot2::waiver()
 
       y_scale <- ggplot2::scale_y_discrete(expand = y_expand, labels = y_labels)
     }
@@ -648,7 +646,7 @@ gg_label <- function(data = NULL,
   ###Make x scale based on layer_data
   if (is.character(rlang::eval_tidy(x, data)) | is.factor(rlang::eval_tidy(x, data))) {
     if (rlang::is_null(x_expand)) x_expand <- ggplot2::waiver()
-    if (rlang::is_null(x_labels)) x_labels <- snakecase::to_sentence_case
+    if (rlang::is_null(x_labels)) x_labels <- ggplot2::waiver()
 
     x_scale <- ggplot2::scale_x_discrete(expand = x_expand, labels = x_labels)
   }
@@ -681,13 +679,6 @@ gg_label <- function(data = NULL,
           }
           x_breaks <- pretty(x_min_max, n = x_breaks_n)
         }
-      }
-
-      if (length(class(position)) == 1) {
-        if (position == "fill") x_limits <- c(NA, NA)
-      }
-      else if (class(position)[1] == "PositionFill"){
-        x_limits <- c(NA, NA)
       }
 
       if (rlang::is_null(x_limits)) x_limits <- c(min(x_breaks), max(x_breaks))
@@ -731,7 +722,7 @@ gg_label <- function(data = NULL,
   ###Make y scale based on layer_data
   if (is.character(rlang::eval_tidy(y, data)) | is.factor(rlang::eval_tidy(y, data))) {
     if (rlang::is_null(y_expand)) y_expand <- ggplot2::waiver()
-    if (rlang::is_null(y_labels)) y_labels <- snakecase::to_sentence_case
+    if (rlang::is_null(y_labels)) y_labels <- ggplot2::waiver()
 
     y_scale <- ggplot2::scale_y_discrete(expand = y_expand, labels = y_labels)
   }
@@ -765,13 +756,6 @@ gg_label <- function(data = NULL,
           }
           y_breaks <- pretty(y_min_max, n = y_breaks_n)
         }
-      }
-
-      if (length(class(position)) == 1) {
-        if (position == "fill") y_limits <- c(NA, NA)
-      }
-      else if (class(position)[1] == "PositionFill"){
-        y_limits <- c(NA, NA)
       }
 
       if (rlang::is_null(y_limits)) y_limits <- c(min(y_breaks), max(y_breaks))
@@ -821,6 +805,8 @@ gg_label <- function(data = NULL,
       subtitle = subtitle,
       x = x_title,
       y = y_title,
+      col = col_title,
+      fill = col_title,
       caption = caption
     ) +
     theme
