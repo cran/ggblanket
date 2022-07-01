@@ -32,34 +32,33 @@
 #' @return A ggplot theme.
 #' @export
 #'
-gg_theme <-
-  function(font = "",
-           font_title = NULL,
-           font_subtitle = NULL,
-           font_body = NULL,
-           font_caption = NULL,
-           size_title = 11,
-           size_subtitle = 10,
-           size_body = 10,
-           size_caption = 9,
-           size_axis = 0.3,
-           size_ticks = 0.3,
-           size_grid = 0.2,
-           style_title = "bold",
-           style_subtitle = "plain",
-           style_body = "plain",
-           style_caption = "plain",
-           pal_title = "#000000",
-           pal_subtitle = "#323232",
-           pal_body = "#323232",
-           pal_caption = "#7F7F7F",
-           pal_axis = "#323232",
-           pal_ticks = "#323232",
-           pal_background = c("#ffffff", "#ffffff"),
-           pal_grid = "#D3D3D3",
-           x_grid = FALSE,
-           y_grid = FALSE,
-           void = FALSE) {
+gg_theme <- function(font = "",
+                     font_title = NULL,
+                     font_subtitle = NULL,
+                     font_body = NULL,
+                     font_caption = NULL,
+                     size_title = 11,
+                     size_subtitle = 10,
+                     size_body = 10,
+                     size_caption = 9,
+                     size_axis = 0.3,
+                     size_ticks = 0.3,
+                     size_grid = 0.2,
+                     style_title = "bold",
+                     style_subtitle = "plain",
+                     style_body = "plain",
+                     style_caption = "plain",
+                     pal_title = "#000000",
+                     pal_subtitle = "#323232",
+                     pal_body = "#323232",
+                     pal_caption = "#7F7F7F",
+                     pal_axis = "#323232",
+                     pal_ticks = "#323232",
+                     pal_background = c("#ffffff", "#ffffff"),
+                     pal_grid = "#D3D3D3",
+                     x_grid = FALSE,
+                     y_grid = FALSE,
+                     void = FALSE) {
 
     if (is.null(font_title)) font_title <- font
     if (is.null(font_subtitle)) font_subtitle <- font
@@ -69,8 +68,8 @@ gg_theme <-
       if (x_grid == FALSE) { #horizontal
         theme <- ggplot2::theme(
           text = ggplot2::element_text(family = font_body, size = size_body, colour = pal_body, face = style_body),
-          plot.title = ggplot2::element_text(family = font_title, size = size_title, colour = pal_title, face = style_title, hjust = 0, vjust = size_body / 2, margin = ggplot2::margin(b = size_body / 2)),
-          plot.subtitle = ggplot2::element_text(family = font_subtitle, size = size_subtitle, colour = pal_subtitle, face = style_subtitle, hjust = 0, vjust = size_body / 2, margin = ggplot2::margin(b = size_body / 2)),
+          plot.title = ggplot2::element_text(family = font_title, size = size_title, colour = pal_title, face = style_title, hjust = 0, vjust = size_body / 5, margin = ggplot2::margin(b = size_body)),
+          plot.subtitle = ggplot2::element_text(family = font_subtitle, size = size_subtitle, colour = pal_subtitle, face = style_subtitle, hjust = 0, vjust = size_body / 2.5, margin = ggplot2::margin(t = size_body * -0.2, b = size_body * 0.3)),
           axis.title.x = ggplot2::element_text(family = font_body, size = size_body, colour = pal_body, face = style_body, margin = ggplot2::margin(t = size_body / 1.33)),
           axis.title.y = ggplot2::element_text(family = font_body, size = size_body, colour = pal_body, face = style_body, angle = 90, margin = ggplot2::margin(r = size_body)),
           legend.title = ggplot2::element_text(family = font_body, size = size_body, colour = pal_body, face = style_body, hjust = 0, vjust = 0.5),
@@ -109,8 +108,8 @@ gg_theme <-
       else if (x_grid == TRUE) { #both
         theme <- ggplot2::theme(
           text = ggplot2::element_text(family = font_body, size = size_body, colour = pal_body, face = style_body),
-          plot.title = ggplot2::element_text(family = font_title, size = size_title, colour = pal_title, face = style_title, hjust = 0, vjust = size_body / 2, margin = ggplot2::margin(b = size_body / 2)),
-          plot.subtitle = ggplot2::element_text(family = font_subtitle, size = size_subtitle, colour = pal_subtitle, face = style_subtitle, hjust = 0, vjust = size_body / 2, margin = ggplot2::margin(b = size_body / 2)),
+          plot.title = ggplot2::element_text(family = font_title, size = size_title, colour = pal_title, face = style_title, hjust = 0, vjust = size_body / 5, margin = ggplot2::margin(b = size_body)),
+          plot.subtitle = ggplot2::element_text(family = font_subtitle, size = size_subtitle, colour = pal_subtitle, face = style_subtitle, hjust = 0, vjust = size_body / 2.5, margin = ggplot2::margin(t = size_body * -0.2, b = size_body * 0.3)),
           axis.title.x = ggplot2::element_text(family = font_body, size = size_body, colour = pal_body, face = style_body, margin = ggplot2::margin(t = size_body / 1.33)),
           axis.title.y = ggplot2::element_text(family = font_body, size = size_body, colour = pal_body, face = style_body, angle = 90, margin = ggplot2::margin(r = size_body)),
           legend.title = ggplot2::element_text(family = font_body, size = size_body, colour = pal_body, face = style_body, hjust = 0, vjust = 0.5),
@@ -126,8 +125,7 @@ gg_theme <-
           panel.spacing = ggplot2::unit(1.5, "lines"),
           plot.background = ggplot2::element_rect(colour = pal_background[2], fill = pal_background[2]),
           panel.background = ggplot2::element_rect(colour = pal_background[1], fill = pal_background[1]),
-          panel.grid.major.x = ggplot2::element_line(colour = pal_grid, size = size_grid),
-          panel.grid.major.y = ggplot2::element_line(colour = pal_grid, size = size_grid),
+          panel.grid.major = ggplot2::element_line(colour = pal_grid, size = size_grid),
           panel.grid.minor.x = ggplot2::element_blank(),
           panel.grid.minor.y = ggplot2::element_blank(),
           legend.background = ggplot2::element_rect(colour = pal_background[2], fill = pal_background[2]),
@@ -151,8 +149,8 @@ gg_theme <-
       if (x_grid == FALSE) { #none
         theme <- ggplot2::theme(
           text = ggplot2::element_text(family = font_body, size = size_body, colour = pal_body, face = style_body),
-          plot.title = ggplot2::element_text(family = font_title, size = size_title, colour = pal_title, face = style_title, hjust = 0, vjust = size_body / 2, margin = ggplot2::margin(b = size_body / 2)),
-          plot.subtitle = ggplot2::element_text(family = font_subtitle, size = size_subtitle, colour = pal_subtitle, face = style_subtitle, hjust = 0, vjust = size_body / 2, margin = ggplot2::margin(b = size_body / 2)),
+          plot.title = ggplot2::element_text(family = font_title, size = size_title, colour = pal_title, face = style_title, hjust = 0, vjust = size_body / 5, margin = ggplot2::margin(b = size_body)),
+          plot.subtitle = ggplot2::element_text(family = font_subtitle, size = size_subtitle, colour = pal_subtitle, face = style_subtitle, hjust = 0, vjust = size_body / 2.5, margin = ggplot2::margin(t = size_body * -0.2, b = size_body * 0.3)),
           axis.title.x = ggplot2::element_text(family = font_body, size = size_body, colour = pal_body, face = style_body, margin = ggplot2::margin(t = size_body / 1.33)),
           axis.title.y = ggplot2::element_text(family = font_body, size = size_body, colour = pal_body, face = style_body, angle = 90, margin = ggplot2::margin(r = size_body)),
           legend.title = ggplot2::element_text(family = font_body, size = size_body, colour = pal_body, face = style_body, hjust = 0, vjust = 0.5),
@@ -191,8 +189,8 @@ gg_theme <-
       else if (x_grid == TRUE) { #vertical
         theme <- ggplot2::theme(
           text = ggplot2::element_text(family = font_body, size = size_body, colour = pal_body, face = style_body),
-          plot.title = ggplot2::element_text(family = font_title, size = size_title, colour = pal_title, face = style_title, hjust = 0, vjust = size_body / 2, margin = ggplot2::margin(b = size_body / 2)),
-          plot.subtitle = ggplot2::element_text(family = font_subtitle, size = size_subtitle, colour = pal_subtitle, face = style_subtitle, hjust = 0, vjust = size_body / 2, margin = ggplot2::margin(b = size_body / 2)),
+          plot.title = ggplot2::element_text(family = font_title, size = size_title, colour = pal_title, face = style_title, hjust = 0, vjust = size_body / 5, margin = ggplot2::margin(b = size_body)),
+          plot.subtitle = ggplot2::element_text(family = font_subtitle, size = size_subtitle, colour = pal_subtitle, face = style_subtitle, hjust = 0, vjust = size_body / 2.5, margin = ggplot2::margin(t = size_body * -0.2, b = size_body * 0.3)),
           axis.title.x = ggplot2::element_text(family = font_body, size = size_body, colour = pal_body, face = style_body, margin = ggplot2::margin(t = size_body / 1.33)),
           axis.title.y = ggplot2::element_text(family = font_body, size = size_body, colour = pal_body, face = style_body, angle = 90, margin = ggplot2::margin(r = size_body)),
           legend.title = ggplot2::element_text(family = font_body, size = size_body, colour = pal_body, face = style_body, hjust = 0, vjust = 0.5),

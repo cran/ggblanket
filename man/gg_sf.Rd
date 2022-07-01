@@ -9,19 +9,19 @@ gg_sf(
   col = NULL,
   facet = NULL,
   group = NULL,
+  text = NULL,
   stat = "sf",
   position = "identity",
   pal = NULL,
   pal_na = "#7F7F7F",
   alpha = 0.9,
-  size = NULL,
   ...,
+  titles = NULL,
   title = NULL,
   subtitle = NULL,
   coord = ggplot2::coord_sf(),
   col_breaks = NULL,
-  col_breaks_n = NULL,
-  col_breaks_width = NULL,
+  col_include = NULL,
   col_intervals = NULL,
   col_labels = NULL,
   col_legend_place = NULL,
@@ -34,7 +34,7 @@ gg_sf(
   facet_ncol = NULL,
   facet_nrow = NULL,
   caption = NULL,
-  theme = gg_theme(void = TRUE)
+  theme = gg_theme(x_grid = TRUE, y_grid = TRUE)
 )
 }
 \arguments{
@@ -46,6 +46,8 @@ gg_sf(
 
 \item{group}{Unquoted group aesthetic variable.}
 
+\item{text}{Unquoted text aesthetic variable, which can be used in combination with plotly::ggplotly(., tooltip = "text").}
+
 \item{stat}{Statistical transformation. A character string (e.g. "identity").}
 
 \item{position}{Position adjustment. Either a character string (e.g."identity"), or a function (e.g. ggplot2::position_identity()).}
@@ -56,9 +58,9 @@ gg_sf(
 
 \item{alpha}{Opacity. A number between 0 and 1.}
 
-\item{size}{Size. A number 0 upwards.}
-
 \item{...}{Other arguments passed to the relevant ggplot2::geom_* function.}
+
+\item{titles}{A function to format the x, y and col titles, including in rlang lambda format. Defaults to snakecase::to_sentence_case.}
 
 \item{title}{Title string.}
 
@@ -66,15 +68,13 @@ gg_sf(
 
 \item{coord}{Coordinate system.}
 
-\item{col_breaks}{A vector of breaks. For a categorical col variable, this links pal values with col variable values dropping those not used. For a numeric variable where col_intervals is NULL, this only affects the labels on the legend.}
+\item{col_breaks}{A function that takes the limits as input (e.g. scales::breaks_pretty()), or a vector of breaks.}
 
-\item{col_breaks_n}{For a numeric variable where col_intervals is NULL, an integer guiding the number of breaks, as calculated by the pretty function.}
+\item{col_include}{For a numeric or date variable, any values that the scale should include (e.g. 0).}
 
-\item{col_breaks_width}{For a numeric variable, the width of breaks, as calculated by the scales::fullseq function.}
+\item{col_intervals}{A function to cut or chop the numeric variable into intervals (e.g. ~ santoku::chop_mean_sd(.x, drop = FALSE)).}
 
-\item{col_intervals}{A function to cut or chop the numeric variable into intervals, including in rlang lambda format (e.g. ~ santoku::chop_mean_sd(.x, drop = FALSE)).}
-
-\item{col_labels}{A function to format the scale labels, including in rlang lambda format. Use ~.x to remove default transformation. If categorical, accepts a named vector (e.g. c(value = "label", ...)). Note this does not affect where col_intervals is not NULL.}
+\item{col_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels. Note this does not affect where col_intervals is not NULL.}
 
 \item{col_legend_place}{The place for the legend. "r" for right, "b" for bottom, "t" for top, or "l" for left.}
 
@@ -82,13 +82,13 @@ gg_sf(
 
 \item{col_legend_nrow}{The number of rows for the legend elements.}
 
-\item{col_limits}{A vector of limits. For a categorical col variable, this links pal values with col variable values keeping those not used. For a numeric variable where col_intervals is NULL, this will make all values outside the limits coloured NA.}
+\item{col_limits}{A vector to determine the limits of the axis.}
 
 \item{col_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
 
 \item{facet_intervals}{A function to cut or chop the numeric variable into intervals, including in rlang lambda format (e.g. ~ santoku::chop_mean_sd(.x, drop = FALSE)).}
 
-\item{facet_labels}{A function to format the scale labels, including in rlang lambda format. Use ~.x to remove default transformation. If categorical, accepts a named vector (e.g. c(value = "label", ...)).}
+\item{facet_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a named vector of labels (e.g. c(value = "label", ...)).}
 
 \item{facet_ncol}{The number of columns of facetted plots.}
 
@@ -102,17 +102,14 @@ gg_sf(
 A ggplot object.
 }
 \description{
-Create a sf plot with a wrapper around the ggplot2::geom_sf function.
+Create a sf plot with a wrapper around the ggplot2:: \%>\%  function.
 }
 \examples{
 if (requireNamespace("sf", quietly = TRUE)) {
   library(ggplot2)
   nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
 
-  gg_sf(nc, col = AREA)
-
-  gg_sf(nc[1:3, ], col = AREA) +
-    geom_sf_label(aes(label = AREA), fill = "white")
+  gg_sf(nc, col = AREA, col_legend_place = "b")
 }
 
 }
