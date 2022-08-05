@@ -4,6 +4,7 @@
 #' @param data A sf object.
 #' @param col Unquoted col and fill aesthetic variable.
 #' @param facet Unquoted facet aesthetic variable.
+#' @param facet2 Unquoted second facet variable for a facet grid of facet by facet2 variables.
 #' @param group Unquoted group aesthetic variable.
 #' @param text Unquoted text aesthetic variable, which can be used in combination with plotly::ggplotly(., tooltip = "text").
 #' @param stat Statistical transformation. A character string (e.g. "identity").
@@ -23,9 +24,8 @@
 #' @param col_limits A vector to determine the limits of the axis.
 #' @param col_legend_ncol The number of columns for the legend elements.
 #' @param col_legend_nrow The number of rows for the legend elements.
-#' @param col_legend_place The place for the legend. "r" for right, "b" for bottom, "t" for top, or "l" for left.
+#' @param col_legend_place The place for the legend. "b" for bottom, "r" for right, "t" for top, or "l" for left.
 #' @param col_title Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.
-#' @param facet_intervals A function to cut or chop the numeric variable into intervals, including in rlang lambda format (e.g. ~ santoku::chop_mean_sd(.x, drop = FALSE)).
 #' @param facet_labels A function that takes the breaks as inputs (e.g. scales::label_comma()), or a named vector of labels (e.g. c(value = "label", ...)).
 #' @param facet_ncol The number of columns of facetted plots.
 #' @param facet_nrow The number of rows of facetted plots.
@@ -41,42 +41,44 @@
 #'   gg_sf(nc, col = AREA, col_legend_place = "b")
 #' }
 #'
-gg_sf <- function(data = NULL,
-                  col = NULL,
-                  facet = NULL,
-                  group = NULL,
-                  text = NULL,
-                  stat = "sf",
-                  position = "identity",
-                  pal = NULL,
-                  pal_na = "#7F7F7F",
-                  alpha = 0.9,
-                  #linewidth = 0.5,
-                  #size = 1.5,
-                  ...,
-                  titles = NULL,
-                  title = NULL,
-                  subtitle = NULL,
-                  coord = ggplot2::coord_sf(),
-                  col_breaks = NULL,
-                  col_include = NULL,
-                  col_intervals = NULL,
-                  col_labels = NULL,
-                  col_legend_place = NULL,
-                  col_legend_ncol = NULL,
-                  col_legend_nrow = NULL,
-                  col_limits = NULL,
-                  col_title = NULL,
-                  facet_intervals = NULL,
-                  facet_labels = NULL,
-                  facet_ncol = NULL,
-                  facet_nrow = NULL,
-                  caption = NULL,
-                  theme = gg_theme(x_grid = TRUE, y_grid = TRUE)) {
+gg_sf <- function(
+    data = NULL,
+    col = NULL,
+    facet = NULL,
+    facet2 = NULL,
+    group = NULL,
+    text = NULL,
+    stat = "sf",
+    position = "identity",
+    pal = NULL,
+    pal_na = "#7F7F7F",
+    alpha = 0.9,
+    #linewidth = 0.5,
+    #size = 1.5,
+    ...,
+    titles = NULL,
+    title = NULL,
+    subtitle = NULL,
+    coord = ggplot2::coord_sf(),
+    col_breaks = NULL,
+    col_include = NULL,
+    col_intervals = NULL,
+    col_labels = NULL,
+    col_legend_place = NULL,
+    col_legend_ncol = NULL,
+    col_legend_nrow = NULL,
+    col_limits = NULL,
+    col_title = NULL,
+    facet_labels = NULL,
+    facet_ncol = NULL,
+    facet_nrow = NULL,
+    caption = NULL,
+    theme = NULL) {
 
   #quote
   col <- rlang::enquo(col)
   facet <- rlang::enquo(facet)
+  facet2 <- rlang::enquo(facet2)
   group <- rlang::enquo(group)
   text <- rlang::enquo(text)
 
@@ -99,25 +101,30 @@ gg_sf <- function(data = NULL,
     else alpha <- 1
   }
 
+  if (rlang::is_null(theme)) {
+    theme <- gg_theme(grid_v = TRUE, grid_h = TRUE, void = TRUE)
+  }
+
   ###process plot data
   ###factorise logical, reverse for horizontal, and chop intervals
   if (!rlang::quo_is_null(col)) {
 
     if (is.logical(rlang::eval_tidy(col, data))) {
       data <- data %>%
-        dplyr::mutate(dplyr::across(!!col, ~ factor(.x, levels = c("TRUE", "FALSE"))))
+        dplyr::mutate(dplyr::across(!!col, ~ factor(.x, levels = c("FALSE", "TRUE"))))
     }
   }
 
   if (!rlang::quo_is_null(facet)) {
     if (is.logical(class(rlang::eval_tidy(facet, data)))) {
       data <- data %>%
-        dplyr::mutate(dplyr::across(!!facet, ~ factor(.x, levels = c("TRUE", "FALSE"))))
+        dplyr::mutate(dplyr::across(!!facet, ~ factor(.x, levels = c("FALSE", "TRUE"))))
     }
-
-    if (!rlang::is_null(facet_intervals)) {
+  }
+  if (!rlang::quo_is_null(facet2)) {
+    if (is.logical(class(rlang::eval_tidy(facet2, data)))) {
       data <- data %>%
-        dplyr::mutate(dplyr::across(!!facet, facet_intervals))
+        dplyr::mutate(dplyr::across(!!facet2, ~ factor(.x, levels = c("FALSE", "TRUE"))))
     }
   }
 
@@ -149,11 +156,15 @@ gg_sf <- function(data = NULL,
 
     if (rlang::is_null(col_legend_place)) {
       if (!rlang::quo_is_null(facet) &
-               (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet, data)))) {
+          (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet, data)))) {
+        col_legend_place <- "n"
+      }
+      else if (!rlang::quo_is_null(facet2) &
+               (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet2, data)))) {
         col_legend_place <- "n"
       }
       else
-        col_legend_place <- "r"
+        col_legend_place <- "b"
     }
 
     if (is.numeric(rlang::eval_tidy(col, data))) {
@@ -260,7 +271,7 @@ gg_sf <- function(data = NULL,
       if (rlang::is_null(pal)) pal <- pal_d3_mix(col_n)
       else pal <- pal[1:col_n]
 
-      if (is.factor(rlang::eval_tidy(col, data)) | is.character(rlang::eval_tidy(col, data))) {
+      if (is.character(rlang::eval_tidy(col, data)) | is.factor(rlang::eval_tidy(col, data))) {
         col_legend_rev <- FALSE
       }
       else if (col_legend_place %in% c("b", "t")) col_legend_rev <- FALSE
@@ -330,23 +341,23 @@ gg_sf <- function(data = NULL,
     )
 
   if (!rlang::quo_is_null(facet)) {
-    if (!rlang::is_null(facet_intervals)) {
+    if (rlang::quo_is_null(facet2)) {
       plot <- plot +
         ggplot2::facet_wrap(
           ggplot2::vars(!!facet),
           scales = "fixed",
+          labeller = ggplot2::as_labeller(facet_labels),
           ncol = facet_ncol,
           nrow = facet_nrow
         )
     }
     else {
       plot <- plot +
-        ggplot2::facet_wrap(
-          ggplot2::vars(!!facet),
+        ggplot2::facet_grid(
+          rows = ggplot2::vars(!!facet2),
+          cols = ggplot2::vars(!!facet),
           labeller = ggplot2::as_labeller(facet_labels),
-          scales = "fixed",
-          ncol = facet_ncol,
-          nrow = facet_nrow
+          scales = "fixed"
         )
     }
   }
@@ -392,6 +403,11 @@ gg_sf <- function(data = NULL,
   else if (col_legend_place == "l") {
     plot <- plot +
       ggplot2::theme(legend.position = "left")
+  }
+
+  else if (col_legend_place == "r") {
+    plot <- plot +
+      ggplot2::theme(legend.position = "right")
   }
 
   #return beautiful plot

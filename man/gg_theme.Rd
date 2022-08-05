@@ -6,88 +6,97 @@
 \usage{
 gg_theme(
   font = "",
-  font_title = NULL,
-  font_subtitle = NULL,
-  font_body = NULL,
-  font_caption = NULL,
-  size_title = 11,
-  size_subtitle = 10,
-  size_body = 10,
-  size_caption = 9,
-  size_axis = 0.3,
-  size_ticks = 0.3,
-  size_grid = 0.2,
-  style_title = "bold",
-  style_subtitle = "plain",
-  style_body = "plain",
-  style_caption = "plain",
-  pal_title = "#000000",
-  pal_subtitle = "#323232",
-  pal_body = "#323232",
-  pal_caption = "#7F7F7F",
-  pal_axis = "#323232",
-  pal_ticks = "#323232",
-  pal_background = c("#ffffff", "#ffffff"),
-  pal_grid = "#D3D3D3",
-  x_grid = FALSE,
-  y_grid = FALSE,
+  title_pal = "#000000",
+  title_font = NULL,
+  title_size = 11,
+  title_style = "bold",
+  subtitle_font = NULL,
+  subtitle_pal = "#323232",
+  subtitle_size = 10,
+  subtitle_style = "plain",
+  body_font = NULL,
+  body_pal = "#323232",
+  body_size = 10,
+  body_style = "plain",
+  caption_font = NULL,
+  caption_pal = "#7F7F7F",
+  caption_size = 9,
+  caption_style = "plain",
+  axis_size = 0.3,
+  axis_pal = "#323232",
+  ticks_size = 0.3,
+  ticks_pal = "#323232",
+  bg_plot_pal = "#F1F3F5",
+  bg_panel_pal = "#FEFEFE",
+  bg_legend_key_pal = "plot",
+  grid_h = FALSE,
+  grid_v = FALSE,
+  grid_pal = "#D3D3D3",
+  grid_size = 0.2,
+  facet_gap_size = 1.5,
   void = FALSE
 )
 }
 \arguments{
 \item{font}{The font for all text to use. Defaults to "".}
 
-\item{font_title}{The font for the title. If NULL, inherits from font argument.}
+\item{title_pal}{The colour palette for the title font. Defaults to "#000000".}
 
-\item{font_subtitle}{The font for the subtitle. If NULL, inherits from font argument.}
+\item{title_font}{The font for the title. If NULL, inherits from font argument.}
 
-\item{font_body}{The font for all text other than the title, subtitle and caption. If NULL, inherits from font argument.}
+\item{title_size}{The size of the title font. Defaults to 11.}
 
-\item{font_caption}{The font for the caption. If NULL, inherits from font argument.}
+\item{title_style}{The style of the title font. Defaults to "bold".}
 
-\item{size_title}{The size of the title font. Defaults to 11.}
+\item{subtitle_font}{The font for the subtitle. If NULL, inherits from font argument.}
 
-\item{size_subtitle}{The size of the subtitle font. Defaults to 10.}
+\item{subtitle_pal}{The colour palette for the subtitle font. Defaults to "#323232".}
 
-\item{size_body}{The size of all text other than the title, subtitle and caption. Defaults to 10.}
+\item{subtitle_size}{The size of the subtitle font. Defaults to 10.}
 
-\item{size_caption}{The size of the caption. Defaults to 9.}
+\item{subtitle_style}{The style of the subtitle font. Defaults to "plain".}
 
-\item{size_axis}{The size of the axis. Defaults to 0.3.}
+\item{body_font}{The font for all text other than the title, subtitle and caption. If NULL, inherits from font argument.}
 
-\item{size_ticks}{The size of the ticks. Defaults to 0.3.}
+\item{body_pal}{The colour palette for all text other than the title, subtitle or caption. Defaults to "#323232".}
 
-\item{size_grid}{The size of the vertical major gridlines. Defaults to 0.2.}
+\item{body_size}{The size of all text other than the title, subtitle and caption. Defaults to 10.}
 
-\item{style_title}{The style of the title font. Defaults to "bold".}
+\item{body_style}{The style of all text other than the title, subtitle or caption. Defaults to "plain".}
 
-\item{style_subtitle}{The style of the subtitle font. Defaults to "plain".}
+\item{caption_font}{The font for the caption. If NULL, inherits from font argument.}
 
-\item{style_body}{The style of all text other than the title, subtitle or caption. Defaults to "plain".}
+\item{caption_pal}{The colour palette for the caption. Defaults to "#7F7F7F".}
 
-\item{style_caption}{The style of the caption. Defaults to "plain".}
+\item{caption_size}{The size of the caption. Defaults to 9.}
 
-\item{pal_title}{The colour palette for the title font. Defaults to "#000000".}
+\item{caption_style}{The style of the caption. Defaults to "plain".}
 
-\item{pal_subtitle}{The colour palette for the subtitle font. Defaults to "#323232".}
+\item{axis_size}{The size of the axis. Defaults to 0.3.}
 
-\item{pal_body}{The colour palette for all text other than the title, subtitle or caption. Defaults to "#323232".}
+\item{axis_pal}{The colour palette for the axis. Defaults to "#323232".}
 
-\item{pal_caption}{The colour palette for the caption. Defaults to "#7F7F7F".}
+\item{ticks_size}{The size of the ticks. Defaults to 0.3.}
 
-\item{pal_axis}{The colour palette for the axis. Defaults to "#323232".}
+\item{ticks_pal}{The colour palette for the ticks. Defaults to "#323232".}
 
-\item{pal_ticks}{The colour palette for the ticks. Defaults to "#323232".}
+\item{bg_plot_pal}{The colour palette for the plot background colour.}
 
-\item{pal_background}{A two colour vector. The first colour if for the panel (and legend key). The second colour is for the rest of the background.}
+\item{bg_panel_pal}{The colour palette for the panel background colour.}
 
-\item{pal_grid}{The colour palette for the vertical major gridlines. Defaults to "#D3D3D3".}
+\item{bg_legend_key_pal}{The colour palette for the legend key. Can also use special values of "plot" and "panel".}
 
-\item{x_grid}{TRUE or FALSE of whether to show vertical gridlines.}
+\item{grid_h}{TRUE or FALSE of whether to show hotizontal gridlines. Defaults to FALSE.}
 
-\item{y_grid}{TRUE or FALSE of whether to show hotizontal gridlines.}
+\item{grid_v}{TRUE or FALSE of whether to show vertical gridlines. Defaults to FALSE.}
 
-\item{void}{TRUE or FALSE of whether to drop all axis lines, ticks and x and y labels. Useful for maps. Defaults to FALSE.}
+\item{grid_pal}{The colour palette for the vertical major gridlines. Defaults to "#D3D3D3".}
+
+\item{grid_size}{The size of the vertical major gridlines. Defaults to 0.2.}
+
+\item{facet_gap_size}{The size of the spacing between facet panels in units of "lines". Defaults to 1.5.}
+
+\item{void}{TRUE or FALSE of whether to remove axis lines, ticks and x and y titles and labels.}
 }
 \value{
 A ggplot theme.

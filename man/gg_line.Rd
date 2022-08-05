@@ -10,6 +10,7 @@ gg_line(
   y = NULL,
   col = NULL,
   facet = NULL,
+  facet2 = NULL,
   group = NULL,
   text = NULL,
   stat = "identity",
@@ -27,7 +28,8 @@ gg_line(
   x_include = NULL,
   x_labels = NULL,
   x_limits = NULL,
-  x_oob = scales::oob_censor,
+  x_oob = scales::oob_keep,
+  x_sec_axis = ggplot2::waiver(),
   x_title = NULL,
   x_trans = "identity",
   y_breaks = NULL,
@@ -35,7 +37,8 @@ gg_line(
   y_include = NULL,
   y_labels = NULL,
   y_limits = NULL,
-  y_oob = scales::oob_censor,
+  y_oob = scales::oob_keep,
+  y_sec_axis = ggplot2::waiver(),
   y_title = NULL,
   y_trans = "identity",
   col_breaks = NULL,
@@ -47,7 +50,6 @@ gg_line(
   col_legend_nrow = NULL,
   col_limits = NULL,
   col_title = NULL,
-  facet_intervals = NULL,
   facet_labels = NULL,
   facet_ncol = NULL,
   facet_nrow = NULL,
@@ -66,6 +68,8 @@ gg_line(
 \item{col}{Unquoted col and fill aesthetic variable.}
 
 \item{facet}{Unquoted facet aesthetic variable.}
+
+\item{facet2}{Unquoted second facet variable for a facet grid of facet by facet2 variables.}
 
 \item{group}{Unquoted group aesthetic variable.}
 
@@ -103,6 +107,8 @@ gg_line(
 
 \item{x_oob}{A scales::oob_* function for how to deal with out-of-bounds values.}
 
+\item{x_sec_axis}{A secondary axis specified by the ggplot2::sec_axis or ggplot2::dup_axis function.}
+
 \item{x_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
 
 \item{x_trans}{For a numeric variable, a transformation object (e.g. "log10").}
@@ -119,6 +125,8 @@ gg_line(
 
 \item{y_oob}{A scales::oob_* function for how to deal with out-of-bounds values.}
 
+\item{y_sec_axis}{A secondary axis specified by the ggplot2::sec_axis or ggplot2::dup_axis function.}
+
 \item{y_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
 
 \item{y_trans}{For a numeric variable, a transformation object (e.g. "log10").}
@@ -131,7 +139,7 @@ gg_line(
 
 \item{col_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels. Note this does not affect where col_intervals is not NULL.}
 
-\item{col_legend_place}{The place for the legend. "r" for right, "b" for bottom, "t" for top, or "l" for left.}
+\item{col_legend_place}{The place for the legend. "b" for bottom, "r" for right, "t" for top, or "l" for left.}
 
 \item{col_legend_ncol}{The number of columns for the legend elements.}
 
@@ -140,8 +148,6 @@ gg_line(
 \item{col_limits}{A vector to determine the limits of the axis.}
 
 \item{col_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
-
-\item{facet_intervals}{A function to cut or chop the numeric variable into intervals, including in rlang lambda format (e.g. ~ santoku::chop_mean_sd(.x, drop = FALSE)).}
 
 \item{facet_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a named vector of labels (e.g. c(value = "label", ...)).}
 

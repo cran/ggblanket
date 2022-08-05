@@ -10,6 +10,7 @@
 #' @param ymax Unquoted ymax aesthetic variable.
 #' @param col Unquoted col and fill aesthetic variable.
 #' @param facet Unquoted facet aesthetic variable.
+#' @param facet2 Unquoted second facet variable for a facet grid of facet by facet2 variables.
 #' @param group Unquoted group aesthetic variable.
 #' @param text Unquoted text aesthetic variable, which can be used in combination with plotly::ggplotly(., tooltip = "text").
 #' @param stat Statistical transformation. A character string (e.g. "identity").
@@ -29,6 +30,7 @@
 #' @param x_labels A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels.
 #' @param x_limits A vector of length 2 to determine the limits of the axis.
 #' @param x_oob A scales::oob_* function for how to deal with out-of-bounds values.
+#' @param x_sec_axis A secondary axis specified by the ggplot2::sec_axis or ggplot2::dup_axis function.
 #' @param x_title Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.
 #' @param x_trans For a numeric variable, a transformation object (e.g. "log10").
 #' @param y_breaks A function that takes the limits as input (e.g. scales::breaks_pretty()), or a vector of breaks.
@@ -37,6 +39,7 @@
 #' @param y_labels A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels.
 #' @param y_limits A vector of length 2 to determine the limits of the axis.
 #' @param y_oob A scales::oob_* function for how to deal with out-of-bounds values.
+#' @param y_sec_axis A secondary axis specified by the ggplot2::sec_axis or ggplot2::dup_axis function.
 #' @param y_title Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.
 #' @param y_trans For a numeric variable, a transformation object (e.g. "log10").
 #' @param col_breaks A function that takes the limits as input (e.g. scales::breaks_pretty()), or a vector of breaks.
@@ -46,9 +49,8 @@
 #' @param col_limits A vector to determine the limits of the axis.
 #' @param col_legend_ncol The number of columns for the legend elements.
 #' @param col_legend_nrow The number of rows for the legend elements.
-#' @param col_legend_place The place for the legend. "r" for right, "b" for bottom, "t" for top, or "l" for left.
+#' @param col_legend_place The place for the legend. "b" for bottom, "r" for right, "t" for top, or "l" for left.
 #' @param col_title Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.
-#' @param facet_intervals A function to cut or chop the numeric variable into intervals, including in rlang lambda format (e.g. ~ santoku::chop_mean_sd(.x, drop = FALSE)).
 #' @param facet_labels A function that takes the breaks as inputs (e.g. scales::label_comma()), or a named vector of labels (e.g. c(value = "label", ...)).
 #' @param facet_ncol The number of columns of facetted plots.
 #' @param facet_nrow The number of rows of facetted plots.
@@ -84,67 +86,71 @@
 #'                 position = dodger,
 #'                 width = 0.1)
 #'
-gg_errorbar <- function(data = NULL,
-                        x = NULL,
-                        xmin = NULL,
-                        xmax = NULL,
-                        y = NULL,
-                        ymin = NULL,
-                        ymax = NULL,
-                        col = NULL,
-                        facet = NULL,
-                        group = NULL,
-                        text = NULL,
-                        stat = "identity",
-                        position = "identity",
-                        pal = NULL,
-                        pal_na = "#7F7F7F",
-                        alpha = 1,
-                        #linewidth = 0.5,
-                        width = 0.1,
-                        ...,
-                        titles = NULL,
-                        title = NULL,
-                        subtitle = NULL,
-                        coord = NULL,
-                        x_breaks = NULL,
-                        x_expand = NULL,
-                        x_include = NULL,
-                        x_labels = NULL,
-                        x_limits = NULL,
-                        x_oob = scales::oob_censor,
-                        x_title = NULL,
-                        x_trans = "identity",
-                        y_breaks = NULL,
-                        y_expand = NULL,
-                        y_include = NULL,
-                        y_labels = NULL,
-                        y_limits = NULL,
-                        y_oob = scales::oob_censor,
-                        y_title = NULL,
-                        y_trans = "identity",
-                        col_breaks = NULL,
-                        col_include = NULL,
-                        col_intervals = NULL,
-                        col_labels = NULL,
-                        col_legend_place = NULL,
-                        col_legend_ncol = NULL,
-                        col_legend_nrow = NULL,
-                        col_limits = NULL,
-                        col_title = NULL,
-                        facet_intervals = NULL,
-                        facet_labels = NULL,
-                        facet_ncol = NULL,
-                        facet_nrow = NULL,
-                        facet_scales = "fixed",
-                        caption = NULL,
-                        theme = NULL) {
+gg_errorbar <- function(
+    data = NULL,
+    x = NULL,
+    xmin = NULL,
+    xmax = NULL,
+    y = NULL,
+    ymin = NULL,
+    ymax = NULL,
+    col = NULL,
+    facet = NULL,
+    facet2 = NULL,
+    group = NULL,
+    text = NULL,
+    stat = "identity",
+    position = "identity",
+    pal = NULL,
+    pal_na = "#7F7F7F",
+    alpha = 1,
+    #linewidth = 0.5,
+    width = 0.1,
+    ...,
+    titles = NULL,
+    title = NULL,
+    subtitle = NULL,
+    coord = NULL,
+    x_breaks = NULL,
+    x_expand = NULL,
+    x_include = NULL,
+    x_labels = NULL,
+    x_limits = NULL,
+    x_oob = scales::oob_keep,
+    x_sec_axis = ggplot2::waiver(),
+    x_title = NULL,
+    x_trans = "identity",
+    y_breaks = NULL,
+    y_expand = NULL,
+    y_include = NULL,
+    y_labels = NULL,
+    y_limits = NULL,
+    y_oob = scales::oob_keep,
+    y_sec_axis = ggplot2::waiver(),
+    y_title = NULL,
+    y_trans = "identity",
+    col_breaks = NULL,
+    col_include = NULL,
+    col_intervals = NULL,
+    col_labels = NULL,
+    col_legend_place = NULL,
+    col_legend_ncol = NULL,
+    col_legend_nrow = NULL,
+    col_limits = NULL,
+    col_title = NULL,
+    facet_labels = NULL,
+    facet_ncol = NULL,
+    facet_nrow = NULL,
+    facet_scales = "fixed",
+    caption = NULL,
+    theme = NULL) {
 
   #quote
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
   col <- rlang::enquo(col)
   facet <- rlang::enquo(facet)
+  facet2 <- rlang::enquo(facet2)
   group <- rlang::enquo(group)
   text <- rlang::enquo(text)
 
@@ -229,17 +235,17 @@ gg_errorbar <- function(data = NULL,
 
   if (rlang::is_null(theme)) {
     if (xy_numeric_date) {
-      x_grid <- FALSE
-      y_grid <- TRUE
+      grid_v <- FALSE
+      grid_h <- TRUE
     }
     else {
-      x_grid <-
+      grid_v <-
         ifelse(is.numeric(rlang::eval_tidy(x, data)) |
                  lubridate::is.Date(rlang::eval_tidy(x, data)) |
                  rlang::quo_is_null(x),
                TRUE,
                FALSE)
-      y_grid <-
+      grid_h <-
         ifelse(is.numeric(rlang::eval_tidy(y, data)) |
                  lubridate::is.Date(rlang::eval_tidy(y, data)) |
                  rlang::quo_is_null(y),
@@ -247,7 +253,7 @@ gg_errorbar <- function(data = NULL,
                FALSE)
     }
 
-    theme <- gg_theme(x_grid = x_grid, y_grid = y_grid)
+    theme <- gg_theme(grid_v = grid_v, grid_h = grid_h)
   }
 
   if (rlang::is_null(width)) {
@@ -270,14 +276,14 @@ gg_errorbar <- function(data = NULL,
   if (!rlang::quo_is_null(x)) {
     if (is.logical(rlang::eval_tidy(x, data))) {
       data <- data %>%
-        dplyr::mutate(dplyr::across(!!x, ~ factor(.x, levels = c("TRUE", "FALSE"))))
+        dplyr::mutate(dplyr::across(!!x, ~ factor(.x, levels = c("FALSE", "TRUE"))))
     }
   }
 
   if (!rlang::quo_is_null(y)) {
     if (is.logical(rlang::eval_tidy(y, data))) {
       data <- data %>%
-        dplyr::mutate(dplyr::across(!!y, ~ factor(.x, levels = c("TRUE", "FALSE"))))
+        dplyr::mutate(dplyr::across(!!y, ~ factor(.x, levels = c("FALSE", "TRUE"))))
     }
 
     if (is.character(rlang::eval_tidy(y, data)) | is.factor(rlang::eval_tidy(y, data))) {
@@ -296,11 +302,11 @@ gg_errorbar <- function(data = NULL,
 
     if (is.logical(rlang::eval_tidy(col, data))) {
       data <- data %>%
-        dplyr::mutate(dplyr::across(!!col, ~ factor(.x, levels = c("TRUE", "FALSE"))))
+        dplyr::mutate(dplyr::across(!!col, ~ factor(.x, levels = c("FALSE", "TRUE"))))
     }
 
-    if (is.factor(rlang::eval_tidy(col, data)) | is.character(rlang::eval_tidy(col, data))) {
-      if (is.factor(rlang::eval_tidy(y, data)) | is.character(rlang::eval_tidy(y, data))) {
+    if (is.character(rlang::eval_tidy(col, data)) | is.factor(rlang::eval_tidy(col, data))) {
+      if (is.character(rlang::eval_tidy(y, data)) | is.factor(rlang::eval_tidy(y, data))) {
         data <- data %>%
           dplyr::mutate(dplyr::across(!!col, ~ forcats::fct_rev(.x)))
       }
@@ -310,12 +316,13 @@ gg_errorbar <- function(data = NULL,
   if (!rlang::quo_is_null(facet)) {
     if (is.logical(class(rlang::eval_tidy(facet, data)))) {
       data <- data %>%
-        dplyr::mutate(dplyr::across(!!facet, ~ factor(.x, levels = c("TRUE", "FALSE"))))
+        dplyr::mutate(dplyr::across(!!facet, ~ factor(.x, levels = c("FALSE", "TRUE"))))
     }
-
-    if (!rlang::is_null(facet_intervals)) {
+  }
+  if (!rlang::quo_is_null(facet2)) {
+    if (is.logical(class(rlang::eval_tidy(facet2, data)))) {
       data <- data %>%
-        dplyr::mutate(dplyr::across(!!facet, facet_intervals))
+        dplyr::mutate(dplyr::across(!!facet2, ~ factor(.x, levels = c("FALSE", "TRUE"))))
     }
   }
 
@@ -358,8 +365,12 @@ gg_errorbar <- function(data = NULL,
                (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet, data)))) {
         col_legend_place <- "n"
       }
+      else if (!rlang::quo_is_null(facet2) &
+               (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet2, data)))) {
+        col_legend_place <- "n"
+      }
       else
-        col_legend_place <- "r"
+        col_legend_place <- "b"
     }
 
     if (is.numeric(rlang::eval_tidy(col, data))) {
@@ -420,7 +431,7 @@ gg_errorbar <- function(data = NULL,
           if (col_legend_place %in% c("b", "t")) col_legend_rev <- FALSE
           else col_legend_rev <- TRUE
         }
-        else if (is.factor(rlang::eval_tidy(y, data)) | is.character(rlang::eval_tidy(y, data))) {
+        else if (is.character(rlang::eval_tidy(y, data)) | is.factor(rlang::eval_tidy(y, data))) {
           if (col_legend_place %in% c("b", "t")) col_legend_rev <- TRUE
           else col_legend_rev <- FALSE
           pal <- rev(pal)
@@ -479,14 +490,14 @@ gg_errorbar <- function(data = NULL,
       if (is.numeric(rlang::eval_tidy(y, data)) |
           lubridate::is.Date(rlang::eval_tidy(y, data))) {
 
-        if (is.factor(rlang::eval_tidy(col, data)) | is.character(rlang::eval_tidy(col, data))) {
+        if (is.character(rlang::eval_tidy(col, data)) | is.factor(rlang::eval_tidy(col, data))) {
           col_legend_rev <- FALSE
         }
         else if (col_legend_place %in% c("b", "t")) col_legend_rev <- FALSE
         else col_legend_rev <- TRUE
       }
-      else if (is.factor(rlang::eval_tidy(y, data)) | is.character(rlang::eval_tidy(y, data))) {
-        if (is.factor(rlang::eval_tidy(col, data)) | is.character(rlang::eval_tidy(col, data))) {
+      else if (is.character(rlang::eval_tidy(y, data)) | is.factor(rlang::eval_tidy(y, data))) {
+        if (is.character(rlang::eval_tidy(col, data)) | is.factor(rlang::eval_tidy(col, data))) {
           col_legend_rev <- TRUE
         }
         else if (col_legend_place %in% c("b", "t")) col_legend_rev <- TRUE
@@ -655,23 +666,22 @@ gg_errorbar <- function(data = NULL,
     )
 
   if (!rlang::quo_is_null(facet)) {
-    if (!rlang::is_null(facet_intervals)) {
+    if (rlang::quo_is_null(facet2)) {
       plot <- plot +
         ggplot2::facet_wrap(
           ggplot2::vars(!!facet),
-          scales = facet_scales,
+          scales = facet_scales, labeller = ggplot2::as_labeller(facet_labels),
           ncol = facet_ncol,
           nrow = facet_nrow
         )
     }
     else {
       plot <- plot +
-        ggplot2::facet_wrap(
-          ggplot2::vars(!!facet),
+        ggplot2::facet_grid(
+          rows = ggplot2::vars(!!facet2),
+          cols = ggplot2::vars(!!facet),
           labeller = ggplot2::as_labeller(facet_labels),
-          scales = facet_scales,
-          ncol = facet_ncol,
-          nrow = facet_nrow
+          scales = facet_scales
         )
     }
   }
@@ -711,12 +721,13 @@ gg_errorbar <- function(data = NULL,
       x_max <- x_vctr %>% max(na.rm = TRUE)
 
       if (rlang::is_null(x_limits)) {
-        x_range <- range(x_min, x_max, x_include)
+        x_limits <- range(c(x_min, x_max))
+        if (!rlang::is_null(x_include)) x_limits <- range(c(x_limits, x_include))
 
         if (rlang::is_null(x_breaks)) {
           x_breaks_n <- ifelse(rlang::quo_is_null(facet), 5, 3)
-          if (x_trans != c("identity")) x_breaks <- scales::breaks_log(n = x_breaks_n, base = 10)(x_range)
-          else x_breaks <- scales::breaks_pretty(n = x_breaks_n)(x_range)
+          if (x_trans != c("identity")) x_breaks <- scales::breaks_log(n = x_breaks_n, base = 10)(x_limits)
+          else x_breaks <- scales::breaks_pretty(n = x_breaks_n)(x_limits)
 
           if (xy_numeric_date) x_limits <- NULL
           else {
@@ -734,7 +745,7 @@ gg_errorbar <- function(data = NULL,
             else {
               if (x_trans != "identity") x_limits <- NULL
               else {
-                x_limits <- list(x_range) %>%
+                x_limits <- list(x_limits) %>%
                   purrr::map(.f = x_breaks) %>%
                   unlist() %>%
                   range()
@@ -746,7 +757,7 @@ gg_errorbar <- function(data = NULL,
       else if (!rlang::is_null(x_limits)) {
         if (is.na(x_limits)[1]) x_limits[1] <- x_min
         if (is.na(x_limits)[2]) x_limits[2] <- x_max
-        x_limits <- range(c(x_min, x_max, x_include))
+        if (!rlang::is_null(x_include)) x_limits <- range(c(x_limits, x_include))
 
         if (rlang::is_null(x_breaks)) {
           x_breaks_n <- ifelse(rlang::quo_is_null(facet), 5, 4)
@@ -762,11 +773,11 @@ gg_errorbar <- function(data = NULL,
     if (rlang::is_null(x_expand)) {
       if (facet_scales %in% c("fixed", "free_y")) {
         if (xy_numeric_date) {
-          x_expand <- c(0.025, 0.025)
+          x_expand <- c(0.05, 0.05)
         }
         else x_expand <- c(0, 0)
       }
-      else x_expand <- c(0.025, 0.025)
+      else x_expand <- c(0.05, 0.05)
     }
 
     if (rlang::is_null(x_labels)) {
@@ -781,7 +792,7 @@ gg_errorbar <- function(data = NULL,
         limits = x_limits,
         expand = x_expand,
         labels = x_labels,
-        oob = x_oob,
+        oob = x_oob, sec.axis = x_sec_axis,
         trans = x_trans
       )
     }
@@ -791,7 +802,7 @@ gg_errorbar <- function(data = NULL,
         limits = x_limits,
         expand = x_expand,
         labels = x_labels,
-        oob = x_oob
+        oob = x_oob, sec.axis = x_sec_axis
       )
     }
   }
@@ -808,7 +819,6 @@ gg_errorbar <- function(data = NULL,
   }
   else {
     if (facet_scales %in% c("fixed", "free_x")) {
-
       y_vctr <- layer_data %>%
         dplyr::select(tidyselect::matches(stringr::regex("^y$|^ymin$|^ymax$|^yend$|^ymay_final$"))) %>%
         tidyr::pivot_longer(cols = tidyselect::everything()) %>%
@@ -822,12 +832,13 @@ gg_errorbar <- function(data = NULL,
       y_max <- y_vctr %>% max(na.rm = TRUE)
 
       if (rlang::is_null(y_limits)) {
-        y_range <- range(y_min, y_max, y_include)
+        y_limits <- range(c(y_min, y_max))
+        if (!rlang::is_null(y_include)) y_limits <- range(c(y_limits, y_include))
 
         if (rlang::is_null(y_breaks)) {
-          y_breaks_n <- ifelse(rlang::quo_is_null(facet), 5, 4)
-          if (y_trans != c("identity")) y_breaks <- scales::breaks_log(n = y_breaks_n, base = 10)(y_range)
-          else y_breaks <- scales::breaks_pretty(n = y_breaks_n)(y_range)
+          y_breaks_n <- ifelse(rlang::quo_is_null(facet), 5, 3)
+          if (y_trans != c("identity")) y_breaks <- scales::breaks_log(n = y_breaks_n, base = 10)(y_limits)
+          else y_breaks <- scales::breaks_pretty(n = y_breaks_n)(y_limits)
 
           if (y_trans != "identity") y_limits <- NULL
           else y_limits <- c(min(y_breaks), max(y_breaks))
@@ -840,7 +851,7 @@ gg_errorbar <- function(data = NULL,
           else {
             if (y_trans != "identity") y_limits <- NULL
             else {
-              y_limits <- list(y_range) %>%
+              y_limits <- list(y_limits) %>%
                 purrr::map(.f = y_breaks) %>%
                 unlist() %>%
                 range()
@@ -851,7 +862,7 @@ gg_errorbar <- function(data = NULL,
       else if (!rlang::is_null(y_limits)) {
         if (is.na(y_limits)[1]) y_limits[1] <- y_min
         if (is.na(y_limits)[2]) y_limits[2] <- y_max
-        y_limits <- range(c(y_min, y_max, y_include))
+        if (!rlang::is_null(y_include)) y_limits <- range(c(y_limits, y_include))
 
         if (rlang::is_null(y_breaks)) {
           y_breaks_n <- ifelse(rlang::quo_is_null(facet), 5, 4)
@@ -869,9 +880,9 @@ gg_errorbar <- function(data = NULL,
         y_expand <- c(0, 0)
       }
       else if (!rlang::is_null(y_include)) {
-        if (min(y_include) == 0 | max(y_include) == 0) y_expand <- ggplot2::expansion(mult = c(0, 0.025))
+        if (min(y_include) == 0 | max(y_include) == 0) y_expand <- ggplot2::expansion(mult = c(0, 0.05))
       }
-      else y_expand <- c(0.025, 0.025)
+      else y_expand <- c(0.05, 0.05)
     }
 
     if (rlang::is_null(y_labels)) {
@@ -886,7 +897,7 @@ gg_errorbar <- function(data = NULL,
         limits = y_limits,
         expand = y_expand,
         labels = y_labels,
-        oob = y_oob,
+        oob = y_oob, sec.axis = y_sec_axis,
         trans = y_trans
       )
     }
@@ -896,7 +907,7 @@ gg_errorbar <- function(data = NULL,
         limits = y_limits,
         expand = y_expand,
         labels = y_labels,
-        oob = y_oob
+        oob = y_oob, sec.axis = y_sec_axis
       )
     }
   }
@@ -947,6 +958,11 @@ gg_errorbar <- function(data = NULL,
   else if (col_legend_place == "l") {
     plot <- plot +
       ggplot2::theme(legend.position = "left")
+  }
+
+  else if (col_legend_place == "r") {
+    plot <- plot +
+      ggplot2::theme(legend.position = "right")
   }
 
   #return beautiful plot
