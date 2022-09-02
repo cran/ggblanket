@@ -1,22 +1,40 @@
+# ggblanket 1.4.0
+
+* Breaking: Removed `col_intervals` argument.
+* Breaking: Removed `*_oob` argument.
+* Breaking: In `gg_theme`, changed `*_style` arguments to `*_face`.
+* Breaking: In `gg_theme`, changed `font` arguments to `family`.
+* Added `gg_polygon` function.
+* Added `col_continuous` argument to support colouring by "steps". 
+* Added `col_legend_rev` argument to reverse legends.
+* Added `facet_layout` argument for more faceting flexibility.
+* Added `facet_space` argument to support proportional facet panels.
+* Removed `width` default.
+* Improved default legend look for where continuous gradient.
+* Improved scales where `y` is NULL and plot is horizontal.
+* Fixed bug with `position = "fill"`.
+* Updated messages.
+* Added vignette.
+
 # ggblanket 1.3.0
 
+* Breaking: removed `facet_intervals` argument.
+* Breaking: made extensive changes to `gg_theme` function.
 * Added `facet2` aesthetic in to support effortless grid facetting.
 * Changed default background theme colours.
 * Fixed bug with `*_limits` and `*_include` not working correctly.  
-* Added *_sec_axis arguments.
-* Changed *_oob default to `scales::oob_keep`.
+* Added `*_sec_axis` arguments.
+* Changed `*_oob` default to `scales::oob_keep`.
 * Removed reversal of logical variable order.
-* Defaulted col_legend_place to bottom.  
-* Breaking: removed `facet_intervals` argument.
-* Breaking: made extensive changes to `gg_theme` function.
+* Defaulted `col_legend_place` to `"b"`.  
 
 # ggblanket 1.2.0
 
+* Breaking: Removed `*_breaks_n` and `*_breaks_width`.
 * Added support for `*_breaks` to receive a function.
 * Added `*_include` argument. 
 * Added `*_trans` argument.
 * Modified default `x_breaks` behaviour for when both x and y are numeric or date.
-* Breaking: Removed `*_breaks_n` and `*_breaks_width`.
 * Enhanced `gg_blank` to work with only one x or y.
 * Provided support for `ggplotly`.
 * Added new `add_tooltip_text` function.
@@ -28,8 +46,7 @@
 # ggblanket 1.1.0
 
 * Remove default sentence case transformation of categorical variable labels.
-* Updated scales to work in a consistent way with position = "fill".
-* Other minor changes.
+* Updated scales to work in a consistent way with `position = "fill"`.
 
 # ggblanket 1.0.0
 

@@ -4,17 +4,17 @@
 \name{ggblanket-package}
 \alias{ggblanket}
 \alias{ggblanket-package}
-\title{ggblanket: Wrappers to Simplify 'ggplot2' Visualisation}
+\title{ggblanket: Simplify 'ggplot2' Visualisation}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Simplify visualisation with 'ggplot2' wrapper functions.
+Simplify 'ggplot2' visualisation with 'ggblanket' wrapper functions.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/davidhodge931/ggblanket/}
   \item \url{https://davidhodge931.github.io/ggblanket/}
+  \item \url{https://github.com/davidhodge931/ggblanket/}
 }
 
 }

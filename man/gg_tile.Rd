@@ -18,8 +18,6 @@ gg_tile(
   pal = NULL,
   pal_na = "#7F7F7F",
   alpha = 0.9,
-  height = 1,
-  width = 1,
   ...,
   titles = NULL,
   title = NULL,
@@ -30,7 +28,6 @@ gg_tile(
   x_include = NULL,
   x_labels = NULL,
   x_limits = NULL,
-  x_oob = scales::oob_keep,
   x_sec_axis = ggplot2::waiver(),
   x_title = NULL,
   x_trans = "identity",
@@ -39,23 +36,25 @@ gg_tile(
   y_include = NULL,
   y_labels = NULL,
   y_limits = NULL,
-  y_oob = scales::oob_keep,
   y_sec_axis = ggplot2::waiver(),
   y_title = NULL,
   y_trans = "identity",
   col_breaks = NULL,
+  col_continuous = "gradient",
   col_include = NULL,
-  col_intervals = NULL,
   col_labels = NULL,
   col_legend_place = NULL,
   col_legend_ncol = NULL,
   col_legend_nrow = NULL,
+  col_legend_rev = FALSE,
   col_limits = NULL,
   col_title = NULL,
   facet_labels = NULL,
   facet_ncol = NULL,
   facet_nrow = NULL,
   facet_scales = "fixed",
+  facet_space = "fixed",
+  facet_layout = NULL,
   caption = NULL,
   theme = NULL
 )
@@ -87,10 +86,6 @@ gg_tile(
 
 \item{alpha}{Opacity. A number between 0 and 1.}
 
-\item{height}{Height. A number 0 upwards.}
-
-\item{width}{Width. A number 0 upwards.}
-
 \item{...}{Other arguments passed to the relevant ggplot2::geom_* function.}
 
 \item{titles}{A function to format the x, y and col titles, including in rlang lambda format. Defaults to snakecase::to_sentence_case.}
@@ -109,9 +104,7 @@ gg_tile(
 
 \item{x_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels.}
 
-\item{x_limits}{A vector of length 2 to determine the limits of the axis.}
-
-\item{x_oob}{A scales::oob_* function for how to deal with out-of-bounds values.}
+\item{x_limits}{A vector of length 2 to determine the limits of the axis. Alternatively, zoom in using coord = coord_cartesian(xlim = ...).}
 
 \item{x_sec_axis}{A secondary axis specified by the ggplot2::sec_axis or ggplot2::dup_axis function.}
 
@@ -127,9 +120,7 @@ gg_tile(
 
 \item{y_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels.}
 
-\item{y_limits}{A vector of length 2 to determine the limits of the axis.}
-
-\item{y_oob}{A scales::oob_* function for how to deal with out-of-bounds values.}
+\item{y_limits}{A vector of length 2 to determine the limits of the axis. Alternatively, zoom in using coord = coord_cartesian(ylim = ...).}
 
 \item{y_sec_axis}{A secondary axis specified by the ggplot2::sec_axis or ggplot2::dup_axis function.}
 
@@ -139,29 +130,35 @@ gg_tile(
 
 \item{col_breaks}{A function that takes the limits as input (e.g. scales::breaks_pretty()), or a vector of breaks.}
 
-\item{col_include}{For a numeric or date variable, any values that the scale should include (e.g. 0).}
+\item{col_continuous}{Type of colouring for a continuous variable. Either "gradient" or "steps". Defaults to "steps".}
 
-\item{col_intervals}{A function to cut or chop the numeric variable into intervals (e.g. ~ santoku::chop_mean_sd(.x, drop = FALSE)).}
+\item{col_include}{For a numeric or date variable, any values that the scale should include (e.g. 0).}
 
 \item{col_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels. Note this does not affect where col_intervals is not NULL.}
 
-\item{col_legend_place}{The place for the legend. "b" for bottom, "r" for right, "t" for top, or "l" for left.}
+\item{col_legend_place}{The place for the legend. "b" for bottom, "r" for right, "t" for top, or "l" for left. Defaults to "b".}
 
 \item{col_legend_ncol}{The number of columns for the legend elements.}
 
 \item{col_legend_nrow}{The number of rows for the legend elements.}
 
+\item{col_legend_rev}{Reverse the elements of the legend. Defaults to FALSE.}
+
 \item{col_limits}{A vector to determine the limits of the axis.}
 
-\item{col_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
+\item{col_title}{Legend title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
 
-\item{facet_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a named vector of labels (e.g. c(value = "label", ...)).}
+\item{facet_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a named vector of labels (e.g. c("value" = "label", ...)).}
 
-\item{facet_ncol}{The number of columns of facetted plots.}
+\item{facet_ncol}{The number of columns of facets. Only applies to a facet layout of "wrap".}
 
-\item{facet_nrow}{The number of rows of facetted plots.}
+\item{facet_nrow}{The number of rows of facets. Only applies to a facet layout of "wrap".}
 
-\item{facet_scales}{Whether facet_scales should be "fixed" across facets, "free" in both directions, or free in just one direction (i.e. "free_x" or "free_y"). Defaults to "fixed".}
+\item{facet_scales}{Whether facet scales should be "fixed" across facets, "free" in both directions, or free in just one direction (i.e. "free_x" or "free_y"). Defaults to "fixed".}
+
+\item{facet_space}{Whether facet_space should be "fixed" across facets, "free" to be proportional in both directions, or free to be proportional in just one direction (i.e. "free_x" or "free_y"). Only applies where the facet layout is a 'grid' and facet_scales are not fixed. Defaults to "fixed".}
+
+\item{facet_layout}{Whether the layout is to be "wrap" or "grid". If NULL and a single facet (or facet2) argument is provided, then defaults to "wrap". If NULL and both facet and facet2 arguments are provided, defaults to "grid".}
 
 \item{caption}{Caption title string.}
 
@@ -183,6 +180,8 @@ df <- data.frame(
   w = rep(diff(c(0, 4, 6, 8, 10, 14)), 2)
 )
 
-gg_tile(df, x = x, y = y, col = z)
+df \%>\%
+gg_tile(x = x, y = y, col = z,
+        height = 0.9, width = 0.9)
 
 }

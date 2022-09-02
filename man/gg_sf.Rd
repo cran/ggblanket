@@ -22,17 +22,19 @@ gg_sf(
   subtitle = NULL,
   coord = ggplot2::coord_sf(),
   col_breaks = NULL,
+  col_continuous = "gradient",
   col_include = NULL,
-  col_intervals = NULL,
   col_labels = NULL,
   col_legend_place = NULL,
   col_legend_ncol = NULL,
   col_legend_nrow = NULL,
+  col_legend_rev = FALSE,
   col_limits = NULL,
   col_title = NULL,
   facet_labels = NULL,
   facet_ncol = NULL,
   facet_nrow = NULL,
+  facet_layout = NULL,
   caption = NULL,
   theme = NULL
 )
@@ -44,7 +46,7 @@ gg_sf(
 
 \item{facet}{Unquoted facet aesthetic variable.}
 
-\item{facet2}{Unquoted second facet variable for a facet grid of facet by facet2 variables.}
+\item{facet2}{Unquoted second facet variable.}
 
 \item{group}{Unquoted group aesthetic variable.}
 
@@ -72,27 +74,31 @@ gg_sf(
 
 \item{col_breaks}{A function that takes the limits as input (e.g. scales::breaks_pretty()), or a vector of breaks.}
 
-\item{col_include}{For a numeric or date variable, any values that the scale should include (e.g. 0).}
+\item{col_continuous}{Type of colouring for a continuous variable. Either "gradient" or "steps". Defaults to "steps".}
 
-\item{col_intervals}{A function to cut or chop the numeric variable into intervals (e.g. ~ santoku::chop_mean_sd(.x, drop = FALSE)).}
+\item{col_include}{For a numeric or date variable, any values that the scale should include (e.g. 0).}
 
 \item{col_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels. Note this does not affect where col_intervals is not NULL.}
 
-\item{col_legend_place}{The place for the legend. "b" for bottom, "r" for right, "t" for top, or "l" for left.}
+\item{col_legend_place}{The place for the legend. "b" for bottom, "r" for right, "t" for top, or "l" for left. Defaults to "b".}
 
 \item{col_legend_ncol}{The number of columns for the legend elements.}
 
 \item{col_legend_nrow}{The number of rows for the legend elements.}
 
+\item{col_legend_rev}{Reverse the elements of the legend. Defaults to FALSE.}
+
 \item{col_limits}{A vector to determine the limits of the axis.}
 
-\item{col_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
+\item{col_title}{Legend title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
 
-\item{facet_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a named vector of labels (e.g. c(value = "label", ...)).}
+\item{facet_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a named vector of labels (e.g. c("value" = "label", ...)).}
 
-\item{facet_ncol}{The number of columns of facetted plots.}
+\item{facet_ncol}{The number of columns of facets. Only applies to a facet layout of "wrap".}
 
-\item{facet_nrow}{The number of rows of facetted plots.}
+\item{facet_nrow}{The number of rows of facets. Only applies to a facet layout of "wrap".}
+
+\item{facet_layout}{Whether the layout is to be "wrap" or "grid". If NULL and a single facet (or facet2) argument is provided, then defaults to "wrap". If NULL and both facet and facet2 arguments are provided, defaults to "grid".}
 
 \item{caption}{Caption title string.}
 
