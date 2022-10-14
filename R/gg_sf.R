@@ -1,6 +1,6 @@
 #' @title Sf ggplot.
 #'
-#' @description Create a sf plot with a wrapper around the ggplot2:: %>%  function.
+#' @description Create a sf plot with a wrapper around the ggplot2::geom_sf function.
 #' @param data A sf object.
 #' @param col Unquoted col and fill aesthetic variable.
 #' @param facet Unquoted facet aesthetic variable.
@@ -13,24 +13,28 @@
 #' @param pal_na Colour to use for NA values. A character vector of a hex code (or name).
 #' @param alpha Opacity. A number between 0 and 1.
 #' @param ... Other arguments passed to the relevant ggplot2::geom_* function.
-#' @param titles A function to format the x, y and col titles, including in rlang lambda format. Defaults to snakecase::to_sentence_case.
+#' @param titles A function to format the x, y and col titles. Defaults to snakecase::to_sentence_case.
 #' @param title Title string.
 #' @param subtitle Subtitle string.
 #' @param coord Coordinate system.
-#' @param col_breaks A function that takes the limits as input (e.g. scales::breaks_pretty()), or a vector of breaks.
-#' @param col_continuous Type of colouring for a continuous variable. Either "gradient" or "steps". Defaults to "steps".
+#' @param x_grid TRUE or FALSE for vertical x gridlines. NULL guesses based on the classes of the x and y.
+#' @param y_grid TRUE or FALSE of horizontal y gridlines. NULL guesses based on the classes of the x and y.
+#' @param col_breaks A function on the limits (e.g. scales::breaks_pretty()), or a vector of breaks.
+#' @param col_continuous Type of colouring for a continuous variable. Either "gradient" or "steps". Defaults to "steps" - or just the first letter of these e.g. "g".
 #' @param col_include For a numeric or date variable, any values that the scale should include (e.g. 0).
 #' @param col_labels A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels. Note this does not affect where col_intervals is not NULL.
-#' @param col_limits A vector to determine the limits of the axis.
+#' @param col_limits A vector to determine the limits of the colour scale.
 #' @param col_legend_ncol The number of columns for the legend elements.
 #' @param col_legend_nrow The number of rows for the legend elements.
-#' @param col_legend_place The place for the legend. "b" for bottom, "r" for right, "t" for top, or "l" for left.
+#' @param col_legend_place The place for the legend. Either "bottom", "right", "top" or "left" - or just the first letter of these e.g. "b".
 #' @param col_legend_rev Reverse the elements of the legend. Defaults to FALSE.
-#' @param col_legend_place The place for the legend. "b" for bottom, "r" for right, "t" for top, or "l" for left. Defaults to "b".
+#' @param col_rescale For a continuous col variable, a vector to rescale the pal non-linearly.
 #' @param col_title Legend title string. Defaults to converting to sentence case with spaces. Use "" for no title.
+#' @param col_trans For a numeric variable, a transformation object (e.g. "log10", "sqrt" or "reverse").
 #' @param facet_labels A function that takes the breaks as inputs (e.g. scales::label_comma()), or a named vector of labels (e.g. c("value" = "label", ...)).
 #' @param facet_ncol The number of columns of facets. Only applies to a facet layout of "wrap".
 #' @param facet_nrow The number of rows of facets. Only applies to a facet layout of "wrap".
+#' @param facet_space Whether facet space should be "fixed" across facets, "free" to be proportional in both directions, or free to be proportional in just one direction (i.e. "free_x" or "free_y"). Defaults to "fixed". Only applies where the facet layout is "grid" and facet scales are not "fixed".
 #' @param facet_layout Whether the layout is to be "wrap" or "grid". If NULL and a single facet (or facet2) argument is provided, then defaults to "wrap". If NULL and both facet and facet2 arguments are provided, defaults to "grid".
 #' @param caption Caption title string.
 #' @param theme A ggplot2 theme.
@@ -55,14 +59,14 @@ gg_sf <- function(
     position = "identity",
     pal = NULL,
     pal_na = "#7F7F7F",
-    alpha = 0.9,
-    #linewidth = 0.5,
-    #size = 1.5,
+    alpha = NULL,
     ...,
     titles = NULL,
     title = NULL,
     subtitle = NULL,
     coord = ggplot2::coord_sf(),
+    x_grid = NULL,
+    y_grid = NULL,
     col_breaks = NULL,
     col_continuous = "gradient",
     col_include = NULL,
@@ -72,13 +76,16 @@ gg_sf <- function(
     col_legend_nrow = NULL,
     col_legend_rev = FALSE,
     col_limits = NULL,
+    col_rescale = NULL,
     col_title = NULL,
+    col_trans = "identity",
     facet_labels = NULL,
     facet_ncol = NULL,
     facet_nrow = NULL,
+    facet_space = "fixed",
     facet_layout = NULL,
     caption = NULL,
-    theme = NULL) {
+    theme = gg_theme(void = TRUE)) {
 
   #quote
   col <- rlang::enquo(col)
@@ -91,245 +98,60 @@ gg_sf <- function(
   rlang::inform(c("i" = "For further ggblanket information, see https://davidhodge931.github.io/ggblanket/"), .frequency = "regularly", .frequency_id = "hello")
   if (rlang::is_null(data)) rlang::abort("data is required.")
 
-  ###ungroup
+  #ungroup
   data <- dplyr::ungroup(data)
 
   #get classes
-  x_numeric <- TRUE
-  x_null <- TRUE
-
-  y_numeric <- TRUE
-  y_null <- TRUE
-
+  col_null <- rlang::quo_is_null(col)
   col_character <- is.character(rlang::eval_tidy(col, data))
   col_factor <- is.factor(rlang::eval_tidy(col, data))
   col_logical <- is.logical(rlang::eval_tidy(col, data))
   col_numeric <- is.numeric(rlang::eval_tidy(col, data))
-  col_null <- rlang::quo_is_null(col)
+  col_date <- lubridate::is.Date(rlang::eval_tidy(col, data))
+  col_datetime <- lubridate::is.POSIXct(rlang::eval_tidy(col, data))
+  col_time <- hms::is_hms(rlang::eval_tidy(col, data))
 
   facet_null <- rlang::quo_is_null(facet)
+
   facet2_null <- rlang::quo_is_null(facet2)
 
-  ###get default NULL values
-  sf_geometry <- sf::st_geometry_type(data)
-
-  if (rlang::is_null(alpha)) {
-    if (any(sf_geometry %in% c("POLYGON", "MULTIPOLYGON"))) {
-      alpha <- 0.9
-    }
-    else alpha <- 1
-  }
-
-  if (rlang::is_null(theme)) {
-    theme <- gg_theme(grid_v = TRUE, grid_h = TRUE, void = TRUE)
-  }
-
-  ###process plot data
-  ###factorise logical, reverse for horizontal, and chop intervals
+  #process data for logical & horizontal
   if (!col_null) {
-
     if (col_logical) {
       data <- data %>%
-        dplyr::mutate(dplyr::across(!!col, ~ factor(.x, levels = c("FALSE", "TRUE"))))
+        dplyr::mutate(dplyr::across(!!col, ~ factor(stringr::str_to_sentence(.x), levels = c("False", "True"))))
     }
   }
-
   if (!facet_null) {
     if (is.logical(class(rlang::eval_tidy(facet, data)))) {
       data <- data %>%
-        dplyr::mutate(dplyr::across(!!facet, ~ factor(.x, levels = c("FALSE", "TRUE"))))
+        dplyr::mutate(dplyr::across(!!facet, ~ factor(stringr::str_to_sentence(.x), levels = c("False", "True"))))
     }
   }
   if (!facet2_null) {
     if (is.logical(class(rlang::eval_tidy(facet2, data)))) {
       data <- data %>%
-        dplyr::mutate(dplyr::across(!!facet2, ~ factor(.x, levels = c("FALSE", "TRUE"))))
+        dplyr::mutate(dplyr::across(!!facet2, ~ factor(stringr::str_to_sentence(.x), levels = c("False", "True"))))
     }
   }
 
-  ###make col scale
-  if (col_null) {
-    if (rlang::is_null(pal)) pal <-  pal_viridis_mix(1)
-    else pal <- pal[1]
+  #get default NULL values
+  if (rlang::is_null(x_grid)) x_grid <- TRUE
+  if (rlang::is_null(y_grid)) y_grid <- FALSE
 
-    col_scale <- list(
-      ggplot2::scale_colour_manual(
-        values = pal,
-        na.value = pal_na,
-      ),
-      ggplot2::scale_fill_manual(
-        values = pal,
-        na.value = pal_na,
-      )
-    )
-
-
-    col_legend_place <- "n"
+  if (!rlang::is_null(col_legend_place)) {
+    if (col_legend_place == "b") col_legend_place <- "bottom"
+    if (col_legend_place == "t") col_legend_place <- "top"
+    if (col_legend_place == "l") col_legend_place <- "left"
+    if (col_legend_place == "r") col_legend_place <- "right"
+    if (col_legend_place == "n") col_legend_place <- "none"
   }
-  else {
-    if (rlang::is_null(col_title)) {
-      if (rlang::is_null(titles)) col_title <- purrr::map_chr(rlang::as_name(col), snakecase::to_sentence_case)
-      else col_title <- purrr::map_chr(rlang::as_name(col), titles)
+
+  if (rlang::is_null(alpha)) {
+    if (any(sf::st_geometry_type(data) %in% c("POLYGON", "MULTIPOLYGON"))) {
+      alpha <- 0.9
     }
-    col_title_position <- ifelse(col_title == "", "right", "top")
-
-    if (rlang::is_null(col_legend_place)) {
-      if (!facet_null &
-               (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet, data)))) {
-        col_legend_place <- "n"
-      }
-      else if (!facet2_null &
-               (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet2, data)))) {
-        col_legend_place <- "n"
-      }
-      else {
-        col_legend_place <- "b"
-      }
-    }
-
-    if (col_numeric) {
-      col_min <- data %>% dplyr::pull(!!col) %>% min(na.rm = TRUE)
-      col_max <- data %>% dplyr::pull(!!col) %>% max(na.rm = TRUE)
-
-      if (!rlang::is_null(col_limits)) {
-        if (is.na(col_limits)[1]) col_limits[1] <- col_min
-        if (is.na(col_limits)[2]) col_limits[2] <- col_max
-      }
-
-      if (rlang::is_null(col_limits)) col_limits <- c(col_min, col_max)
-      if (!rlang::is_null(col_include)) col_limits <- range(c(col_include, col_limits))
-
-      if (rlang::is_null(pal)) pal <- viridis::viridis(10)
-      if (rlang::is_null(col_labels)) col_labels <- scales::label_comma()
-
-      if (col_continuous == "gradient") {
-        if (rlang::is_null(col_breaks)) {
-          if (col_legend_place %in% c("b", "t")) {
-            col_breaks <- function(x) c(x, stats::median(x))
-            draw_llim <- TRUE #should be FALSE
-            draw_ulim <- FALSE
-          }
-          else if (col_legend_place %in% c("l", "r")) {
-            col_breaks <- scales::breaks_pretty(4)
-            draw_llim <- TRUE
-            draw_ulim <- TRUE
-          }
-        } else {
-          draw_llim <- TRUE
-          draw_ulim <- TRUE
-        }
-
-        col_scale <- list(
-          ggplot2::scale_colour_gradientn(
-            colors = pal,
-            labels = col_labels,
-            breaks = col_breaks,
-            limits = col_limits,
-            na.value = pal_na,
-            guide = ggplot2::guide_colourbar(
-              title.position = col_title_position,
-              draw.ulim = draw_ulim,
-              draw.llim = draw_llim,
-              ticks.colour = "#F1F3F5",
-              reverse = col_legend_rev)
-          ),
-          col_scale <- ggplot2::scale_fill_gradientn(
-            colors = pal,
-            labels = col_labels,
-            breaks = col_breaks,
-            limits = col_limits,
-            na.value = pal_na,
-            guide = ggplot2::guide_colourbar(
-              title.position = col_title_position,
-              draw.ulim = draw_ulim,
-              draw.llim = draw_llim,
-              ticks.colour = "#F1F3F5",
-              reverse = col_legend_rev)
-          )
-        )
-      }
-      else if (col_continuous == "steps") {
-        if (rlang::is_null(col_breaks)) {
-          col_breaks <- scales::breaks_pretty(n = 4)
-        }
-
-        col_scale <- list(
-          ggplot2::scale_colour_stepsn(
-            colors = pal,
-            labels = col_labels,
-            breaks = col_breaks,
-            limits = col_limits,
-            na.value = pal_na,
-            guide = ggplot2::guide_coloursteps(
-              title.position = col_title_position,
-              reverse = col_legend_rev)
-          ),
-          col_scale <- ggplot2::scale_fill_stepsn(
-            colors = pal,
-            labels = col_labels,
-            breaks = col_breaks,
-            limits = col_limits,
-            na.value = pal_na,
-            guide = ggplot2::guide_coloursteps(
-              title.position = col_title_position,
-              reverse = col_legend_rev)
-          )
-        )
-      }
-    }
-    else { #categorical col
-      if (!rlang::is_null(col_limits)) col_n <- length(col_limits)
-      else if (!rlang::is_null(col_breaks)) col_n <- length(col_breaks)
-      else {
-        if (col_factor) {
-          col_n <- length(levels(rlang::eval_tidy(col, data)))
-        }
-        else col_n <- length(unique(rlang::eval_tidy(col, data)))
-      }
-
-      if (rlang::is_null(pal)) pal <- pal_d3_mix(col_n)
-      else pal <- pal[1:col_n]
-
-      if (col_character | col_factor) {
-        col_legend_rev_auto <- FALSE
-      }
-      else if (col_legend_place %in% c("b", "t")) col_legend_rev_auto <- FALSE
-      else col_legend_rev_auto <- TRUE
-
-      if (rlang::is_null(col_breaks)) col_breaks <- ggplot2::waiver()
-      if (rlang::is_null(col_labels)) col_labels <- ggplot2::waiver()
-
-      if (col_legend_rev) col_legend_rev_auto <- !col_legend_rev_auto
-
-      col_scale <- list(
-        ggplot2::scale_colour_manual(
-          values = pal,
-          breaks = col_breaks,
-          limits = col_limits,
-          labels = col_labels,
-          na.value = pal_na,
-          guide = ggplot2::guide_legend(
-            reverse = col_legend_rev_auto,
-            title.position = col_title_position,
-            ncol = col_legend_ncol,
-            nrow = col_legend_nrow,
-            byrow = TRUE)
-        ),
-        ggplot2::scale_fill_manual(
-          values = pal,
-          breaks = col_breaks,
-          limits = col_limits,
-          labels = col_labels,
-          na.value = pal_na,
-          guide = ggplot2::guide_legend(
-            reverse = col_legend_rev_auto,
-            title.position = col_title_position,
-            ncol = col_legend_ncol,
-            nrow = col_legend_nrow,
-            byrow = TRUE)
-        )
-      )
-    }
+    else alpha <- 1
   }
 
   ###make plot
@@ -356,8 +178,6 @@ gg_sf <- function(
       stat = stat,
       position = position,
       alpha = alpha,
-      #linewidth = linewidth,
-      #size = size,
       ...
     )
 
@@ -408,7 +228,7 @@ gg_sf <- function(
           rows = ggplot2::vars(!!facet2),
           cols = ggplot2::vars(!!facet),
           scales = "fixed",
-          space = "fixed",
+          space = facet_space,
           labeller = ggplot2::as_labeller(facet_labels)
         )
     }
@@ -417,7 +237,7 @@ gg_sf <- function(
         ggplot2::facet_grid(
           cols = ggplot2::vars(!!facet),
           scales = "fixed",
-          space = "fixed",
+          space = facet_space,
           labeller = ggplot2::as_labeller(facet_labels)
         )
     }
@@ -426,60 +246,289 @@ gg_sf <- function(
         ggplot2::facet_grid(
           rows = ggplot2::vars(!!facet2),
           scales = "fixed",
-          space = "fixed",
+          space = facet_space,
           labeller = ggplot2::as_labeller(facet_labels)
         )
     }
   }
 
-  #make the plot
+  #Get layer data for x, y and col scales
+  layer_data <- ggplot2::layer_data(plot)
+
+  #make col scale based on layer_data
+  if (col_null & !stat %in% c("bin2d", "binhex")) {
+    if (rlang::is_null(pal)) pal <-  pal_viridis_mix(1)
+    else pal <- pal[1]
+
+    plot <- plot +
+      ggplot2::scale_colour_manual(
+        values = pal,
+        na.value = pal_na,
+      ) +
+      ggplot2::scale_fill_manual(
+        values = pal,
+        na.value = pal_na,
+      )
+
+    col_legend_place <- "none"
+  }
+  else {
+    if (rlang::is_null(col_title)) {
+      if (stat %in% c("bin2d", "binhex")) col_name <- "count"
+      else col_name <- rlang::as_name(col)
+
+      if (rlang::is_null(titles)) col_title <- purrr::map_chr(col_name, snakecase::to_sentence_case)
+      else col_title <- purrr::map_chr(col_name, titles)
+    }
+
+    if (rlang::is_null(col_legend_place)) {
+      if (stat %in% c("bin2d", "binhex")) col_legend_place <- "right"
+      else {
+        if (
+          (!facet_null & (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet, data)))) |
+          (!facet2_null & (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet2, data))))) {
+
+          col_legend_place <- "none"
+        }
+        else if (col_numeric) col_legend_place <- "right"
+        else col_legend_place <- "bottom"
+      }
+    }
+
+    if (stat %in% c("bin2d", "binhex")) col_vctr <- layer_data %>% dplyr::pull(.data$count)
+    else col_vctr <- data %>% dplyr::pull(!!col)
+
+    if (col_numeric | stat %in% c("bin2d", "binhex")) {
+
+      if (rlang::is_null(col_limits)) {
+        col_limits <- col_vctr %>% range(na.rm = TRUE)
+        if (!rlang::is_null(col_include)) col_limits <- range(c(col_limits, col_include))
+      }
+      else if (!rlang::is_null(col_include)) {
+        col_limits <- range(c(col_limits, col_include))
+      }
+      else col_limits <- range(col_limits)
+
+      if (col_trans == "reverse") col_limits <- rev(col_limits)
+
+      if (rlang::is_null(col_breaks)) {
+        if (!col_trans %in% c("identity", "reverse")) col_breaks <- ggplot2::waiver()
+        else col_breaks <- scales::breaks_pretty(4)
+      }
+
+      if (rlang::is_null(pal)) pal <- viridis::viridis(10)
+
+      if (rlang::is_null(col_labels)) {
+        if (col_numeric | col_null) col_labels <- scales::label_comma()
+        else if (col_date | col_datetime | col_time) col_labels <- scales::label_date_short()
+      }
+
+      if (rlang::is_null(col_breaks)) {
+        if (!col_trans %in% c("identity", "reverse")) col_breaks <- ggplot2::waiver()
+        else col_breaks <- scales::breaks_pretty(4)
+      }
+
+      if (!rlang::is_null(col_rescale)) {
+        col_rescale <- scales::rescale(col_rescale)
+      }
+      else col_rescale <- NULL
+
+      if (col_continuous == "gradient") {
+        plot <- plot +
+          ggplot2::scale_colour_gradientn(
+            colours = pal,
+            values = col_rescale,
+            labels = col_labels,
+            breaks = col_breaks,
+            limits = col_limits,
+            trans = col_trans,
+            na.value = pal_na,
+            guide = ggplot2::guide_colourbar(
+              title.position = "top",
+              draw.ulim = TRUE,
+              draw.llim = TRUE,
+              ticks.colour = "#F1F3F5",
+              reverse = col_legend_rev
+            )
+          ) +
+          ggplot2::scale_fill_gradientn(
+            colours = pal,
+            values = col_rescale,
+            labels = col_labels,
+            breaks = col_breaks,
+            limits = col_limits,
+            trans = col_trans,
+            na.value = pal_na,
+            guide = ggplot2::guide_colourbar(
+              title.position = "top",
+              draw.ulim = TRUE,
+              draw.llim = TRUE,
+              ticks.colour = "#F1F3F5",
+              reverse = col_legend_rev
+            )
+          )
+      }
+      else if (col_continuous == "steps") {
+        plot <- plot +
+          ggplot2::scale_colour_stepsn(
+            colours = pal,
+            values = col_rescale,
+            labels = col_labels,
+            breaks = col_breaks,
+            limits = col_limits,
+            trans = col_trans,
+            na.value = pal_na,
+            guide = ggplot2::guide_coloursteps(
+              title.position = "top",
+              reverse = col_legend_rev)
+          ) +
+          ggplot2::scale_fill_stepsn(
+            colours = pal,
+            values = col_rescale,
+            labels = col_labels,
+            breaks = col_breaks,
+            limits = col_limits,
+            trans = col_trans,
+            na.value = pal_na,
+            guide = ggplot2::guide_coloursteps(
+              title.position = "top",
+              reverse = col_legend_rev)
+          )
+      }
+    }
+    else if (col_character | col_factor | col_logical) {
+      if (!rlang::is_null(col_limits)) col_n <- length(col_limits)
+      else if (!rlang::is_null(col_breaks)) col_n <- length(col_breaks)
+      else {
+        if (col_character | col_logical) {
+          col_unique <- unique(col_vctr)
+          col_n <- length(col_unique[!is.na(col_unique)])
+        }
+        else if (col_factor) {
+          col_n <- length(levels(col_vctr))
+        }
+      }
+
+      if (rlang::is_null(pal)) pal <- pal_d3_mix(col_n)
+      else pal <- pal[1:col_n]
+
+      if (col_character | col_factor | col_logical) col_legend_rev_auto <- FALSE
+      else if (col_legend_place %in% c("top", "bottom")) col_legend_rev_auto <- FALSE
+      else col_legend_rev_auto <- TRUE
+
+      if (rlang::is_null(col_breaks)) col_breaks <- ggplot2::waiver()
+      if (rlang::is_null(col_labels)) col_labels <- ggplot2::waiver()
+
+      if (col_legend_rev) col_legend_rev_auto <- !col_legend_rev_auto
+
+      plot <- plot +
+        ggplot2::scale_colour_manual(
+          values = pal,
+          breaks = col_breaks,
+          limits = col_limits,
+          labels = col_labels,
+          na.value = pal_na,
+          guide = ggplot2::guide_legend(
+            reverse = col_legend_rev_auto,
+            title.position = "top",
+            ncol = col_legend_ncol,
+            nrow = col_legend_nrow,
+            byrow = TRUE
+          )
+        ) +
+        ggplot2::scale_fill_manual(
+          values = pal,
+          breaks = col_breaks,
+          limits = col_limits,
+          labels = col_labels,
+          na.value = pal_na,
+          guide = ggplot2::guide_legend(
+            reverse = col_legend_rev_auto,
+            title.position = "top",
+            ncol = col_legend_ncol,
+            nrow = col_legend_nrow,
+            byrow = TRUE
+          )
+        )
+    }
+  }
+
+  #Add coord, theme and titles
   plot <- plot +
-    col_scale +
     coord +
+    theme +
     ggplot2::labs(
       title = title,
       subtitle = subtitle,
-      col = col_title,
+      colour = col_title,
       fill = col_title,
       caption = caption
-    ) +
-    theme
+    )
 
-  ###adjust legend
-  if (col_legend_place %in% c("b", "t")) {
+  if (!rlang::is_null(col_title)) {
+    if (col_title == "") {
+      plot <- plot +
+        ggplot2::labs(colour = NULL, fill = NULL)
+    }
+  }
+
+  #expand the limits if necessary
+  if (!rlang::is_null(col_include)) {
     plot <- plot +
-      ggplot2::theme(legend.direction = "horizontal")
+      ggplot2::expand_limits(colour = col_include, fill = col_include)
+  }
 
-    if (col_numeric) {
+  #adjust the legend
+  if (col_legend_place %in% c("top", "bottom")) {
+    plot <- plot +
+      ggplot2::theme(legend.position = col_legend_place) +
+      ggplot2::theme(legend.direction = "horizontal") +
+      ggplot2::theme(legend.justification = "left") +
+      ggplot2::theme(legend.box.margin = ggplot2::margin(t = -2.5)) +
+      ggplot2::theme(legend.text = ggplot2::element_text(
+        margin = ggplot2::margin(r = 7.5, unit = "pt")))
+
+    if (col_numeric | stat %in% c("bin2d", "binhex")) {
       plot <- plot +
         ggplot2::theme(legend.key.width = grid::unit(0.66, "cm")) +
         ggplot2::theme(legend.text.align = 0.5)
     }
+  }
+  else if (col_legend_place %in% c("left", "right")) {
+    plot <- plot +
+      ggplot2::theme(legend.position = col_legend_place) +
+      ggplot2::theme(legend.direction = "vertical") +
+      ggplot2::theme(legend.justification = "left") +
+      ggplot2::theme(legend.box.margin = ggplot2::margin(t = 0)) +
+      ggplot2::theme(legend.text = ggplot2::element_text(
+        margin = ggplot2::margin(r = 0)))
 
-    if (col_legend_place == "b") {
+    if (col_numeric | stat %in% c("bin2d", "binhex")) {
       plot <- plot +
-        ggplot2::theme(legend.position = "bottom")
-    }
-    else if (col_legend_place == "t") {
-      plot <- plot +
-        ggplot2::theme(legend.position = "top")
+        ggplot2::theme(legend.title = ggplot2::element_text(vjust = 1))
     }
   }
-
-  else if (col_legend_place == "n" | col_null) {
+  else if (col_legend_place == "none") {
     plot <- plot +
-      ggplot2::theme(legend.position = "none")
-  }
-  else if (col_legend_place == "l") {
-    plot <- plot +
-      ggplot2::theme(legend.position = "left")
+      ggplot2::theme(legend.position = col_legend_place)
   }
 
-  else if (col_legend_place == "r") {
+  #remove gridlines not needed
+  if (!x_grid & !y_grid) {
     plot <- plot +
-      ggplot2::theme(legend.position = "right")
+      ggplot2::theme(panel.grid = ggplot2::element_blank())
+  }
+  else if (!x_grid & y_grid) {
+    plot <- plot +
+      ggplot2::theme(panel.grid.major.x = ggplot2::element_blank()) +
+      ggplot2::theme(panel.grid.minor.x = ggplot2::element_blank())
+  }
+  else if (x_grid & !y_grid) {
+    plot <- plot +
+      ggplot2::theme(panel.grid.major.y = ggplot2::element_blank()) +
+      ggplot2::theme(panel.grid.minor.y = ggplot2::element_blank())
   }
 
-  plot <- plot + ggplot2::theme(legend.justification = "left") #return beautiful plot
+  #return beautiful plot
   return(plot)
 }

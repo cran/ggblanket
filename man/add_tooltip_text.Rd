@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_tooltip_text.R
 \name{add_tooltip_text}
 \alias{add_tooltip_text}
-\title{Add a tooltip text column of united variable names and values.}
+\title{Add a tooltip text column.}
 \usage{
 add_tooltip_text(data, ..., titles = NULL)
 }
@@ -40,6 +40,6 @@ iris \%>\%
             y = Sepal.Length,
             col = Species,
             text = text,
-            theme = gg_theme("helvetica", grid_v = TRUE, grid_h = TRUE)) \%>\%
+            theme = gg_theme(text_family = "helvetica")) \%>\%
     plotly::ggplotly(tooltip = "text")
 }

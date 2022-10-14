@@ -1,5 +1,6 @@
-#' Add a tooltip text column of united variable names and values.
+#' Add a tooltip text column.
 #'
+#' @description Add a tooltip text column of united variable names and values.
 #' @param data A data frame or tibble.
 #' @param ... Arguments passed to select (i.e unquoted variables, tidyselect helpers etc). If no arguments provided, uses all columns.
 #' @param titles A function to format the variable names, including in rlang lambda format.
@@ -28,7 +29,7 @@
 #'             y = Sepal.Length,
 #'             col = Species,
 #'             text = text,
-#'             theme = gg_theme("helvetica", grid_v = TRUE, grid_h = TRUE)) %>%
+#'             theme = gg_theme(text_family = "helvetica")) %>%
 #'     plotly::ggplotly(tooltip = "text")
 add_tooltip_text <- function(data,
                              ...,

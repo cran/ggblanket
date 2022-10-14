@@ -1,3 +1,16 @@
+# ggblanket 1.5.0
+
+* Breaking: redesigned `gg_theme`.
+* Added automatic gridline removal.
+* Added `gg_bin2d` function.
+* Added `gg_hex` function.
+* Added `col_trans` and `col_rescale` arguments.
+* Made `col_legend_place` default "r" where numeric col variable. 
+* Made `*_title = ""` equivalent to `+ labs(* = NULL)`.
+* Supported `x` and `y` datetime variables.
+* Supported `x` and `y` time variables.
+* Redesigned internal code for `x`, `y` and `col` scales.
+
 # ggblanket 1.4.0
 
 * Breaking: Removed `col_intervals` argument.

@@ -1,24 +1,18 @@
-#' @title Blank ggplot.
+#' @title Hex ggplot.
 #'
-#' @description Create a blank plot with a wrapper around the ggplot2::geom_blank function.
+#' @description Create a hex plot with a wrapper around the ggplot2::geom_hex function.
 #' @param data A data frame or tibble.
 #' @param x Unquoted x aesthetic variable.
 #' @param y Unquoted y aesthetic variable.
-#' @param col Unquoted col and fill aesthetic variable.
 #' @param facet Unquoted facet aesthetic variable.
 #' @param facet2 Unquoted second facet variable.
 #' @param group Unquoted group aesthetic variable.
-#' @param label Unquoted label aesthetic variable.
-#' @param xmin Unquoted xmin aesthetic variable.
-#' @param xmax Unquoted xmax aesthetic variable.
-#' @param xend Unquoted xend aesthetic variable.
-#' @param ymin Unquoted ymin aesthetic variable.
-#' @param ymax Unquoted ymax aesthetic variable.
-#' @param yend Unquoted xend aesthetic variable.
+#' @param text Unquoted text aesthetic variable, which can be used in combination with plotly::ggplotly(., tooltip = "text").
 #' @param stat Statistical transformation. A character string (e.g. "identity").
 #' @param position Position adjustment. Either a character string (e.g."identity"), or a function (e.g. ggplot2::position_identity()).
 #' @param pal Colours to use. A character vector of hex codes (or names).
 #' @param pal_na Colour to use for NA values. A character vector of a hex code (or name).
+#' @param alpha Opacity. A number between 0 and 1.
 #' @param ... Other arguments passed to the relevant ggplot2::geom_* function.
 #' @param titles A function to format the x, y and col titles. Defaults to snakecase::to_sentence_case.
 #' @param title Title string.
@@ -67,34 +61,21 @@
 #' @examples
 #' library(ggplot2)
 #'
-#' gg_blank(mtcars, x = wt, y = mpg)
-#' gg_blank(mtcars, x = wt, y = mpg, col = cyl)
+#' diamonds %>% gg_hex(depth, price)
 #'
-#' mtcars %>%
-#'   dplyr::mutate(cyl = factor(cyl)) %>%
-#'   gg_blank(x = wt, y = mpg, col = cyl, size = 1)
-#'
-#' gg_blank(diamonds, x = carat, y = price)
-#'
-gg_blank <- function(
+gg_hex <- function(
     data = NULL,
     x = NULL,
     y = NULL,
-    col = NULL,
     facet = NULL,
     facet2 = NULL,
     group = NULL,
-    label = NULL,
-    xmin = NULL,
-    xmax = NULL,
-    xend = NULL,
-    ymin = NULL,
-    ymax = NULL,
-    yend = NULL,
-    stat = "identity",
+    text = NULL,
+    stat = "binhex",
     position = "identity",
     pal = NULL,
     pal_na = "#7F7F7F",
+    alpha = 1,
     ...,
     titles = NULL,
     title = NULL,
@@ -142,19 +123,11 @@ gg_blank <- function(
   #quote
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
-  col <- rlang::enquo(col)
+  if (!stat %in% c("bin2d", "binhex")) col <- rlang::enquo(col)
   facet <- rlang::enquo(facet)
   facet2 <- rlang::enquo(facet2)
   group <- rlang::enquo(group)
-
-  label <- rlang::enquo(label)
-
-  xmin <- rlang::enquo(xmin)
-  xmax <- rlang::enquo(xmax)
-  xend <- rlang::enquo(xend)
-  ymin <- rlang::enquo(ymin)
-  ymax <- rlang::enquo(ymax)
-  yend <- rlang::enquo(yend)
+  text <- rlang::enquo(text)
 
   #stop, warn or message
   rlang::inform(c("i" = "For further ggblanket information, see https://davidhodge931.github.io/ggblanket/"), .frequency = "regularly", .frequency_id = "hello")
@@ -323,14 +296,7 @@ gg_blank <- function(
           y = !!y,
           col = !!col,
           fill = !!col,
-          group = !!group,
-          label = !!label,
-          xmin = !!xmin,
-          xmax = !!xmax,
-          xend = !!xend,
-          ymin = !!ymin,
-          ymax = !!ymax,
-          yend = !!yend
+          group = !!group
         ))
     }
     else if (stat %in% c("bin2d", "binhex")) {
@@ -338,14 +304,9 @@ gg_blank <- function(
         ggplot2::ggplot(mapping = ggplot2::aes(
           x = !!x,
           y = !!y,
-          group = !!group,
-          label = !!label,
-          xmin = !!xmin,
-          xmax = !!xmax,
-          xend = !!xend,
-          ymin = !!ymin,
-          ymax = !!ymax,
-          yend = !!yend
+          col = ggplot2::after_stat(.data$count),
+          fill = ggplot2::after_stat(.data$count),
+          group = !!group
         ))
     }
     else if (col_null) {
@@ -355,14 +316,7 @@ gg_blank <- function(
           y = !!y,
           col = "",
           fill = "",
-          group = !!group,
-          label = !!label,
-          xmin = !!xmin,
-          xmax = !!xmax,
-          xend = !!xend,
-          ymin = !!ymin,
-          ymax = !!ymax,
-          yend = !!yend
+          group = !!group
         ))
     }
   }
@@ -373,14 +327,7 @@ gg_blank <- function(
           x = !!x,
           col = !!col,
           fill = !!col,
-          group = !!group,
-          label = !!label,
-          xmin = !!xmin,
-          xmax = !!xmax,
-          xend = !!xend,
-          ymin = !!ymin,
-          ymax = !!ymax,
-          yend = !!yend
+          group = !!group
         ))
     }
     else if (col_null) {
@@ -389,14 +336,7 @@ gg_blank <- function(
           x = !!x,
           col = "",
           fill = "",
-          group = !!group,
-          label = !!label,
-          xmin = !!xmin,
-          xmax = !!xmax,
-          xend = !!xend,
-          ymin = !!ymin,
-          ymax = !!ymax,
-          yend = !!yend
+          group = !!group
         ))
     }
   }
@@ -407,14 +347,7 @@ gg_blank <- function(
           y = !!y,
           col = !!col,
           fill = !!col,
-          group = !!group,
-          label = !!label,
-          xmin = !!xmin,
-          xmax = !!xmax,
-          xend = !!xend,
-          ymin = !!ymin,
-          ymax = !!ymax,
-          yend = !!yend
+          group = !!group
         ))
     }
     else if (col_null) {
@@ -423,14 +356,7 @@ gg_blank <- function(
           y = !!y,
           col = "",
           fill = "",
-          group = !!group,
-          label = !!label,
-          xmin = !!xmin,
-          xmax = !!xmax,
-          xend = !!xend,
-          ymin = !!ymin,
-          ymax = !!ymax,
-          yend = !!yend
+          group = !!group
         ))
     }
   }
@@ -440,14 +366,7 @@ gg_blank <- function(
         ggplot2::ggplot(mapping = ggplot2::aes(
           col = !!col,
           fill = !!col,
-          group = !!group,
-          label = !!label,
-          xmin = !!xmin,
-          xmax = !!xmax,
-          xend = !!xend,
-          ymin = !!ymin,
-          ymax = !!ymax,
-          yend = !!yend
+          group = !!group
         ))
     }
     else if (col_null) {
@@ -455,22 +374,17 @@ gg_blank <- function(
         ggplot2::ggplot(mapping = ggplot2::aes(
           col = "",
           fill = "",
-          group = !!group,
-          label = !!label,
-          xmin = !!xmin,
-          xmax = !!xmax,
-          xend = !!xend,
-          ymin = !!ymin,
-          ymax = !!ymax,
-          yend = !!yend
+          group = !!group
         ))
     }
   }
 
   plot <- plot +
-    ggplot2::geom_blank(
+    ggplot2::geom_hex(
+      ggplot2::aes(text = !!text),
       stat = stat,
       position = position,
+      alpha = alpha,
       ...
     )
 

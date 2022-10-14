@@ -24,9 +24,10 @@ gg_segment(
   titles = NULL,
   title = NULL,
   subtitle = NULL,
-  coord = NULL,
+  coord = ggplot2::coord_cartesian(clip = "off"),
   x_breaks = NULL,
   x_expand = NULL,
+  x_grid = NULL,
   x_include = NULL,
   x_labels = NULL,
   x_limits = NULL,
@@ -35,6 +36,7 @@ gg_segment(
   x_trans = "identity",
   y_breaks = NULL,
   y_expand = NULL,
+  y_grid = NULL,
   y_include = NULL,
   y_labels = NULL,
   y_limits = NULL,
@@ -50,7 +52,9 @@ gg_segment(
   col_legend_nrow = NULL,
   col_legend_rev = FALSE,
   col_limits = NULL,
+  col_rescale = NULL,
   col_title = NULL,
+  col_trans = "identity",
   facet_labels = NULL,
   facet_ncol = NULL,
   facet_nrow = NULL,
@@ -58,7 +62,7 @@ gg_segment(
   facet_space = "fixed",
   facet_layout = NULL,
   caption = NULL,
-  theme = NULL
+  theme = gg_theme()
 )
 }
 \arguments{
@@ -94,7 +98,7 @@ gg_segment(
 
 \item{...}{Other arguments passed to the relevant ggplot2::geom_* function.}
 
-\item{titles}{A function to format the x, y and col titles, including in rlang lambda format. Defaults to snakecase::to_sentence_case.}
+\item{titles}{A function to format the x, y and col titles. Defaults to snakecase::to_sentence_case.}
 
 \item{title}{Title string.}
 
@@ -102,9 +106,11 @@ gg_segment(
 
 \item{coord}{Coordinate system.}
 
-\item{x_breaks}{A function that takes the limits as input (e.g. scales::breaks_pretty()), or a vector of breaks.}
+\item{x_breaks}{A function on the limits (e.g. scales::breaks_pretty()), or a vector of breaks.}
 
 \item{x_expand}{Padding to the limits with the ggplot2::expansion function, or a vector of length 2 (e.g. c(0, 0)).}
+
+\item{x_grid}{TRUE or FALSE for vertical x gridlines. NULL guesses based on the classes of the x and y.}
 
 \item{x_include}{For a numeric or date variable, any values that the scale should include (e.g. 0).}
 
@@ -116,11 +122,13 @@ gg_segment(
 
 \item{x_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
 
-\item{x_trans}{For a numeric variable, a transformation object (e.g. "log10").}
+\item{x_trans}{For a numeric variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
 
-\item{y_breaks}{A function that takes the limits as input (e.g. scales::breaks_pretty()), or a vector of breaks.}
+\item{y_breaks}{A function on the limits (e.g. scales::breaks_pretty()), or a vector of breaks.}
 
 \item{y_expand}{Padding to the limits with the ggplot2::expansion function, or a vector of length 2 (e.g. c(0, 0)).}
+
+\item{y_grid}{TRUE or FALSE of horizontal y gridlines. NULL guesses based on the classes of the x and y.}
 
 \item{y_include}{For a numeric or date variable, any values that the scale should include (e.g. 0).}
 
@@ -132,17 +140,17 @@ gg_segment(
 
 \item{y_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
 
-\item{y_trans}{For a numeric variable, a transformation object (e.g. "log10").}
+\item{y_trans}{For a numeric variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
 
-\item{col_breaks}{A function that takes the limits as input (e.g. scales::breaks_pretty()), or a vector of breaks.}
+\item{col_breaks}{A function on the limits (e.g. scales::breaks_pretty()), or a vector of breaks.}
 
-\item{col_continuous}{Type of colouring for a continuous variable. Either "gradient" or "steps". Defaults to "steps".}
+\item{col_continuous}{Type of colouring for a continuous variable. Either "gradient" or "steps". Defaults to "steps" - or just the first letter of these e.g. "g".}
 
 \item{col_include}{For a numeric or date variable, any values that the scale should include (e.g. 0).}
 
 \item{col_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels. Note this does not affect where col_intervals is not NULL.}
 
-\item{col_legend_place}{The place for the legend. "b" for bottom, "r" for right, "t" for top, or "l" for left. Defaults to "b".}
+\item{col_legend_place}{The place for the legend. Either "bottom", "right", "top" or "left" - or just the first letter of these e.g. "b".}
 
 \item{col_legend_ncol}{The number of columns for the legend elements.}
 
@@ -150,9 +158,13 @@ gg_segment(
 
 \item{col_legend_rev}{Reverse the elements of the legend. Defaults to FALSE.}
 
-\item{col_limits}{A vector to determine the limits of the axis.}
+\item{col_limits}{A vector to determine the limits of the colour scale.}
+
+\item{col_rescale}{For a continuous col variable, a vector to rescale the pal non-linearly.}
 
 \item{col_title}{Legend title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
+
+\item{col_trans}{For a numeric variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
 
 \item{facet_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a named vector of labels (e.g. c("value" = "label", ...)).}
 
@@ -162,7 +174,7 @@ gg_segment(
 
 \item{facet_scales}{Whether facet scales should be "fixed" across facets, "free" in both directions, or free in just one direction (i.e. "free_x" or "free_y"). Defaults to "fixed".}
 
-\item{facet_space}{Whether facet space should be "fixed" across facets, "free" to be proportional in both directions, or free to be proportional in just one direction (i.e. "free_x" or "free_y"). Only applies where the facet layout is a 'grid' and facet_scales are not fixed. Defaults to "fixed".}
+\item{facet_space}{Whether facet space should be "fixed" across facets, "free" to be proportional in both directions, or free to be proportional in just one direction (i.e. "free_x" or "free_y"). Defaults to "fixed". Only applies where the facet layout is "grid" and facet scales are not "fixed".}
 
 \item{facet_layout}{Whether the layout is to be "wrap" or "grid". If NULL and a single facet (or facet2) argument is provided, then defaults to "wrap". If NULL and both facet and facet2 arguments are provided, defaults to "grid".}
 
