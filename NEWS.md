@@ -1,3 +1,10 @@
+# ggblanket 1.6.1
+
+* Breaking: removed `void` argument from `gg_theme`.
+* Added `void` argument to `gg_sf`, `gg_raster` and `gg_blank`.
+* Corrected bug with `gg_raster` legend not showing.
+* Updated `gg_raster` `*_limits` and `*_expand` defaults.
+
 # ggblanket 1.6.0
 
 * Breaking: renamed `add_tooltip_text` to `add_tooltip` and changed column name to "tooltip".
