@@ -1,4 +1,4 @@
-#' @title Quick theme for a ggplot.
+#' @title Quick theme for a ggplot
 #'
 #' @description Quick theme for a ggplot visualisation.
 #' @param text_family The font family for all text to use. Defaults to "".
@@ -74,7 +74,8 @@ gg_theme <- function(
     plot.title = ggplot2::element_text(family = text_family, size = title_size, colour = title_pal, face = title_face, hjust = 0, vjust = title_vjust, margin = title_margin),
     plot.subtitle = ggplot2::element_text(family = text_family, size = subtitle_size, colour = subtitle_pal, face = subtitle_face, hjust = 0, vjust = subtitle_vjust, margin = subtitle_margin),
     axis.title.x = ggplot2::element_text(family = text_family, size = text_size, colour = text_pal, face = text_face, margin = ggplot2::margin(t = text_size * 0.75)),
-    axis.title.y = ggplot2::element_text(family = text_family, size = text_size, colour = text_pal, face = text_face, angle = 90, margin = ggplot2::margin(r = text_size)),
+    axis.title.y.left = ggplot2::element_text(family = text_family, size = text_size, colour = text_pal, face = text_face, angle = 90, margin = ggplot2::margin(r = text_size)),
+    axis.title.y.right = ggplot2::element_text(family = text_family, size = text_size, colour = text_pal, face = text_face, angle = 270, margin = ggplot2::margin(l = text_size - 1)),
     legend.title = ggplot2::element_text(family = text_family, size = text_size, colour = text_pal, face = text_face, hjust = 0, vjust = 0.5),
     plot.caption = ggplot2::element_text(family = text_family, size = caption_size, colour = caption_pal, face = caption_face, hjust = caption_hjust, margin = ggplot2::margin(t = caption_size * 5/3)),
     axis.text.x = ggplot2::element_text(family = text_family, size = text_size, colour = text_pal, face = text_face, margin = ggplot2::margin(t = 2)),
@@ -88,21 +89,21 @@ gg_theme <- function(
     panel.spacing = ggplot2::unit(panel_spacing_lines, "lines"),
     plot.background = ggplot2::element_rect(colour = plot_background_pal, fill = plot_background_pal),
     panel.background = ggplot2::element_rect(colour = panel_background_pal, fill = panel_background_pal),
-    panel.grid.major = ggplot2::element_line(colour = panel_grid_pal, size = panel_grid_linewidth),
+    panel.grid.major = ggplot2::element_line(colour = panel_grid_pal, linewidth = panel_grid_linewidth),
     panel.grid.minor.x = ggplot2::element_blank(),
     panel.grid.minor.y = ggplot2::element_blank(),
     legend.background = ggplot2::element_rect(colour = plot_background_pal, fill = plot_background_pal),
-    strip.background = ggplot2::element_rect(colour = plot_background_pal, fill = plot_background_pal),
+    strip.background = ggplot2::element_blank(),
     strip.placement = "outside",
-    axis.line = ggplot2::element_line(colour = axis_line_pal, size = axis_line_linewidth),
-    axis.ticks = ggplot2::element_line(colour = axis_ticks_pal, size = axis_ticks_linewidth),
+    axis.line = ggplot2::element_line(colour = axis_line_pal, linewidth = axis_line_linewidth),
+    axis.ticks = ggplot2::element_line(colour = axis_ticks_pal, linewidth = axis_ticks_linewidth),
     legend.margin = ggplot2::margin(),
     legend.key = ggplot2::element_rect(colour = legend_key_pal, fill = legend_key_pal),
     legend.key.height = ggplot2::unit(5, "mm"),
     legend.key.width = ggplot2::unit(5, "mm"),
     legend.spacing.y = ggplot2::unit(0.15, "cm"),
-    legend.position = "bottom",
-    legend.direction = "horizontal",
+    legend.position = "right",
+    legend.direction = "vertical",
     legend.justification = "left",
     legend.box.margin = ggplot2::margin(t = -2.5),
     legend.text = ggplot2::element_text(

@@ -2,7 +2,7 @@
 % Please edit documentation in R/gg_rect.R
 \name{gg_rect}
 \alias{gg_rect}
-\title{Rect ggplot.}
+\title{Rect ggplot}
 \usage{
 gg_rect(
   data = NULL,
@@ -14,19 +14,17 @@ gg_rect(
   facet = NULL,
   facet2 = NULL,
   group = NULL,
-  text = NULL,
   x = NULL,
   y = NULL,
   stat = "identity",
   position = "identity",
+  clip = "on",
   pal = NULL,
   pal_na = "#7F7F7F",
   alpha = 0.9,
   ...,
-  titles = NULL,
   title = NULL,
   subtitle = NULL,
-  coord = ggplot2::coord_cartesian(clip = "off"),
   x_breaks = NULL,
   x_expand = NULL,
   x_grid = NULL,
@@ -64,7 +62,8 @@ gg_rect(
   facet_space = "fixed",
   facet_layout = NULL,
   caption = NULL,
-  theme = gg_theme()
+  titles = snakecase::to_sentence_case,
+  theme = NULL
 )
 }
 \arguments{
@@ -86,8 +85,6 @@ gg_rect(
 
 \item{group}{Unquoted group aesthetic variable.}
 
-\item{text}{Unquoted text aesthetic variable, which can be used in combination with plotly::ggplotly(., tooltip = "text").}
-
 \item{x}{Unquoted x aesthetic variable.}
 
 \item{y}{Unquoted y aesthetic variable.}
@@ -96,21 +93,19 @@ gg_rect(
 
 \item{position}{Position adjustment. Either a character string (e.g."identity"), or a function (e.g. ggplot2::position_identity()).}
 
+\item{clip}{Whether to clip geometries outside of the panel. Either "on" or "off".}
+
 \item{pal}{Colours to use. A character vector of hex codes (or names).}
 
 \item{pal_na}{Colour to use for NA values. A character vector of a hex code (or name).}
 
 \item{alpha}{Opacity. A number between 0 and 1.}
 
-\item{...}{Other arguments passed to the relevant ggplot2::geom_* function.}
-
-\item{titles}{A function to format the x, y and col titles. Defaults to snakecase::to_sentence_case.}
+\item{...}{Other arguments passed to the ggplot2::geom_rect function.}
 
 \item{title}{Title string.}
 
 \item{subtitle}{Subtitle string.}
-
-\item{coord}{Coordinate system.}
 
 \item{x_breaks}{A function on the limits (e.g. scales::breaks_pretty()), or a vector of breaks.}
 
@@ -122,7 +117,7 @@ gg_rect(
 
 \item{x_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels.}
 
-\item{x_limits}{A vector of length 2 to determine the limits of the axis. Alternatively, zoom in using coord = coord_cartesian(xlim = ...).}
+\item{x_limits}{A vector of length 2 to determine the limits of the axis (and the zoom via the coord).}
 
 \item{x_sec_axis}{A secondary axis using the ggplot2::sec_axis or ggplot2::dup_axis function.}
 
@@ -140,7 +135,7 @@ gg_rect(
 
 \item{y_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels.}
 
-\item{y_limits}{A vector of length 2 to determine the limits of the axis. Alternatively, zoom in using coord = coord_cartesian(ylim = ...).}
+\item{y_limits}{A vector of length 2 to determine the limits of the axis (and the zoom via the coord).}
 
 \item{y_sec_axis}{A secondary axis using the ggplot2::sec_axis or ggplot2::dup_axis function.}
 
@@ -186,13 +181,15 @@ gg_rect(
 
 \item{caption}{Caption title string.}
 
+\item{titles}{A function to format the x, y and col titles. Defaults to snakecase::to_sentence_case.}
+
 \item{theme}{A ggplot2 theme.}
 }
 \value{
 A ggplot object.
 }
 \description{
-Create a rect plot with a wrapper around the ggplot2::geom_rect function.
+Create a rect ggplot with a wrapper around the ggplot2::geom_rect function.
 }
 \examples{
 library(ggplot2)

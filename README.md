@@ -78,7 +78,8 @@ penguins |>
 
 ## Thanks!
 
-Thank you Hadley Wickham and all other authors of the ggplot2 package.
+Thank you to all authors and contributors to ggplot2, tidyverse, and the
+wider R ecosystem.
 
-If you like ggblanket, please give the repository a star, tweet or blog
-about it, or tell a friend or colleague.
+If you like ggblanket, please give the repository a star and help spread
+the word.

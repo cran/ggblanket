@@ -2,7 +2,7 @@
 % Please edit documentation in R/gg_sf.R
 \name{gg_sf}
 \alias{gg_sf}
-\title{Sf ggplot.}
+\title{Sf ggplot}
 \usage{
 gg_sf(
   data = NULL,
@@ -10,19 +10,18 @@ gg_sf(
   facet = NULL,
   facet2 = NULL,
   group = NULL,
-  text = NULL,
   stat = "sf",
   position = "identity",
+  clip = "on",
   pal = NULL,
   pal_na = "#7F7F7F",
-  alpha = NULL,
   ...,
-  titles = NULL,
   title = NULL,
   subtitle = NULL,
-  coord = ggplot2::coord_sf(),
   x_grid = NULL,
+  x_title = NULL,
   y_grid = NULL,
+  y_title = NULL,
   col_breaks = NULL,
   col_continuous = "gradient",
   col_include = NULL,
@@ -38,14 +37,16 @@ gg_sf(
   facet_labels = NULL,
   facet_ncol = NULL,
   facet_nrow = NULL,
+  facet_scales = "fixed",
   facet_space = "fixed",
   facet_layout = NULL,
   caption = NULL,
-  theme = gg_theme(void = TRUE)
+  titles = snakecase::to_sentence_case,
+  theme = NULL
 )
 }
 \arguments{
-\item{data}{A sf object.}
+\item{data}{A data frame or tibble.}
 
 \item{col}{Unquoted col and fill aesthetic variable.}
 
@@ -55,31 +56,29 @@ gg_sf(
 
 \item{group}{Unquoted group aesthetic variable.}
 
-\item{text}{Unquoted text aesthetic variable, which can be used in combination with plotly::ggplotly(., tooltip = "text").}
-
 \item{stat}{Statistical transformation. A character string (e.g. "identity").}
 
 \item{position}{Position adjustment. Either a character string (e.g."identity"), or a function (e.g. ggplot2::position_identity()).}
+
+\item{clip}{Whether to clip geometries outside of the panel. Either "on" or "off".}
 
 \item{pal}{Colours to use. A character vector of hex codes (or names).}
 
 \item{pal_na}{Colour to use for NA values. A character vector of a hex code (or name).}
 
-\item{alpha}{Opacity. A number between 0 and 1.}
-
-\item{...}{Other arguments passed to the relevant ggplot2::geom_* function.}
-
-\item{titles}{A function to format the x, y and col titles. Defaults to snakecase::to_sentence_case.}
+\item{...}{Other arguments passed to the ggplot2::geom_sf function.}
 
 \item{title}{Title string.}
 
 \item{subtitle}{Subtitle string.}
 
-\item{coord}{Coordinate system.}
-
 \item{x_grid}{TRUE or FALSE for vertical x gridlines. NULL guesses based on the classes of the x and y.}
 
+\item{x_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
+
 \item{y_grid}{TRUE or FALSE of horizontal y gridlines. NULL guesses based on the classes of the x and y.}
+
+\item{y_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
 
 \item{col_breaks}{A function on the limits (e.g. scales::breaks_pretty()), or a vector of breaks.}
 
@@ -111,11 +110,15 @@ gg_sf(
 
 \item{facet_nrow}{The number of rows of facets. Only applies to a facet layout of "wrap".}
 
+\item{facet_scales}{Whether facet scales should be "fixed" across facets, "free" in both directions, or free in just one direction (i.e. "free_x" or "free_y"). Defaults to "fixed".}
+
 \item{facet_space}{Whether facet space should be "fixed" across facets, "free" to be proportional in both directions, or free to be proportional in just one direction (i.e. "free_x" or "free_y"). Defaults to "fixed". Only applies where the facet layout is "grid" and facet scales are not "fixed".}
 
 \item{facet_layout}{Whether the layout is to be "wrap" or "grid". If NULL and a single facet (or facet2) argument is provided, then defaults to "wrap". If NULL and both facet and facet2 arguments are provided, defaults to "grid".}
 
 \item{caption}{Caption title string.}
+
+\item{titles}{A function to format the x, y and col titles. Defaults to snakecase::to_sentence_case.}
 
 \item{theme}{A ggplot2 theme.}
 }
@@ -123,7 +126,7 @@ gg_sf(
 A ggplot object.
 }
 \description{
-Create a sf plot with a wrapper around the ggplot2::geom_sf function.
+Create a blank ggplot with a wrapper around the ggplot2::geom_sf function.
 }
 \examples{
 if (requireNamespace("sf", quietly = TRUE)) {
