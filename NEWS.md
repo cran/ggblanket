@@ -1,3 +1,9 @@
+# ggblanket 1.6.2
+
+* Critical fix to support dplyr 1.1.0.
+* Supported colouring date, datetime and time variables.
+* Made datetime breaks default to waiver.
+
 # ggblanket 1.6.1
 
 * Breaking: removed `void` argument from `gg_theme`.
