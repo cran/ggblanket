@@ -1,3 +1,8 @@
+# ggblanket 1.6.3
+
+* Fixed bug with default `x_expand`.
+* Fixed bug with `gg_histogram` scales.
+
 # ggblanket 1.6.2
 
 * Critical fix to support dplyr 1.1.0.
