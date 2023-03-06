@@ -10,17 +10,16 @@ gg_sf(
   facet = NULL,
   facet2 = NULL,
   group = NULL,
-  stat = "sf",
   position = "identity",
-  clip = "on",
+  coord = ggplot2::coord_sf(),
   pal = NULL,
   pal_na = "#7F7F7F",
   ...,
   title = NULL,
   subtitle = NULL,
-  x_grid = NULL,
+  x_grid = FALSE,
   x_title = NULL,
-  y_grid = NULL,
+  y_grid = FALSE,
   y_title = NULL,
   col_breaks = NULL,
   col_continuous = "gradient",
@@ -31,6 +30,7 @@ gg_sf(
   col_legend_nrow = NULL,
   col_legend_rev = FALSE,
   col_limits = NULL,
+  col_oob = scales::oob_keep,
   col_rescale = NULL,
   col_title = NULL,
   col_trans = "identity",
@@ -57,11 +57,9 @@ gg_sf(
 
 \item{group}{Unquoted group aesthetic variable.}
 
-\item{stat}{Statistical transformation. A character string (e.g. "identity").}
-
 \item{position}{Position adjustment. Either a character string (e.g."identity"), or a function (e.g. ggplot2::position_identity()).}
 
-\item{clip}{Whether to clip geometries outside of the panel. Either "on" or "off".}
+\item{coord}{A coordinate function from ggplot2 (e.g. ggplot2::coord_cartesian()).}
 
 \item{pal}{Colours to use. A character vector of hex codes (or names).}
 
@@ -99,6 +97,8 @@ gg_sf(
 
 \item{col_limits}{A vector to determine the limits of the colour scale.}
 
+\item{col_oob}{A scales::oob_* function that handles values outside of limits for continuous scales. Defaults to scales::oob_keep.}
+
 \item{col_rescale}{For a continuous col variable, a vector to rescale the pal non-linearly.}
 
 \item{col_title}{Legend title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
@@ -123,7 +123,7 @@ gg_sf(
 
 \item{theme}{A ggplot2 theme.}
 
-\item{void}{TRUE or FALSE of whether to remove axis lines, ticks and x and y titles and labels. Defaults to TRUE.}
+\item{void}{TRUE or FALSE of whether to remove axis lines, ticks and x and y titles and labels.}
 }
 \value{
 A ggplot object.
@@ -133,10 +133,12 @@ Create a blank ggplot with a wrapper around the ggplot2::geom_sf function.
 }
 \examples{
 if (requireNamespace("sf", quietly = TRUE)) {
-  library(ggplot2)
   nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
 
-  gg_sf(nc, col = AREA, col_legend_place = "b")
+  nc |>
+    gg_sf(
+      col = AREA,
+      pal = viridis::cividis(9))
 }
 
 }

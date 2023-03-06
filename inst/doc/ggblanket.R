@@ -89,7 +89,7 @@ penguins |>
     pal = rev(pals::brewer.rdbu(9)), 
     col_legend_place = "r",
     col_rescale = c(186, 215, 222),
-    x_labels = snakecase::to_sentence_case,
+    x_labels = stringr::str_to_sentence,
     title = "Average penguin body mass",
     subtitle = "Palmer Archipelago, Antarctica",
     theme = gg_theme(plot_background_pal = "white",
@@ -124,7 +124,7 @@ penguins |>
     col = sex, 
     facet = island,
     width = 0.75,
-    col_labels = snakecase::to_sentence_case, 
+    col_labels = stringr::str_to_sentence, 
     position = "dodge")
 
 ## -----------------------------------------------------------------------------
@@ -147,14 +147,14 @@ penguins |>
     level = 0.99, #accessed via geom_smooth
     col_legend_place = "t",
     col_title = "", 
-    col_labels = snakecase::to_sentence_case, 
+    col_labels = stringr::str_to_sentence, 
     colour = "white") #accessed via geom_smooth
 
 ## -----------------------------------------------------------------------------
 penguins |>
   mutate(sex = str_to_sentence(sex)) |> 
-  gg_point(x = bill_depth_mm,
-           y = bill_length_mm,
+  gg_point(x = flipper_length_mm,
+           y = body_mass_g,
            col = sex,
            facet = species, 
            pal = c("#1B9E77", "#9E361B"), 
@@ -180,8 +180,6 @@ nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
 
 nc |>
   gg_sf(col = AREA,
-        col_legend_place = "b",
-        col_breaks = scales::breaks_width(0.1),
         pal = pals::brewer.reds(9),
         title = "**Bold** or _italics_ or <span style = 'color:red;'>red</span>",
         theme = gg_theme(title_face = "plain")) +
@@ -201,37 +199,6 @@ p2 <- diamonds |>
     theme = gg_theme(caption_hjust = 1))
 
 p1 + p2
-
-## ---- eval = FALSE------------------------------------------------------------
-#  df <- iris |>
-#    tibble::tibble() |>
-#    add_tooltip(Sepal.Width, Sepal.Length, Species)
-#  
-#  df |>
-#    head(1)
-#  
-#  p <- iris |>
-#    add_tooltip(tidyselect::contains("Sepal"), Species) |>
-#    mutate(id = row_number()) |>
-#    gg_blank(x = Sepal.Width,
-#             y = Sepal.Length,
-#             col = Species,
-#             facet = Species,
-#             theme = gg_theme("helvetica"),
-#             facet_labels = snakecase::to_sentence_case) +
-#    ggiraph::geom_point_interactive(aes(tooltip = tooltip, data_id = id))
-#  
-#  ggiraph::girafe(
-#    ggobj = p,
-#    width_svg = 5,
-#    height_svg = 3.25,
-#    options = list(
-#      ggiraph::opts_tooltip(use_fill = TRUE, use_stroke = TRUE),
-#      ggiraph::opts_hover(css = "fill: #d62728; stroke: #d62728"))
-#  )
-
-## ---- echo = FALSE------------------------------------------------------------
-knitr::include_graphics("../man/figures/ggiraph_screenshot.png", dpi = 300)
 
 ## -----------------------------------------------------------------------------
 p1 <- penguins |>
@@ -258,6 +225,44 @@ p2 <- penguins |>
   scale_alpha_manual(values = c(0.1, 1, 0.5))
 
 p1 + p2
+
+## ---- eval = FALSE------------------------------------------------------------
+#  df <- iris |>
+#    tibble::tibble() |>
+#    add_tooltip(Sepal.Width, Sepal.Length, Species)
+#  
+#  df |>
+#    slice_head()
+#  
+#  b <- iris |>
+#    add_tooltip(tidyselect::contains("Sepal"), Species) |>
+#    mutate(id = row_number()) |>
+#    gg_blank(x = Sepal.Width,
+#             y = Sepal.Length,
+#             col = Species,
+#             facet = Species,
+#             theme = gg_theme("helvetica"),
+#             facet_labels = stringr::str_to_sentence)
+#  
+#   p <- b +
+#    ggiraph::geom_point_interactive(aes(tooltip = tooltip, data_id = id))
+#  
+#  ggiraph::girafe(
+#    ggobj = p,
+#    width_svg = 5,
+#    height_svg = 3,
+#    options = list(
+#      ggiraph::opts_tooltip(use_fill = TRUE, use_stroke = TRUE),
+#      ggiraph::opts_hover(css = "fill: #d62728; stroke: #d62728"))
+#  )
+
+## ---- echo = FALSE------------------------------------------------------------
+knitr::include_graphics("../man/figures/ggiraph_screenshot.png", dpi = 300)
+
+## ---- eval = FALSE------------------------------------------------------------
+#  b +
+#    geom_point(aes(text = tooltip)) |>
+#    plotly::ggplotly(tooltip = "text")
 
 ## ---- fig.asp=0.7-------------------------------------------------------------
 gg_point_custom <- function(data, x, y, col, 
@@ -320,7 +325,7 @@ iris |>
     col = Species,
     facet = Species,
     col_legend_place = "r",
-    col_labels = snakecase::to_sentence_case) +
+    col_labels = stringr::str_to_sentence) +
   ggdensity::geom_hdr(colour = NA) +
   labs(alpha = "Probs") +
   theme(legend.title = element_text(margin = margin(t = 5)))

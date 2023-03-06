@@ -6,9 +6,8 @@
 #' @param facet Unquoted facet aesthetic variable.
 #' @param facet2 Unquoted second facet variable.
 #' @param group Unquoted group aesthetic variable.
-#' @param stat Statistical transformation. A character string (e.g. "identity").
 #' @param position Position adjustment. Either a character string (e.g."identity"), or a function (e.g. ggplot2::position_identity()).
-#' @param clip Whether to clip geometries outside of the panel. Either "on" or "off".
+#' @param coord A coordinate function from ggplot2 (e.g. ggplot2::coord_cartesian()).
 #' @param pal Colours to use. A character vector of hex codes (or names).
 #' @param pal_na Colour to use for NA values. A character vector of a hex code (or name).
 #' @param ... Other arguments passed to the ggplot2::geom_sf function.
@@ -22,11 +21,12 @@
 #' @param col_continuous Type of colouring for a continuous variable. Either "gradient" or "steps". Defaults to "steps" - or just the first letter of these e.g. "g".
 #' @param col_include For a numeric or date variable, any values that the scale should include (e.g. 0).
 #' @param col_labels A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels. Note this does not affect where col_intervals is not NULL.
-#' @param col_limits A vector to determine the limits of the colour scale.
 #' @param col_legend_ncol The number of columns for the legend elements.
 #' @param col_legend_nrow The number of rows for the legend elements.
 #' @param col_legend_place The place for the legend. Either "bottom", "right", "top" or "left" - or just the first letter of these e.g. "b".
 #' @param col_legend_rev Reverse the elements of the legend. Defaults to FALSE.
+#' @param col_limits A vector to determine the limits of the colour scale.
+#' @param col_oob A scales::oob_* function that handles values outside of limits for continuous scales. Defaults to scales::oob_keep.
 #' @param col_rescale For a continuous col variable, a vector to rescale the pal non-linearly.
 #' @param col_title Legend title string. Defaults to converting to sentence case with spaces. Use "" for no title.
 #' @param col_trans For a numeric variable, a transformation object (e.g. "log10", "sqrt" or "reverse").
@@ -39,15 +39,19 @@
 #' @param titles A function to format the x, y and col titles. Defaults to snakecase::to_sentence_case.
 #' @param caption Caption title string.
 #' @param theme A ggplot2 theme.
-#' @param void TRUE or FALSE of whether to remove axis lines, ticks and x and y titles and labels. Defaults to TRUE.
+#' @param void TRUE or FALSE of whether to remove axis lines, ticks and x and y titles and labels.
+#'
 #' @return A ggplot object.
 #' @export
+#'
 #' @examples
 #' if (requireNamespace("sf", quietly = TRUE)) {
-#'   library(ggplot2)
 #'   nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
 #'
-#'   gg_sf(nc, col = AREA, col_legend_place = "b")
+#'   nc |>
+#'     gg_sf(
+#'       col = AREA,
+#'       pal = viridis::cividis(9))
 #' }
 #'
 gg_sf <- function(
@@ -56,17 +60,16 @@ gg_sf <- function(
     facet = NULL,
     facet2 = NULL,
     group = NULL,
-    stat = "sf",
     position = "identity",
-    clip = "on",
+    coord = ggplot2::coord_sf(),
     pal = NULL,
     pal_na = "#7F7F7F",
     ...,
     title = NULL,
     subtitle = NULL,
-    x_grid = NULL,
+    x_grid = FALSE,
     x_title = NULL,
-    y_grid = NULL,
+    y_grid = FALSE,
     y_title = NULL,
     col_breaks = NULL,
     col_continuous = "gradient",
@@ -77,6 +80,7 @@ gg_sf <- function(
     col_legend_nrow = NULL,
     col_legend_rev = FALSE,
     col_limits = NULL,
+    col_oob = scales::oob_keep,
     col_rescale = NULL,
     col_title = NULL,
     col_trans = "identity",
@@ -91,8 +95,9 @@ gg_sf <- function(
     theme = gg_theme(),
     void = TRUE) {
 
-  #stop, warn or message
-  rlang::inform(c("i" = "For further ggblanket information, see https://davidhodge931.github.io/ggblanket/"), .frequency = "regularly", .frequency_id = "hello")
+  ##############################################################################
+  #Unique code: part 1
+  ##############################################################################
 
   #quote
   col <- rlang::enquo(col)
@@ -135,60 +140,20 @@ gg_sf <- function(
   facet_null <- rlang::quo_is_null(facet)
   facet2_null <- rlang::quo_is_null(facet2)
 
+  ##############################################################################
+  #Generic code: part 1 (except gg_sf)
+  ##############################################################################
+
+  #stop, warn or message
+  rlang::inform(c("i" = "For further ggblanket information, see https://davidhodge931.github.io/ggblanket/"), .frequency = "regularly", .frequency_id = "hello")
+
   #get default NULL values
-  if (rlang::is_null(x_title)) {
-     x_title <- ""
-  }
-  if (rlang::is_null(y_title)) {
-    y_title <- ""
-  }
-
-  if (stat == "sf") {
-    if (rlang::is_null(x_grid)) x_grid <- TRUE
-    if (rlang::is_null(y_grid)) y_grid <- FALSE
-  }
-  else if ((y_numeric | y_date | y_datetime | y_time) & (x_null)) {
-    if (rlang::is_null(x_grid)) x_grid <- TRUE
-    if (rlang::is_null(y_grid)) y_grid <- FALSE
-  }
-  else if ((y_forcat) & (x_numeric | x_null)) {
-    if (rlang::is_null(x_grid)) x_grid <- TRUE
-    if (rlang::is_null(y_grid)) y_grid <- FALSE
-  }
-  else if ((y_forcat) & (x_forcat)) {
-    if (rlang::is_null(x_grid)) x_grid <- FALSE
-    if (rlang::is_null(y_grid)) y_grid <- FALSE
-  }
-  else {
-    if (rlang::is_null(x_grid)) x_grid <- FALSE
-    if (rlang::is_null(y_grid)) y_grid <- TRUE
-  }
-
   if (rlang::is_null(col_legend_place)) {
-    if (stat %in% c("bin2d", "bin_2d", "binhex")) {
-      col_legend_place <- "right"
-    }
-    else if (stat == "sf") {
-      if ((identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet, data))) |
-          (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet2, data)))) {
-        col_legend_place <- "none"
-      }
-      else col_legend_place <- "right"
-    }
-    else if (stat == "qq") {
-      if ((identical(rlang::eval_tidy(col, data), rlang::eval_tidy(sample, data))) |
-          (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet, data))) |
-          (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet2, data)))) {
-        col_legend_place <- "none"
-      }
-      col_legend_place <- "bottom"
-    }
-    else if ((identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet, data))) |
-             (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet2, data)))) {
+    if ((identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet, data))) |
+        (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet2, data)))) {
       col_legend_place <- "none"
     }
-    else if (col_numeric | col_date | col_datetime | col_time) col_legend_place <- "right"
-    else col_legend_place <- "bottom"
+    else col_legend_place <- "right"
   }
   else {
     if (col_legend_place == "b") col_legend_place <- "bottom"
@@ -197,6 +162,10 @@ gg_sf <- function(
     if (col_legend_place == "r") col_legend_place <- "right"
     if (col_legend_place == "n") col_legend_place <- "none"
   }
+
+  ##############################################################################
+  #Unique code: part 2
+  ##############################################################################
 
   ###make plot
   if (!col_null) {
@@ -220,10 +189,14 @@ gg_sf <- function(
 
   plot <- plot +
     ggplot2::geom_sf(
-      stat = stat,
+      stat = "sf",
       position = position,
       ...
     )
+
+  ##############################################################################
+  #Generic code: part 2 (except gg_sf)
+  ##############################################################################
 
   if (rlang::is_null(facet_layout)) {
     if (!facet_null & facet2_null) facet_layout <- "wrap"
@@ -296,25 +269,21 @@ gg_sf <- function(
     }
   }
 
-  #Get layer data for x, y and col scales
-  layer_data <- ggplot2::layer_data(plot)
-
   #make col scale based on layer_data
-  if (col_null & !stat %in% c("bin2d", "bin_2d", "binhex")) {
-    # if (col_null & !stat %in% c("bin2d", "bin_2d", "binhex")) {
+  if (col_null) {
 
     if (rlang::is_null(pal)) pal <-  pal_viridis_mix(1)
-    else pal <- pal[1]
+    else pal <- as.vector(pal[1])
 
     plot <- plot +
       ggplot2::scale_colour_manual(
         values = pal,
-        na.value = pal_na,
+        na.value = as.vector(pal_na),
         guide = "none"
       ) +
       ggplot2::scale_fill_manual(
         values = pal,
-        na.value = pal_na,
+        na.value = as.vector(pal_na),
         guide = "none"
       )
 
@@ -322,22 +291,14 @@ gg_sf <- function(
   }
   else {
     if (rlang::is_null(col_title)) {
-      if (stat %in% c("bin2d", "bin_2d", "binhex")) col_name <- "count"
-      else col_name <- rlang::as_name(col)
-
+      col_name <- rlang::as_name(col)
       col_title <- purrr::map_chr(col_name, titles)
     }
 
-    if (stat %in% c("bin2d", "bin_2d", "binhex")) {
-      col_vctr <- layer_data %>%
-        dplyr::pull(.data$count)
-    }
-    else {
-      col_vctr <- data %>%
-        dplyr::pull(!!col)
-    }
+    col_vctr <- data %>%
+      dplyr::pull(!!col)
 
-    if (col_numeric | col_date | col_datetime | col_time | stat %in% c("bin2d", "bin_2d", "binhex")) {
+    if (col_numeric | col_date | col_datetime | col_time) {
       if (col_date) col_trans <- "date"
       if (col_datetime | col_time) col_trans <- "time"
 
@@ -372,7 +333,7 @@ gg_sf <- function(
             breaks = col_breaks,
             limits = col_limits,
             trans = col_trans,
-            na.value = pal_na,
+            na.value = as.vector(pal_na),
             guide = ggplot2::guide_colourbar(
               title.position = "top",
               draw.ulim = TRUE,
@@ -388,7 +349,7 @@ gg_sf <- function(
             breaks = col_breaks,
             limits = col_limits,
             trans = col_trans,
-            na.value = pal_na,
+            na.value = as.vector(pal_na),
             guide = ggplot2::guide_colourbar(
               title.position = "top",
               draw.ulim = TRUE,
@@ -407,7 +368,8 @@ gg_sf <- function(
             breaks = col_breaks,
             limits = col_limits,
             trans = col_trans,
-            na.value = pal_na,
+            oob = col_oob,
+            na.value = as.vector(pal_na),
             guide = ggplot2::guide_coloursteps(
               title.position = "top",
               reverse = col_legend_rev)
@@ -419,7 +381,8 @@ gg_sf <- function(
             breaks = col_breaks,
             limits = col_limits,
             trans = col_trans,
-            na.value = pal_na,
+            oob = col_oob,
+            na.value = as.vector(pal_na),
             guide = ggplot2::guide_coloursteps(
               title.position = "top",
               reverse = col_legend_rev)
@@ -438,7 +401,7 @@ gg_sf <- function(
       }
 
       if (rlang::is_null(pal)) pal <- pal_d3_mix(col_n)
-      else pal <- pal[1:col_n]
+      else if (rlang::is_null(names(pal))) pal <- pal[1:col_n]
 
       if (y_numeric | y_date | y_datetime | y_time) {
         if (col_forcat) col_legend_rev_auto <- FALSE
@@ -464,7 +427,7 @@ gg_sf <- function(
           breaks = col_breaks,
           limits = col_limits,
           labels = col_labels,
-          na.value = pal_na,
+          na.value = as.vector(pal_na),
           guide = ggplot2::guide_legend(
             reverse = col_legend_rev_auto,
             title.position = "top",
@@ -478,7 +441,7 @@ gg_sf <- function(
           breaks = col_breaks,
           limits = col_limits,
           labels = col_labels,
-          na.value = pal_na,
+          na.value = as.vector(pal_na),
           guide = ggplot2::guide_legend(
             reverse = col_legend_rev_auto,
             title.position = "top",
@@ -488,13 +451,6 @@ gg_sf <- function(
           )
         )
     }
-  }
-
-  if (stat == "sf") coord <- ggplot2::coord_sf(clip = clip)
-  else {
-    if (x_forcat) x_limits <- NULL
-    if (y_forcat) y_limits <- NULL
-    coord <- ggplot2::coord_cartesian(xlim = x_limits, ylim = y_limits, clip = clip)
   }
 
   #Add coord, theme and titles
@@ -547,7 +503,7 @@ gg_sf <- function(
       ggplot2::theme(legend.text = ggplot2::element_text(
         margin = ggplot2::margin(r = 7.5, unit = "pt")))
 
-    if (col_numeric | stat %in% c("bin2d", "bin_2d", "binhex")) {
+    if (col_numeric) {
       plot <- plot +
         ggplot2::theme(legend.key.width = grid::unit(0.66, "cm")) +
         ggplot2::theme(legend.text.align = 0.5)
@@ -562,7 +518,7 @@ gg_sf <- function(
       ggplot2::theme(legend.text = ggplot2::element_text(
         margin = ggplot2::margin(r = 0)))
 
-    if (col_numeric | stat %in% c("bin2d", "bin_2d", "binhex")) {
+    if (col_numeric) {
       plot <- plot +
         ggplot2::theme(legend.title = ggplot2::element_text(vjust = 1))
     }
@@ -601,5 +557,4 @@ gg_sf <- function(
 
   #return beautiful plot
   return(plot)
-
 }

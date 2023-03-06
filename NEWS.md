@@ -1,3 +1,14 @@
+# ggblanket 1.7.0
+
+* Updated `gg_theme` default axis-line and gridline thickness.
+* Supported named `pal` vectors.
+* Removed `clip` argument.
+* Added in `coord` argument.
+* Added in `*_oob` arguments.
+* Improved how `*_limits` works.
+* Removed default gridlines for `gg_sf`.
+* Removed `void` argument.
+
 # ggblanket 1.6.3
 
 * Fixed bug with default `x_expand`.
