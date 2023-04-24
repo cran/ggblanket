@@ -19,12 +19,11 @@ library(palmerpenguins)
 library(patchwork)
 
 ## -----------------------------------------------------------------------------
-iris |>
-  mutate(Species = str_to_sentence(Species)) |> 
+penguins |>
   gg_point(
-    x = Sepal.Width, 
-    y = Sepal.Length, 
-    col = Species)
+    x = flipper_length_mm,
+    y = body_mass_g,
+    col = species)
 
 ## -----------------------------------------------------------------------------
 penguins |> 
@@ -206,7 +205,7 @@ p1 <- penguins |>
     x = flipper_length_mm,
     y = body_mass_g,
     col = species,
-    pal = rep(pal_viridis_mix(1), 3), 
+    pal = rep(pal_default(1), 3), 
     x_breaks = scales::breaks_pretty(3),
     col_legend_ncol = 2) +
   geom_point(aes(alpha = species)) +

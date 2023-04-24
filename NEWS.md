@@ -1,3 +1,8 @@
+# ggblanket 1.8.0
+
+* Updated default colour palette.
+* Updated default NA colour.
+
 # ggblanket 1.7.0
 
 * Updated `gg_theme` default axis-line and gridline thickness.
@@ -7,7 +12,7 @@
 * Added in `*_oob` arguments.
 * Improved how `*_limits` works.
 * Removed default gridlines for `gg_sf`.
-* Removed `void` argument.
+* Removed `void` argument. 
 
 # ggblanket 1.6.3
 
