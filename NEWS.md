@@ -1,7 +1,18 @@
+# ggblanket 2.0.0
+
+* Made ggblanket work better with adding layers. 
+* Made the pal no longer inherit to subsequent layers where there is no col aesthetic.
+* Made x and y scales work better, including with NA in the limits.
+* Added 2 colours to the default palette. 
+* Breaking: changed default *oob agument to scales::oob_censor.
+* Breaking: changed default coord agument to clip = "off".
+* Breaking: removed add_tooltip function.
+* Breaking: changed pal functions to pal_blue, pal_grey, and pal_hue.
+
 # ggblanket 1.8.0
 
 * Updated default colour palette.
-* Updated default NA colour.
+* Updated default NA colour. 
 
 # ggblanket 1.7.0
 
@@ -12,23 +23,12 @@
 * Added in `*_oob` arguments.
 * Improved how `*_limits` works.
 * Removed default gridlines for `gg_sf`.
-* Removed `void` argument. 
-
-# ggblanket 1.6.3
-
 * Fixed bug with default `x_expand`.
 * Fixed bug with `gg_histogram` scales.
-
-# ggblanket 1.6.2
-
 * Critical fix to support dplyr 1.1.0.
 * Supported colouring date, datetime and time variables.
 * Made datetime breaks default to waiver.
-
-# ggblanket 1.6.1
-
 * Breaking: removed `void` argument from `gg_theme`.
-* Added `void` argument to `gg_sf`, `gg_raster` and `gg_blank`.
 * Corrected bug with `gg_raster` legend not showing.
 * Updated `gg_raster` `*_limits` and `*_expand` defaults.
 

@@ -4,7 +4,7 @@
 #'
 #' @return A vector
 #' @keywords internal
-na_if_double <- function(x) {
+na_if_inf <- function(x) {
   if (is.object(x)) {
     return(x)
   }

@@ -11,9 +11,10 @@ gg_sf(
   facet2 = NULL,
   group = NULL,
   position = "identity",
-  coord = ggplot2::coord_sf(),
+  stat = "sf",
+  coord = ggplot2::coord_sf(clip = "off"),
   pal = NULL,
-  pal_na = "#88837D",
+  pal_na = pal_grey,
   ...,
   title = NULL,
   subtitle = NULL,
@@ -30,7 +31,7 @@ gg_sf(
   col_legend_nrow = NULL,
   col_legend_rev = FALSE,
   col_limits = NULL,
-  col_oob = scales::oob_keep,
+  col_oob = scales::oob_censor,
   col_rescale = NULL,
   col_title = NULL,
   col_trans = "identity",
@@ -58,6 +59,8 @@ gg_sf(
 \item{group}{Unquoted group aesthetic variable.}
 
 \item{position}{Position adjustment. Either a character string (e.g."identity"), or a function (e.g. ggplot2::position_identity()).}
+
+\item{stat}{Statistical transformation. A character string (e.g. "identity").}
 
 \item{coord}{A coordinate function from ggplot2 (e.g. ggplot2::coord_cartesian()).}
 
@@ -97,7 +100,7 @@ gg_sf(
 
 \item{col_limits}{A vector to determine the limits of the colour scale.}
 
-\item{col_oob}{A scales::oob_* function that handles values outside of limits for continuous scales. Defaults to scales::oob_keep.}
+\item{col_oob}{A scales::oob_* function that handles values outside of limits for continuous scales. Defaults to scales::oob_censor.}
 
 \item{col_rescale}{For a continuous col variable, a vector to rescale the pal non-linearly.}
 

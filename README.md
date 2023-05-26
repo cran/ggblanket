@@ -17,7 +17,7 @@ downloads](https://cranlogs.r-pkg.org/badges/last-week/ggblanket?color=lightgrey
 downloads](https://cranlogs.r-pkg.org/badges/last-day/ggblanket?color=lightgrey)](https://r-pkg.org/pkg/ggblanket)
 <!-- badges: end -->
 
-## Overview
+## Purpose
 
 ggblanket is a package of wrapper functions around the fantastic ggplot2
 package.
@@ -33,12 +33,6 @@ Secondary objectives relate to:
 It is intended to be useful for all levels of experience from beginner
 to expert.
 
-## Website
-
-Click
-[here](https://davidhodge931.github.io/ggblanket/articles/ggblanket.html)
-to get started learning how ggblanket works.
-
 ## Installation
 
 ``` r
@@ -49,16 +43,13 @@ install.packages("ggblanket")
 
 ``` r
 library(ggblanket)
-library(dplyr)
-library(stringr)
 library(palmerpenguins)
 
 penguins |>
   gg_point(
     x = flipper_length_mm,
-    y = body_mass_g,
-    col = species
-  )
+    y = body_mass_g, 
+    col = species)
 ```
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="75%" /> <br>
@@ -66,21 +57,25 @@ penguins |>
 
 ``` r
 penguins |>
-  tidyr::drop_na() |> 
-  gg_density(
+  tidyr::drop_na(sex) |> 
+  gg_histogram(
     x = flipper_length_mm,
     col = sex,
     facet = species,
-    col_labels = stringr::str_to_sentence,
-    pal = c("#1B9E77", "#9E361B"))
+    pal = c("#2596be", "#fc7c24"),
+    col_labels = stringr::str_to_sentence)
 ```
 
 <img src="man/figures/README-unnamed-chunk-3-1.png" width="75%" />
 
+## Get started
+
+Click
+[here](https://davidhodge931.github.io/ggblanket/articles/ggblanket.html)
+to get started learning how ggblanket works.
+
 ## Thanks!
 
 Thank you to all authors and contributors to ggplot2, tidyverse, and the
-wider R ecosystem.
-
-If you like ggblanket, please give the repository a star and help spread
-the word.
+wider R ecosystem. If you like ggblanket, please give the repository a
+star and help spread the word.
