@@ -13,83 +13,112 @@ knitr::opts_chunk$set(
 ## ----setup--------------------------------------------------------------------
 library(dplyr)
 library(ggplot2)
-library(stringr)
 library(ggblanket)
-library(palmerpenguins)
+library(patchwork)
 
-penguins <- penguins |>
-  mutate(sex = str_to_sentence(sex)) |>
+penguins <- palmerpenguins::penguins |>
+  mutate(sex = stringr::str_to_sentence(sex)) |>
   tidyr::drop_na(sex)
 
 ## -----------------------------------------------------------------------------
+# ggplot2
 penguins |> 
   ggplot() + 
-  geom_point(aes(x = flipper_length_mm, y = body_mass_g))
+  geom_point(aes(x = flipper_length_mm, 
+                 y = body_mass_g))
 
 ## -----------------------------------------------------------------------------
+# ggblanket
 penguins |>
   gg_point(
     x = flipper_length_mm,
     y = body_mass_g)
 
 ## -----------------------------------------------------------------------------
-penguins |> 
+# ggplot2
+p1 <- penguins |> 
   ggplot() + 
-  geom_point(aes(x = flipper_length_mm, y = body_mass_g,
-                 col = species))
+  geom_point(aes(x = flipper_length_mm, 
+                 y = body_mass_g,
+                 col = species)) + 
+  theme(legend.position = "bottom") +
+  guides(col = guide_legend(title.position = "top")) +
+  labs(col = "Species") +
+  scale_x_continuous(breaks = scales::breaks_pretty(n = 3))
+
+p2 <- penguins |>
+  ggplot() +
+  geom_density(aes(x = body_mass_g, 
+                   fill = species)) +
+  theme(legend.position = "bottom") +
+  guides(fill = guide_legend(title.position = "top")) +
+  labs(fill = "Species")
+
+p1 + p2
 
 ## -----------------------------------------------------------------------------
-penguins |>
+# ggblanket
+p1 <- penguins |>
   gg_point(
     x = flipper_length_mm,
     y = body_mass_g, 
-    col = species)
+    col = species, 
+    x_breaks = scales::breaks_pretty(n = 3), 
+    col_legend_ncol = 2)
 
-## -----------------------------------------------------------------------------
-penguins |>
-  ggplot() +
-  geom_density(aes(x = body_mass_g, fill = species))
-
-## -----------------------------------------------------------------------------
-penguins |>
+p2 <- penguins |>
   gg_density(
     x = body_mass_g, 
-    col = species)
+    col = species,
+    x_breaks = scales::breaks_pretty(n = 3), 
+    col_legend_ncol = 2)
+
+p1 + p2
 
 ## -----------------------------------------------------------------------------
-penguins |>
+# ggplot2
+p1 <- penguins |>
   ggplot() +
-  geom_histogram(
-    aes(x = body_mass_g),
-    fill = "#1B9E77")
+  geom_histogram(aes(x = body_mass_g),
+                 fill = "#1B9E77") +
+  scale_x_continuous(breaks = scales::breaks_pretty(n = 3)) 
+
+p2 <- penguins |>
+  ggplot() +
+  geom_jitter(aes(x = species, 
+                  y = body_mass_g, 
+                  col = sex)) +
+  scale_color_manual(values = c("#2596be", "#fc7c24"))
+
+p1 + p2
 
 ## -----------------------------------------------------------------------------
-penguins |>
+# ggblanket
+p1 <- penguins |>
   gg_histogram(
     x = body_mass_g, 
-    pal = "#1B9E77")
+    pal = "#1B9E77", 
+    x_breaks = scales::breaks_pretty(n = 3))
 
-## -----------------------------------------------------------------------------
-penguins |>
-  ggplot() +
-  geom_jitter(aes(x = species, y = body_mass_g, col = sex)) +
-  scale_color_manual(values = c("#1B9E77", "#9E361B"))
-
-## -----------------------------------------------------------------------------
-penguins |>
+p2 <- penguins |>
   gg_jitter(
     x = species, 
     y = body_mass_g, 
     col = sex, 
     pal = c("#2596be", "#fc7c24"))
 
+p1 + p2
+
 ## -----------------------------------------------------------------------------
+# ggplot2
 penguins |>
   ggplot() +
-  geom_violin(aes(x = sex, y = body_mass_g)) +
+  geom_violin(aes(x = sex, 
+                  y = body_mass_g)) +
   facet_wrap(~species) 
 
 ## -----------------------------------------------------------------------------
+# ggblanket
 penguins |>
   gg_violin(
     x = sex,
@@ -97,27 +126,32 @@ penguins |>
     facet = species)
 
 ## ---- fig.asp=0.75------------------------------------------------------------
+# ggplot2
 penguins |>
   ggplot() +
   geom_histogram(aes(x = flipper_length_mm)) +
   facet_grid(species ~ sex)
 
 ## -----------------------------------------------------------------------------
+# ggblanket
 penguins |>
   gg_histogram(
     x = flipper_length_mm,
     facet = sex,
     facet2 = species)
 
-## ---- echo = FALSE------------------------------------------------------------
+## ---- echo = FALSE,   fig.width = 3, fig.asp = 2------------------------------
 knitr::include_graphics("screenshot_autotab_y.png", dpi = 300)
 
 ## -----------------------------------------------------------------------------
+# ggplot2
 penguins |>
   ggplot() +
-  geom_jitter(aes(x = species, y = body_mass_g, col = sex)) +
+  geom_jitter(aes(x = species, 
+                  y = body_mass_g, 
+                  col = sex)) +
   expand_limits(y = 0) +
-  scale_x_discrete(labels = \(x) str_sub(x, 1, 1)) +
+  scale_x_discrete(labels = \(x) stringr::str_sub(x, 1, 1)) +
   scale_y_continuous(breaks = scales::breaks_width(1500),
                      labels = scales::label_number(big.mark = " "),
                      trans = "sqrt") +
@@ -128,12 +162,13 @@ penguins |>
                       guide = ggplot2::guide_legend(title.position = "top"))
 
 ## -----------------------------------------------------------------------------
+# ggblanket
 penguins |>
   gg_jitter(
     x = species,
     y = body_mass_g,
     col = sex,
-    x_labels = \(x) str_sub(x, 1, 1),
+    x_labels = \(x) stringr::str_sub(x, 1, 1),
     y_include = 0,
     y_breaks = scales::breaks_width(1500), 
     y_labels = scales::label_number(big.mark = " "), 
@@ -141,185 +176,163 @@ penguins |>
     y_title = "Body mass (g)", 
     col_legend_place = "t")
 
-## ---- fig.asp = 0.618---------------------------------------------------------
-library(patchwork)
-p1 <- penguins |> 
-  gg_point(
-    x = flipper_length_mm, 
-    y = body_mass_g, 
-    y_include = 0, 
-    x_breaks = scales::breaks_width(25))
-
-p2 <- penguins |> 
-  gg_point(
-    x = flipper_length_mm, 
-    y = body_mass_g, 
-    y_limits = c(0, NA),
-    x_breaks = scales::breaks_pretty(3))
-
-p3 <- penguins |>
-  gg_point(
-    x = flipper_length_mm, 
-    y = body_mass_g, 
-    x_limits = c(190, 210),
-    x_oob = scales::oob_keep,
-    y_trans = "log10",
-    y_limits = c(1000, NA),
-    y_breaks = scales::breaks_width(1000),
-    coord = coord_cartesian(clip = "on"))
-
-p4 <- penguins |>
-  gg_point(
-    x = flipper_length_mm, 
-    y = body_mass_g,
-    x_trans = "reverse",
-    x_limits = c(210, 190),
-    x_breaks = scales::breaks_width(-10), 
-    y_include = 0,
-    y_trans = "sqrt")
-
-(p1 + p2) / (p3 + p4)
-
 ## -----------------------------------------------------------------------------
+# ggplot2
 penguins |>
   ggplot() +
-  geom_blank(aes(x = flipper_length_mm, y = body_mass_g)) +
-  labs(title = "Penguins body mass by flipper length",
-       subtitle = " Palmer Archipelago, Antarctica",
-       x = "Flipper length (mm)", 
-       caption = "Source: Gorman, 2020")
+  geom_point(aes(x = flipper_length_mm, 
+                 y = body_mass_g, 
+                 col = sex)) +
+  facet_wrap(~species) +
+  scale_x_continuous(breaks = scales::breaks_pretty(n = 3)) 
 
 ## -----------------------------------------------------------------------------
+# ggblanket
 penguins |>
-  gg_blank(
-    x = flipper_length_mm,
-    y = body_mass_g, 
-    title = "Penguins body mass by flipper length",
-    subtitle = " Palmer Archipelago, Antarctica",
-    x_title = "Flipper length (mm)",
-    caption = "Source: Gorman, 2020")
+  gg_point(
+      x = flipper_length_mm,
+      y = body_mass_g, 
+      col = sex,
+      facet = species)
 
-## -----------------------------------------------------------------------------
-penguins |>
-  gg_point(x = flipper_length_mm,
-           y = body_mass_g,
-           col = sex,
-           facet = species, 
-           pal = c("#2596be", "#fc7c24"), 
-           theme = theme_grey())
-
-## -----------------------------------------------------------------------------
-penguins |>
-  gg_point(x = flipper_length_mm,
-           y = body_mass_g,
-           col = sex,
-           facet = species, 
-           pal = c("#2596be", "#fc7c24")) +
-  theme_grey()
-
-## -----------------------------------------------------------------------------
-custom_theme <- gg_theme(
-  text_size = 9,
-  plot_background_pal = "#000000",
-  panel_background_pal = "#232323",
-  panel_grid_pal = "#000000",
-  text_pal = "#d3d3d3"
-)
+## ---- fig.asp=0.7-------------------------------------------------------------
+# ggblanket
+theme_set(dark_mode())
 
 penguins |>
   gg_point(
     x = flipper_length_mm,
-    y = body_mass_g, 
-    col = species, 
-    theme = custom_theme) 
-
-## -----------------------------------------------------------------------------
-penguins |>
-  group_by(species, sex) |> 
-  summarise(across(body_mass_g, mean)) |> 
-  ggplot() +
-  geom_col(aes(x = species, y = body_mass_g, fill = sex),
-    position = "dodge",
-    width = 0.5
-  )
-
-## -----------------------------------------------------------------------------
-penguins |>
-  group_by(species, sex) |> 
-  summarise(across(body_mass_g, mean)) |> 
-  gg_col(
-    x = species,
     y = body_mass_g,
     col = sex,
-    position = "dodge",
-    width = 0.5
-  )
+    title = "Penguins body mass by flipper length",
+    subtitle = "Palmer Archipelago, Antarctica",
+    caption = "Source: Gorman, 2020",
+    pal = c("#2596be", "#fc7c24"))
+
+## ---- fig.asp=0.75------------------------------------------------------------
+# ggblanket
+theme_set(light_mode(base_size = 12))
+
+penguins |>
+  gg_point(
+    x = flipper_length_mm,
+    y = body_mass_g,
+    col = sex,
+    title = "Penguins body mass by flipper length",
+    subtitle = "Palmer Archipelago, Antarctica",
+    caption = "Source: Gorman, 2020",
+    pal = c("#2596be", "#fc7c24"))
+theme_set(theme_grey()) #unset the theme
 
 ## -----------------------------------------------------------------------------
+# ggplot2
 penguins |>
   group_by(species, sex) |> 
-  summarise(across(body_mass_g, mean)) |> 
+  summarise(body_mass_g = mean(body_mass_g)) |> 
   ggplot() +
-  geom_col(aes(x = body_mass_g, y = species, fill = sex),
+  geom_col(aes(x = body_mass_g, 
+               y = species, 
+               fill = sex),
            position = "dodge",
-           width = 0.75
-  )
+           width = 0.75)
 
 ## -----------------------------------------------------------------------------
+# ggblanket
 penguins |>
   group_by(species, sex) |> 
-  summarise(across(body_mass_g, mean)) |> 
+  summarise(body_mass_g = mean(body_mass_g)) |> 
   gg_col(
     x = body_mass_g,
     y = species,
     col = sex,
     position = "dodge",
-    width = 0.75
-  )
+    width = 0.75)
 
 ## -----------------------------------------------------------------------------
+# ggblanket
 penguins |>
   gg_smooth(
     x = flipper_length_mm,
     y = body_mass_g,
     col = sex,
     linewidth = 0.5, #accessed via geom_smooth
-    level = 0.99, #accessed via geom_smooth
-    colour = "white") #accessed via geom_smooth
+    level = 0.99) #accessed via geom_smooth
 
 ## -----------------------------------------------------------------------------
-penguins |>
-  gg_smooth(
-    x = flipper_length_mm,
-    y = body_mass_g,
-    col = sex,
-    linewidth = 0.5, #accessed via geom_smooth
-    level = 0.99, #accessed via geom_smooth
-    fill = "#a8a8a8") #accessed via geom_smooth
-
-## -----------------------------------------------------------------------------
+# ggblanket + ggplot2
 penguins |>
   gg_boxplot(x = species,
              y = body_mass_g,
              width = 0.5,
              outlier.colour = NA) +
-  geom_jitter(colour = pal_blue)
+  geom_jitter(col = pal_blue)
+
+## ---- fig.asp=0.75------------------------------------------------------------
+# ggblanket + ggplot2
+d <- penguins |>
+  group_by(species) |>
+  summarise(body_mass_g = mean(body_mass_g)) |>
+  mutate(lower = body_mass_g * 0.95) |> 
+  mutate(upper = body_mass_g * 1.2)
+
+p1 <- d |>
+  gg_blank(    
+    y = species,
+    x = body_mass_g,
+    col = species,
+    xmin = lower,
+    xmax = upper,
+    x_include = 0, 
+    x_labels = \(x) x / 1000, 
+    x_title = "Body mass kg") +
+  geom_col(alpha = 0.9, width = 0.75) +
+  geom_errorbar(col = "black", width = 0.1)
+
+p2 <- d |>
+  gg_blank(
+    y = species,
+    x = body_mass_g,
+    xmin = lower, 
+    xmax = upper, 
+    col = species,
+    x_include = 0, 
+    x_labels = \(x) x / 1000, 
+    x_title = "Body mass kg") +
+  geom_col(col = NA, fill = "#d3d3d3", width = 0.75) +
+  geom_errorbar(width = 0.1)
+
+p1 / p2
 
 ## -----------------------------------------------------------------------------
-penguins |>
-  group_by(sex, species) |>
-  summarise(across(body_mass_g, mean)) |>
-  mutate(upper = body_mass_g * 1.05) |>
-  mutate(lower = body_mass_g * 0.95) |>
-  tidyr::drop_na(sex) %>% 
-  gg_col(
-    x = sex,
-    y = body_mass_g,
-    col = sex,
-    facet = species,
-    y_include = range(.$lower, .$upper),
-    fill = "#d3d3d3",
-    colour = "#d3d3d3", 
-    width = 0.75) +
-  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.1)
+# ggblanket + ggplot2
+d_wide <- gapminder::gapminder |>
+  filter(year %in% c(1967, 2007)) |>
+  select(country, year, lifeExp) |>
+  tidyr::pivot_wider(names_from = year, values_from = lifeExp) |>
+  mutate(gap = `2007` - `1967`) |>
+  slice_max(gap, n = 10) |>
+  mutate(country = forcats::fct_inorder(forcats::fct_drop(country))) 
+
+d_long <- d_wide |>
+  select(-gap) |> 
+  tidyr::pivot_longer(-country, 
+                      names_to = "year", 
+                      values_to = "life_expectancy")
+
+d_long |> 
+  gg_blank(x = life_expectancy,
+           y = country,
+           col = year,
+           pal = pal_hue[c(2, 1)],
+           x_include = 0,
+           col_legend_place = "r",
+           title = "We're living longer",
+           subtitle = "Biggest life expectancy rise, 1967\u20132007",
+           x_title = "Life expectancy", 
+           y_title = "") +
+  geom_segment(aes(x = `1967`, xend = `2007`, 
+                   y = country, yend = country), 
+               data = d_wide, inherit.aes = FALSE, 
+               col = "#dddddd", linewidth = 2) +
+  geom_point(size = 2) 
 

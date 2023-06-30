@@ -23,7 +23,7 @@ gg_jitter(
   subtitle = NULL,
   x_breaks = NULL,
   x_expand = NULL,
-  x_grid = NULL,
+  x_gridlines = NULL,
   x_include = NULL,
   x_labels = NULL,
   x_limits = NULL,
@@ -33,7 +33,7 @@ gg_jitter(
   x_trans = "identity",
   y_breaks = NULL,
   y_expand = NULL,
-  y_grid = NULL,
+  y_gridlines = NULL,
   y_include = NULL,
   y_labels = NULL,
   y_limits = NULL,
@@ -51,7 +51,7 @@ gg_jitter(
   col_legend_rev = FALSE,
   col_limits = NULL,
   col_oob = scales::oob_censor,
-  col_rescale = NULL,
+  col_rescale = scales::rescale(),
   col_title = NULL,
   col_trans = "identity",
   facet_labels = NULL,
@@ -60,10 +60,10 @@ gg_jitter(
   facet_scales = "fixed",
   facet_space = "fixed",
   facet_layout = NULL,
+  facet_switch = NULL,
   caption = NULL,
   titles = snakecase::to_sentence_case,
-  theme = gg_theme(),
-  void = FALSE
+  theme = NULL
 )
 }
 \arguments{
@@ -103,7 +103,7 @@ gg_jitter(
 
 \item{x_expand}{Padding to the limits with the ggplot2::expansion function, or a vector of length 2 (e.g. c(0, 0)).}
 
-\item{x_grid}{TRUE or FALSE for vertical x gridlines. NULL guesses based on the classes of the x and y.}
+\item{x_gridlines}{TRUE or FALSE for vertical x gridlines. NULL guesses based on the classes of the x and y.}
 
 \item{x_include}{For a numeric or date variable, any values that the scale should include (e.g. 0).}
 
@@ -123,7 +123,7 @@ gg_jitter(
 
 \item{y_expand}{Padding to the limits with the ggplot2::expansion function, or a vector of length 2 (e.g. c(0, 0)).}
 
-\item{y_grid}{TRUE or FALSE of horizontal y gridlines. NULL guesses based on the classes of the x and y.}
+\item{y_gridlines}{TRUE or FALSE of horizontal y gridlines. NULL guesses based on the classes of the x and y.}
 
 \item{y_include}{For a numeric or date variable, any values that the scale should include (e.g. 0).}
 
@@ -147,7 +147,7 @@ gg_jitter(
 
 \item{col_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels. Note this does not affect where col_intervals is not NULL.}
 
-\item{col_legend_place}{The place for the legend. Either "bottom", "right", "top" or "left" - or just the first letter of these e.g. "b".}
+\item{col_legend_place}{The place for the legend. Either "b" (bottom), "r" (right), "t" (top) or "l" (left).}
 
 \item{col_legend_ncol}{The number of columns for the legend elements.}
 
@@ -159,7 +159,7 @@ gg_jitter(
 
 \item{col_oob}{A scales::oob_* function that handles values outside of limits for continuous scales. Defaults to scales::oob_censor.}
 
-\item{col_rescale}{For a continuous col variable, a vector to rescale the pal non-linearly.}
+\item{col_rescale}{For a continuous col variable, a scales::rescale function.}
 
 \item{col_title}{Legend title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
 
@@ -177,13 +177,13 @@ gg_jitter(
 
 \item{facet_layout}{Whether the layout is to be "wrap" or "grid". If NULL and a single facet (or facet2) argument is provided, then defaults to "wrap". If NULL and both facet and facet2 arguments are provided, defaults to "grid".}
 
+\item{facet_switch}{Whether the facet layout is "grid", whether to switch the facet labels to the opposite side of the plot. Either "x", "y" or "both".}
+
 \item{caption}{Caption title string.}
 
 \item{titles}{A function to format the x, y and col titles. Defaults to snakecase::to_sentence_case.}
 
 \item{theme}{A ggplot2 theme.}
-
-\item{void}{TRUE or FALSE of whether to remove axis lines, ticks and x and y titles and labels.}
 }
 \value{
 A ggplot object.

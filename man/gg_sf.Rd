@@ -15,12 +15,13 @@ gg_sf(
   coord = ggplot2::coord_sf(clip = "off"),
   pal = NULL,
   pal_na = pal_grey,
+  alpha = NULL,
   ...,
   title = NULL,
   subtitle = NULL,
-  x_grid = FALSE,
+  x_gridlines = FALSE,
   x_title = NULL,
-  y_grid = FALSE,
+  y_gridlines = FALSE,
   y_title = NULL,
   col_breaks = NULL,
   col_continuous = "gradient",
@@ -32,7 +33,7 @@ gg_sf(
   col_legend_rev = FALSE,
   col_limits = NULL,
   col_oob = scales::oob_censor,
-  col_rescale = NULL,
+  col_rescale = scales::rescale(),
   col_title = NULL,
   col_trans = "identity",
   facet_labels = NULL,
@@ -41,10 +42,10 @@ gg_sf(
   facet_scales = "fixed",
   facet_space = "fixed",
   facet_layout = NULL,
+  facet_switch = NULL,
   caption = NULL,
   titles = snakecase::to_sentence_case,
-  theme = gg_theme(),
-  void = TRUE
+  theme = NULL
 )
 }
 \arguments{
@@ -68,17 +69,19 @@ gg_sf(
 
 \item{pal_na}{Colour to use for NA values. A character vector of a hex code (or name).}
 
+\item{alpha}{Opacity. A number between 0 and 1.}
+
 \item{...}{Other arguments passed to the ggplot2::geom_sf function.}
 
 \item{title}{Title string.}
 
 \item{subtitle}{Subtitle string.}
 
-\item{x_grid}{TRUE or FALSE for vertical x gridlines. NULL guesses based on the classes of the x and y.}
+\item{x_gridlines}{TRUE or FALSE for vertical x gridlines. NULL guesses based on the classes of the x and y.}
 
 \item{x_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
 
-\item{y_grid}{TRUE or FALSE of horizontal y gridlines. NULL guesses based on the classes of the x and y.}
+\item{y_gridlines}{TRUE or FALSE of horizontal y gridlines. NULL guesses based on the classes of the x and y.}
 
 \item{y_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
 
@@ -90,7 +93,7 @@ gg_sf(
 
 \item{col_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels. Note this does not affect where col_intervals is not NULL.}
 
-\item{col_legend_place}{The place for the legend. Either "bottom", "right", "top" or "left" - or just the first letter of these e.g. "b".}
+\item{col_legend_place}{The place for the legend. Either "b" (bottom), "r" (right), "t" (top) or "l" (left).}
 
 \item{col_legend_ncol}{The number of columns for the legend elements.}
 
@@ -102,7 +105,7 @@ gg_sf(
 
 \item{col_oob}{A scales::oob_* function that handles values outside of limits for continuous scales. Defaults to scales::oob_censor.}
 
-\item{col_rescale}{For a continuous col variable, a vector to rescale the pal non-linearly.}
+\item{col_rescale}{For a continuous col variable, a scales::rescale function.}
 
 \item{col_title}{Legend title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
 
@@ -120,13 +123,13 @@ gg_sf(
 
 \item{facet_layout}{Whether the layout is to be "wrap" or "grid". If NULL and a single facet (or facet2) argument is provided, then defaults to "wrap". If NULL and both facet and facet2 arguments are provided, defaults to "grid".}
 
+\item{facet_switch}{Whether the facet layout is "grid", whether to switch the facet labels to the opposite side of the plot. Either "x", "y" or "both".}
+
 \item{caption}{Caption title string.}
 
 \item{titles}{A function to format the x, y and col titles. Defaults to snakecase::to_sentence_case.}
 
 \item{theme}{A ggplot2 theme.}
-
-\item{void}{TRUE or FALSE of whether to remove axis lines, ticks and x and y titles and labels.}
 }
 \value{
 A ggplot object.
@@ -136,9 +139,7 @@ Create a blank ggplot with a wrapper around the ggplot2::geom_sf function.
 }
 \examples{
 if (requireNamespace("sf", quietly = TRUE)) {
-  nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
-
-  nc |>
+  sf::st_read(system.file("shape/nc.shp", package = "sf")) \%>\%
     gg_sf(
       col = AREA,
       pal = viridis::cividis(9))

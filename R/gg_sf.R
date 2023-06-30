@@ -11,12 +11,13 @@
 #' @param coord A coordinate function from ggplot2 (e.g. ggplot2::coord_cartesian()).
 #' @param pal Colours to use. A character vector of hex codes (or names).
 #' @param pal_na Colour to use for NA values. A character vector of a hex code (or name).
+#' @param alpha Opacity. A number between 0 and 1.
 #' @param ... Other arguments passed to the ggplot2::geom_sf function.
 #' @param title Title string.
 #' @param subtitle Subtitle string.
-#' @param x_grid TRUE or FALSE for vertical x gridlines. NULL guesses based on the classes of the x and y.
+#' @param x_gridlines TRUE or FALSE for vertical x gridlines. NULL guesses based on the classes of the x and y.
 #' @param x_title Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.
-#' @param y_grid TRUE or FALSE of horizontal y gridlines. NULL guesses based on the classes of the x and y.
+#' @param y_gridlines TRUE or FALSE of horizontal y gridlines. NULL guesses based on the classes of the x and y.
 #' @param y_title Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.
 #' @param col_breaks A function on the limits (e.g. scales::breaks_pretty()), or a vector of breaks.
 #' @param col_continuous Type of colouring for a continuous variable. Either "gradient" or "steps". Defaults to "steps" - or just the first letter of these e.g. "g".
@@ -24,11 +25,11 @@
 #' @param col_labels A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels. Note this does not affect where col_intervals is not NULL.
 #' @param col_legend_ncol The number of columns for the legend elements.
 #' @param col_legend_nrow The number of rows for the legend elements.
-#' @param col_legend_place The place for the legend. Either "bottom", "right", "top" or "left" - or just the first letter of these e.g. "b".
+#' @param col_legend_place The place for the legend. Either "b" (bottom), "r" (right), "t" (top) or "l" (left).
 #' @param col_legend_rev Reverse the elements of the legend. Defaults to FALSE.
 #' @param col_limits A vector to determine the limits of the colour scale.
 #' @param col_oob A scales::oob_* function that handles values outside of limits for continuous scales. Defaults to scales::oob_censor.
-#' @param col_rescale For a continuous col variable, a vector to rescale the pal non-linearly.
+#' @param col_rescale For a continuous col variable, a scales::rescale function.
 #' @param col_title Legend title string. Defaults to converting to sentence case with spaces. Use "" for no title.
 #' @param col_trans For a numeric variable, a transformation object (e.g. "log10", "sqrt" or "reverse").
 #' @param facet_labels A function that takes the breaks as inputs (e.g. scales::label_comma()), or a named vector of labels (e.g. c("value" = "label", ...)).
@@ -37,19 +38,17 @@
 #' @param facet_scales Whether facet scales should be "fixed" across facets, "free" in both directions, or free in just one direction (i.e. "free_x" or "free_y"). Defaults to "fixed".
 #' @param facet_space Whether facet space should be "fixed" across facets, "free" to be proportional in both directions, or free to be proportional in just one direction (i.e. "free_x" or "free_y"). Defaults to "fixed". Only applies where the facet layout is "grid" and facet scales are not "fixed".
 #' @param facet_layout Whether the layout is to be "wrap" or "grid". If NULL and a single facet (or facet2) argument is provided, then defaults to "wrap". If NULL and both facet and facet2 arguments are provided, defaults to "grid".
+#' @param facet_switch Whether the facet layout is "grid", whether to switch the facet labels to the opposite side of the plot. Either "x", "y" or "both".
 #' @param titles A function to format the x, y and col titles. Defaults to snakecase::to_sentence_case.
 #' @param caption Caption title string.
 #' @param theme A ggplot2 theme.
-#' @param void TRUE or FALSE of whether to remove axis lines, ticks and x and y titles and labels.
 #'
 #' @return A ggplot object.
 #' @export
 #'
 #' @examples
 #' if (requireNamespace("sf", quietly = TRUE)) {
-#'   nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
-#'
-#'   nc |>
+#'   sf::st_read(system.file("shape/nc.shp", package = "sf")) %>%
 #'     gg_sf(
 #'       col = AREA,
 #'       pal = viridis::cividis(9))
@@ -66,12 +65,13 @@ gg_sf <- function(
     coord = ggplot2::coord_sf(clip = "off"),
     pal = NULL,
     pal_na = pal_grey,
+    alpha = NULL,
     ...,
     title = NULL,
     subtitle = NULL,
-    x_grid = FALSE,
+    x_gridlines = FALSE,
     x_title = NULL,
-    y_grid = FALSE,
+    y_gridlines = FALSE,
     y_title = NULL,
     col_breaks = NULL,
     col_continuous = "gradient",
@@ -83,7 +83,7 @@ gg_sf <- function(
     col_legend_rev = FALSE,
     col_limits = NULL,
     col_oob = scales::oob_censor,
-    col_rescale = NULL,
+    col_rescale = scales::rescale(),
     col_title = NULL,
     col_trans = "identity",
     facet_labels = NULL,
@@ -92,10 +92,10 @@ gg_sf <- function(
     facet_scales = "fixed",
     facet_space = "fixed",
     facet_layout = NULL,
+    facet_switch = NULL,
     caption = NULL,
     titles = snakecase::to_sentence_case,
-    theme = gg_theme(),
-    void = TRUE) {
+    theme = NULL) {
 
   ##############################################################################
   #Unique code: part 1
@@ -142,9 +142,37 @@ gg_sf <- function(
   facet_null <- rlang::quo_is_null(facet)
   facet2_null <- rlang::quo_is_null(facet2)
 
+  if (rlang::is_null(alpha)) {
+    # geometry_type <- unique(sf::st_geometry_type(data))
+    # if (length(geometry_type) > 1) geometry_type <- "GEOMETRY"
+    geometry_type <-
+      stringr::str_remove(attributes(sf::st_geometry(data))$class[1], "sfc_")
+
+    if (geometry_type %in% c("POINT",
+                             "MULTIPOINT",
+                             "LINESTRING",
+                             "MULTILINESTRING",
+                             "CIRCULARSTRING",
+                             "COMPOUNDCURVE",
+                             "MULTICURVE",
+                             "CURVE")) {
+      alpha <- 1
+    }
+    else {
+      alpha <- 0.9
+    }
+  }
+
   ##############################################################################
   #Generic code: part 1 (adjust for gg_sf)
   ##############################################################################
+
+  #get default theme if global theme not set
+  if (rlang::is_null(theme)) {
+    if (identical(ggplot2::theme_get(), ggplot2::theme_grey())) {
+      theme <- light_mode()
+    }
+  }
 
   #process for horizontal
   # if (stat != "sf") {
@@ -183,7 +211,7 @@ gg_sf <- function(
   if (!col_null) {
     plot <- data %>%
       ggplot2::ggplot(mapping = ggplot2::aes(
-        geometry = .data$geometry,
+        geometry = sf::st_geometry(data),
         col = !!col,
         fill = !!col,
         group = !!group
@@ -192,7 +220,7 @@ gg_sf <- function(
   else if (col_null) {
     plot <- data %>%
       ggplot2::ggplot(mapping = ggplot2::aes(
-        geometry = .data$geometry,
+        geometry = sf::st_geometry(data),
         # col = "",
         # fill = "",
         group = !!group
@@ -207,6 +235,7 @@ gg_sf <- function(
       ggplot2::geom_sf(
         stat = "sf",
         position = position,
+        alpha = alpha,
         col = pal,
         fill = pal,
         ...
@@ -219,6 +248,7 @@ gg_sf <- function(
       ggplot2::geom_sf(
         stat = "sf",
         position = position,
+        alpha = alpha,
         ...
       ) +
       coord +
@@ -273,7 +303,7 @@ gg_sf <- function(
   else if (facet_layout == "grid") {
     if (!facet_null & !facet2_null) {
       plot <- plot +
-        ggplot2::facet_grid(
+        ggplot2::facet_grid(switch = facet_switch,
           rows = ggplot2::vars(!!facet2),
           cols = ggplot2::vars(!!facet),
           scales = facet_scales,
@@ -283,7 +313,7 @@ gg_sf <- function(
     }
     else if (!facet_null & facet2_null) {
       plot <- plot +
-        ggplot2::facet_grid(
+        ggplot2::facet_grid(switch = facet_switch,
           cols = ggplot2::vars(!!facet),
           scales = facet_scales,
           space = facet_space,
@@ -292,7 +322,7 @@ gg_sf <- function(
     }
     else if (facet_null & !facet2_null) {
       plot <- plot +
-        ggplot2::facet_grid(
+        ggplot2::facet_grid(switch = facet_switch,
           rows = ggplot2::vars(!!facet2),
           scales = facet_scales,
           space = facet_space,
@@ -304,7 +334,7 @@ gg_sf <- function(
   #Get the positional scales right first
   # if (stat != "sf") {
   #   if (rlang::is_null(x_limits)) {
-  #     if (stat %in% c("bin", "bin2d", "bin_2d", "binhex")) {
+  #     if (stat == "bin") {
   #       if (x_numeric) x_limits <- c(NA, NA)
   #       if (x_date | x_datetime | x_time) {
   #         x_limits <- c(lubridate::NA_Date_, lubridate::NA_Date_)
@@ -339,7 +369,7 @@ gg_sf <- function(
   #   }
   #
   #   if (rlang::is_null(y_limits)) {
-  #     if (stat %in% c("bin", "bin2d", "bin_2d", "binhex")) {
+  #     if (stat == "bin") {
   #       if (y_numeric) y_limits <- c(NA, NA)
   #       if (y_date | y_datetime | y_time) {
   #         y_limits <- c(lubridate::NA_Date_, lubridate::NA_Date_)
@@ -851,9 +881,9 @@ gg_sf <- function(
       else if (rlang::is_null(names(pal))) pal <- pal[1:col_n]
 
       # if (y_numeric | y_date | y_datetime | y_time) {
-        if (col_forcat) col_legend_rev_auto <- FALSE
-        else if (col_legend_place %in% c("top", "bottom")) col_legend_rev_auto <- FALSE
-        else col_legend_rev_auto <- TRUE
+      if (col_forcat) col_legend_rev_auto <- FALSE
+      else if (col_legend_place %in% c("top", "bottom")) col_legend_rev_auto <- FALSE
+      else col_legend_rev_auto <- TRUE
       # }
       # else if (y_forcat) {
       #   if (col_forcat) col_legend_rev_auto <- TRUE
@@ -916,11 +946,6 @@ gg_sf <- function(
           col_labels <- scales::label_date_short(format = c("%Y", "%b", "%e", "%H:%M"))
         }
       }
-
-      if (!rlang::is_null(col_rescale)) {
-        col_rescale <- scales::rescale(col_rescale)
-      }
-      else col_rescale <- NULL
 
       if (col_continuous == "gradient") {
         plot <- plot +
@@ -1067,124 +1092,103 @@ gg_sf <- function(
   }
 
   #Adjust legend
-  if (!col_null | stat %in% c("bin2d", "bin_2d", "binhex")) {
-    if (rlang::is_null(col_legend_place)) {
-      if (stat %in% c("bin2d", "bin_2d", "binhex")) {
-        col_legend_place <- "right"
-      }
-      else if (stat == "sf") {
-        if ((identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet, data))) |
-            (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet2, data)))) {
-          col_legend_place <- "none"
-        }
-        else col_legend_place <- "right"
-      }
-      else if (stat == "qq") {
-        if ((identical(rlang::eval_tidy(col, data), rlang::eval_tidy(sample, data))) |
-            (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet, data))) |
-            (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet2, data)))) {
-          col_legend_place <- "none"
-        }
-        col_legend_place <- "bottom"
-      }
-      else if (#(identical(rlang::eval_tidy(col, data), rlang::eval_tidy(x, data))) |
-               #(identical(rlang::eval_tidy(col, data), rlang::eval_tidy(y, data))) |
-               (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet, data))) |
-               (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet2, data)))) {
+  if (rlang::is_null(col_legend_place)) {
+    if (stat %in% c("bin2d", "bin_2d", "binhex")) {
+      col_legend_place <- "right"
+    }
+    else if (stat == "sf") {
+      if ((identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet, data))) |
+          (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet2, data)))) {
         col_legend_place <- "none"
       }
-      else if (col_numeric | col_date | col_datetime | col_time) col_legend_place <- "right"
-      else col_legend_place <- "bottom"
+      else col_legend_place <- "right"
     }
-    else {
-      if (col_legend_place == "b") col_legend_place <- "bottom"
-      if (col_legend_place == "t") col_legend_place <- "top"
-      if (col_legend_place == "l") col_legend_place <- "left"
-      if (col_legend_place == "r") col_legend_place <- "right"
-      if (col_legend_place == "n") col_legend_place <- "none"
-    }
-
-    if (col_legend_place %in% c("top", "bottom")) {
-      plot <- plot +
-        ggplot2::theme(legend.position = col_legend_place) +
-        ggplot2::theme(legend.direction = "horizontal") +
-        ggplot2::theme(legend.justification = "left") +
-        ggplot2::theme(legend.box.margin = ggplot2::margin(t = -2.5)) +
-        ggplot2::theme(legend.text = ggplot2::element_text(
-          margin = ggplot2::margin(r = 7.5, unit = "pt")))
-
-      if (col_numeric | stat %in% c("bin2d", "bin_2d", "binhex")) {
-        plot <- plot +
-          ggplot2::theme(legend.key.width = grid::unit(0.66, "cm")) +
-          ggplot2::theme(legend.text.align = 0.5)
+    else if (stat == "qq") {
+      if ((identical(rlang::eval_tidy(col, data), rlang::eval_tidy(sample, data))) |
+          (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet, data))) |
+          (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet2, data)))) {
+        col_legend_place <- "none"
       }
+      col_legend_place <- "bottom"
     }
-    else if (col_legend_place %in% c("left", "right")) {
-      plot <- plot +
-        ggplot2::theme(legend.position = col_legend_place) +
-        ggplot2::theme(legend.direction = "vertical") +
-        ggplot2::theme(legend.justification = "left") +
-        ggplot2::theme(legend.box.margin = ggplot2::margin(t = 0)) +
-        ggplot2::theme(legend.text = ggplot2::element_text(
-          margin = ggplot2::margin(r = 0)))
-
-      if (col_numeric | stat %in% c("bin2d", "bin_2d", "binhex")) {
-        plot <- plot +
-          ggplot2::theme(legend.title = ggplot2::element_text(vjust = 1))
-      }
+    else if (#(identical(rlang::eval_tidy(col, data), rlang::eval_tidy(x, data))) |
+      #(identical(rlang::eval_tidy(col, data), rlang::eval_tidy(y, data))) |
+      (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet, data))) |
+      (identical(rlang::eval_tidy(col, data), rlang::eval_tidy(facet2, data)))) {
+      col_legend_place <- "none"
     }
-    else if (col_legend_place == "none") {
-      plot <- plot +
-        ggplot2::theme(legend.position = col_legend_place)
+    else if (col_numeric | col_date | col_datetime | col_time) col_legend_place <- "right"
+    else if (col_null & !stat %in% c("bin2d", "bin_2d", "binhex")) {
+      col_legend_place <- "none"
     }
+    else col_legend_place <- "bottom"
   }
 
-  #remove gridlines not needed
-  if (stat == "sf") {
-    if (rlang::is_null(x_grid)) x_grid <- FALSE
-    if (rlang::is_null(y_grid)) y_grid <- FALSE
-  }
-  # else if ((y_numeric | y_date | y_datetime | y_time) & (x_null)) {
-  #   if (rlang::is_null(x_grid)) x_grid <- TRUE
-  #   if (rlang::is_null(y_grid)) y_grid <- FALSE
-  # }
-  # else if ((y_forcat) & (x_numeric | x_null)) {
-  #   if (rlang::is_null(x_grid)) x_grid <- TRUE
-  #   if (rlang::is_null(y_grid)) y_grid <- FALSE
-  # }
-  # else if ((y_forcat) & (x_forcat)) {
-  #   if (rlang::is_null(x_grid)) x_grid <- FALSE
-  #   if (rlang::is_null(y_grid)) y_grid <- FALSE
-  # }
-  # else {
-  #   if (rlang::is_null(x_grid)) x_grid <- FALSE
-  #   if (rlang::is_null(y_grid)) y_grid <- TRUE
-  # }
+  if (col_legend_place == "b") col_legend_place <- "bottom"
+  if (col_legend_place == "t") col_legend_place <- "top"
+  if (col_legend_place == "l") col_legend_place <- "left"
+  if (col_legend_place == "r") col_legend_place <- "right"
+  if (col_legend_place == "n") col_legend_place <- "none"
 
-  if (!x_grid & !y_grid) {
-    plot <- plot + #resolve sf bug https://github.com/tidyverse/ggplot2/issues/4730
-      ggplot2::theme(panel.grid.major = ggplot2::element_blank())
+  if (col_legend_place %in% c("top", "bottom")) {
+    plot <- plot +
+      ggplot2::theme(legend.position = col_legend_place) +
+      ggplot2::theme(legend.direction = "horizontal") +
+      ggplot2::theme(legend.justification = "left") +
+      ggplot2::theme(legend.box.margin = ggplot2::margin(t = -2.5)) +
+      ggplot2::theme(legend.text = ggplot2::element_text(margin = ggplot2::margin(r = 7.5))) +
+      ggplot2::theme(legend.title = ggplot2::element_text(margin = ggplot2::margin(t = 5)))
+
+    if (col_numeric | stat %in% c("bin2d", "bin_2d", "binhex")) {
+      plot <- plot +
+        ggplot2::theme(legend.key.width = grid::unit(0.66, "cm")) +
+        ggplot2::theme(legend.text.align = 0.5)
+    }
+  }
+  else if (col_legend_place %in% c("left", "right")) {
+    plot <- plot +
+      ggplot2::theme(legend.position = col_legend_place) +
+      ggplot2::theme(legend.direction = "vertical") +
+      ggplot2::theme(legend.justification = "left")
+  }
+  else if (col_legend_place == "none") {
+    plot <- plot +
+      ggplot2::guides(col = FALSE, fill = FALSE)
+  }
+
+  #remove gridlines as per x_gridlines and y_gridlines. Guess if NULL
+  if (rlang::is_null(x_gridlines)) {
+    if (stat == "sf") x_gridlines <- FALSE
+    else if ((y_numeric | y_date | y_datetime | y_time) & (x_null)) x_gridlines <- TRUE
+    else if ((y_forcat) & (x_numeric | x_null)) x_gridlines <- TRUE
+    else if ((y_forcat) & (x_forcat)) x_gridlines <- FALSE
+    else x_gridlines <- FALSE
+  }
+
+  if (rlang::is_null(y_gridlines)) {
+    if (stat == "sf") y_gridlines <- FALSE
+    else if ((y_numeric | y_date | y_datetime | y_time) & (x_null)) y_gridlines <- FALSE
+    else if ((y_forcat) & (x_numeric | x_null)) y_gridlines <- FALSE
+    else if ((y_forcat) & (x_forcat)) y_gridlines <- FALSE
+    else y_gridlines <- TRUE
+  }
+
+  if (!x_gridlines & !y_gridlines) {
+    plot <- plot + #resolve sf bug 4730
+      ggplot2::theme(panel.grid.major = ggplot2::element_blank()) +
+      ggplot2::theme(panel.grid.minor = ggplot2::element_blank())
   }
   else {
-    if (!x_grid) {
+    if (!x_gridlines) {
       plot <- plot +
         ggplot2::theme(panel.grid.major.x = ggplot2::element_blank()) +
         ggplot2::theme(panel.grid.minor.x = ggplot2::element_blank())
     }
-    if (!y_grid) {
+    if (!y_gridlines) {
       plot <- plot +
         ggplot2::theme(panel.grid.major.y = ggplot2::element_blank()) +
         ggplot2::theme(panel.grid.minor.y = ggplot2::element_blank())
     }
-  }
-
-  if (void) {
-    plot <- plot +
-      ggplot2::theme(axis.text = ggplot2::element_blank()) +
-      ggplot2::theme(axis.line = ggplot2::element_blank()) +
-      ggplot2::theme(axis.ticks = ggplot2::element_blank()) +
-      ggplot2::theme(axis.title = ggplot2::element_blank()) +
-      ggplot2::theme(plot.margin = ggplot2::margin(t = 15, l = 20, b = 10, r = 20))
   }
 
   #return beautiful plot

@@ -1,13 +1,28 @@
+# ggblanket 3.0.0
+
+* New theme functions: `light_mode` and `dark_mode`.
+* Breaking: removed `gg_theme`. 
+* Breaking: renamed `*_grid` arguments to `*_gridlines`.
+* Breaking: removed `void` argument.
+* Breaking: removed `gg_function`.
+* Breaking: made `col_rescale` require a function (e.g. `scales::rescale()`).
+* Added `facet_switch` argument.
+* Made `col_legend_place = "none"` only remove the col legend.  
+* Made `gg_bin2d` and `gg_hex` scales calculate in the same way as other functions.
+* For raster, removed col aesthetic so that legend would work.
+* Improved `gg_sf` default `alpha`.
+* Supported `gg_sf` to work with non-standard named geometry.
+
 # ggblanket 2.0.0
 
-* Made ggblanket work better with adding layers. 
-* Made the pal no longer inherit to subsequent layers where there is no col aesthetic.
+* Made ggblanket work better with adding layers.
+* Made the `pal` no longer inherit to layers where no `col` aesthetic.
 * Made x and y scales work better, including with NA in the limits.
-* Added 2 colours to the default palette. 
-* Breaking: changed default *oob agument to scales::oob_censor.
-* Breaking: changed default coord agument to clip = "off".
-* Breaking: removed add_tooltip function.
-* Breaking: changed pal functions to pal_blue, pal_grey, and pal_hue.
+* Added 2 colours to `pal_hue`.
+* Breaking: changed default `*oob` agument to `scales::oob_censor`.
+* Breaking: changed default `coord` agument to include `clip = "off"` argument.
+* Breaking: removed `add_tooltip` function.
+* Breaking: changed pal functions to `pal_blue`, `pal_grey`, and `pal_hue`.
 
 # ggblanket 1.8.0
 
