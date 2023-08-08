@@ -1,3 +1,16 @@
+# ggblanket 4.0.0
+
+* Breaking: removed the `stat` argument for all `gg_*` functions except `gg_blank`.
+* Breaking: renamed `pal_hue` to `pal_discrete` and made colours relatively red/green colour-blind safe.
+* Breaking: renamed `gg_bin2d` to `gg_bin_2d`.
+* Breaking: changed `*_oob` default back to `scales::oob_keep`.
+* Improved scales to work better with transformations, limits, breaks etc.
+* Added `gg_contour`, `gg_contour_filled`, `gg_density2d`, `gg_density2d_filled` functions.
+* Made default to keep unused factors across all scales and facets.
+* Made default continuous label function to drop trailing zeros.
+* Made default legend place simpler: bottom, unless continuous. Otherwise right.
+* Added `text` aesthetic in for `plotly::ggplotly`.
+
 # ggblanket 3.0.0
 
 * New theme functions: `light_mode` and `dark_mode`.
@@ -11,7 +24,7 @@
 * Made `gg_bin2d` and `gg_hex` scales calculate in the same way as other functions.
 * For raster, removed col aesthetic so that legend would work.
 * Improved `gg_sf` default `alpha`.
-* Supported `gg_sf` to work with non-standard named geometry.
+* Supported `gg_sf` to work with non-standard named geometry. 
 
 # ggblanket 2.0.0
 
@@ -19,8 +32,8 @@
 * Made the `pal` no longer inherit to layers where no `col` aesthetic.
 * Made x and y scales work better, including with NA in the limits.
 * Added 2 colours to `pal_hue`.
-* Breaking: changed default `*oob` agument to `scales::oob_censor`.
-* Breaking: changed default `coord` agument to include `clip = "off"` argument.
+* Breaking: changed default `*oob` argument to `scales::oob_censor`.
+* Breaking: changed default `coord` argument to include `clip = "off"` argument.
 * Breaking: removed `add_tooltip` function.
 * Breaking: changed pal functions to `pal_blue`, `pal_grey`, and `pal_hue`.
 
@@ -93,7 +106,7 @@
 
 * Breaking: removed `facet_intervals` argument.
 * Breaking: made extensive changes to `gg_theme` function.
-* Added `facet2` aesthetic in to support effortless grid facetting.
+* Added `facet2` aesthetic in to support effortless grid faceting.
 * Changed default background theme colours.
 * Fixed bug with `*_limits` and `*_include` not working correctly.  
 * Added `*_sec_axis` arguments.

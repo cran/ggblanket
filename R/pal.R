@@ -1,32 +1,31 @@
-#' ggblanket hue palette.
+#' Default blue colour.
 #'
-#' @description A vector of hex codes of the ggblanket hue palette.
+#' @description A default blue colour used to colour when there is no col variable.
+#'
+#' @return A character vector.
+#' @export
+#' @examples
+#' scales::show_col(pal_blue)
+pal_blue <- "#2B6999"
+
+#' Default categorical palette.
+#'
+#' @description A default colour blind safe 5 colour palette used to colour a categorical col variable.
 #'
 #' @return A character vector of hex codes.
 #' @export
+#' @examples
+#' scales::show_col(pal_discrete)
 #'
-#' @references
-#' https://blog.datawrapper.de/colors-for-data-vis-style-guides/
-pal_hue <- c("#53B0AE", "#A31414", "#B2C615", "#E37000", "#2B6999", "#ff4676", "#14a35c")
+#' @references Derived from a Datawrapper blog dated 30/03/2022 by Lisa Charlotte Muth.
+pal_discrete <- c("#69C2C0", "#941111", "#B2C615", "#2B6999", "#D57236")
 
-#' ggblanket grey used for NA.
+#' Default grey colour.
 #'
-#' @description A hex code of the ggblanket grey colour used for NA values.
+#' @description A default grey colour used to colour NA values.
 #'
 #' @return A character vector.
 #' @export
-#'
-#' @references
-#' https://blog.datawrapper.de/colors-for-data-vis-style-guides/
-pal_grey <- "#88837D"
-
-#' ggblanket blue used for no colour aesthetic.
-#'
-#' @description A hex code of the ggblanket blue colour used for where there is no colour aesthetic.
-#'
-#' @return A character vector.
-#' @export
-#'
-#' @references
-#' https://blog.datawrapper.de/colors-for-data-vis-style-guides/
-pal_blue <- "#2B6999"
+#' @examples
+#' scales::show_col(pal_grey)
+pal_grey <- "#7f7f7f"

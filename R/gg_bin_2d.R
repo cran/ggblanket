@@ -1,10 +1,9 @@
-#' @title Smooth ggplot
+#' @title Bin_2d ggplot
 #'
-#' @description Create a smooth ggplot with a wrapper around ggplot2::geom_smooth(stat = "smooth", ...).
+#' @description Create a bin2d ggplot with a wrapper around ggplot2::geom_bin_2d(stat = "bin2d", ...).
 #' @param data A data frame or tibble.
 #' @param x Unquoted x aesthetic variable.
 #' @param y Unquoted y aesthetic variable.
-#' @param col Unquoted col and fill aesthetic variable.
 #' @param facet Unquoted facet aesthetic variable.
 #' @param facet2 Unquoted second facet variable.
 #' @param group Unquoted group aesthetic variable.
@@ -14,7 +13,7 @@
 #' @param pal Colours to use. A character vector of hex codes (or names).
 #' @param pal_na Colour to use for NA values. A character vector of a hex code (or name).
 #' @param alpha Opacity. A number between 0 and 1.
-#' @param ... Other arguments passed to the ggplot2::geom_smooth function.
+#' @param ... Other arguments passed to the ggplot2::geom_bin_2d function.
 #' @param title Title string.
 #' @param subtitle Subtitle string.
 #' @param x_breaks A scales::breaks_* function (e.g. scales::breaks_pretty()), or a vector of breaks.
@@ -63,23 +62,18 @@
 #'
 #' @return A ggplot object.
 #' @export
-#'
 #' @examples
-#' library(palmerpenguins)
-#'
-#' penguins |>
-#'   tidyr::drop_na(sex) |>
-#'   gg_smooth(
-#'     x = flipper_length_mm,
-#'     y = body_mass_g,
-#'     facet = species
+#' ggplot2::diamonds |>
+#'   gg_bin_2d(
+#'     x = carat,
+#'     y = price,
+#'     pal = viridis::cividis(9)
 #'   )
 #'
-gg_smooth <- function(
+gg_bin_2d <- function(
     data = NULL,
     x = NULL,
     y = NULL,
-    col = NULL,
     facet = NULL,
     facet2 = NULL,
     group = NULL,
@@ -88,7 +82,7 @@ gg_smooth <- function(
     coord = ggplot2::coord_cartesian(clip = "off"),
     pal = NULL,
     pal_na = pal_grey,
-    alpha = 0.5,
+    alpha = 1,
     ...,
     title = NULL,
     subtitle = NULL,
@@ -140,12 +134,11 @@ gg_smooth <- function(
   #Unique code: part 1
   ##############################################################################
 
-  stat <- "smooth"
+  stat <- "bin2d"
 
   #quote
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
-  col <- rlang::enquo(col)
   facet <- rlang::enquo(facet)
   facet2 <- rlang::enquo(facet2)
   group <- rlang::enquo(group)
@@ -155,9 +148,7 @@ gg_smooth <- function(
   data <- data %>%
     dplyr::ungroup() %>%
     dplyr::mutate(dplyr::across(
-      c(!!x, !!y,
-        !!col
-      ),
+      c(!!x, !!y),
       na_if_inf))
 
   #get classes
@@ -175,13 +166,13 @@ gg_smooth <- function(
   y_datetime <- lubridate::is.POSIXct(rlang::eval_tidy(y, data))
   y_time <- hms::is_hms(rlang::eval_tidy(y, data))
 
-  col_null <- rlang::quo_is_null(col)
-  col_factor <- is.factor(rlang::eval_tidy(col, data))
-  col_forcat <- is.character(rlang::eval_tidy(col, data)) | is.factor(rlang::eval_tidy(col, data)) | is.logical(rlang::eval_tidy(col, data))
-  col_numeric <- is.numeric(rlang::eval_tidy(col, data))
-  col_date <- lubridate::is.Date(rlang::eval_tidy(col, data))
-  col_datetime <- lubridate::is.POSIXct(rlang::eval_tidy(col, data))
-  col_time <- hms::is_hms(rlang::eval_tidy(col, data))
+  col_null <- TRUE
+  col_factor <- FALSE
+  col_forcat <- FALSE
+  col_numeric <- FALSE
+  col_date <- FALSE
+  col_datetime <- FALSE
+  col_time <- FALSE
 
   facet_null <- rlang::quo_is_null(facet)
   facet2_null <- rlang::quo_is_null(facet2)
@@ -231,84 +222,116 @@ gg_smooth <- function(
   ##############################################################################
 
   ###make plot
-  if (!x_null & !y_null) {
-    if (!col_null) {
+  if (stat %in% c("bin2d", "bin_2d", "binhex")) {
+    if (!x_null & !y_null) {
       plot <- data %>%
         ggplot2::ggplot(mapping = ggplot2::aes(
           x = !!x,
           y = !!y,
-          col = !!col,
-          fill = !!col,
           group = !!group
         ))
     }
-    else if (col_null) {
+    else if (!x_null & y_null) {
       plot <- data %>%
         ggplot2::ggplot(mapping = ggplot2::aes(
           x = !!x,
+          group = !!group
+        ))
+    }
+    else if (x_null & !y_null) {
+      plot <- data %>%
+        ggplot2::ggplot(mapping = ggplot2::aes(
           y = !!y,
-          # col = "",
-          # fill = "",
+          group = !!group
+        ))
+    }
+    else if (x_null & y_null) {
+      plot <- data %>%
+        ggplot2::ggplot(mapping = ggplot2::aes(
           group = !!group
         ))
     }
   }
-  else if (!x_null & y_null) {
-    if (!col_null) {
-      plot <- data %>%
-        ggplot2::ggplot(mapping = ggplot2::aes(
-          x = !!x,
-          col = !!col,
-          fill = !!col,
-          group = !!group
-        ))
+  else {
+    if (!x_null & !y_null) {
+      if (!col_null) {
+        plot <- data %>%
+          ggplot2::ggplot(mapping = ggplot2::aes(
+            x = !!x,
+            y = !!y,
+            col = !!col,
+            fill = !!col,
+            group = !!group
+          ))
+      }
+      else if (col_null) {
+        plot <- data %>%
+          ggplot2::ggplot(mapping = ggplot2::aes(
+            x = !!x,
+            y = !!y,
+            # col = "",
+            # fill = "",
+            group = !!group
+          ))
+      }
     }
-    else if (col_null) {
-      plot <- data %>%
-        ggplot2::ggplot(mapping = ggplot2::aes(
-          x = !!x,
-          # col = "",
-          # fill = "",
-          group = !!group
-        ))
+    else if (!x_null & y_null) {
+      if (!col_null) {
+        plot <- data %>%
+          ggplot2::ggplot(mapping = ggplot2::aes(
+            x = !!x,
+            col = !!col,
+            fill = !!col,
+            group = !!group
+          ))
+      }
+      else if (col_null) {
+        plot <- data %>%
+          ggplot2::ggplot(mapping = ggplot2::aes(
+            x = !!x,
+            # col = "",
+            # fill = "",
+            group = !!group
+          ))
+      }
     }
-  }
-  else if (x_null & !y_null) {
-    if (!col_null) {
-      plot <- data %>%
-        ggplot2::ggplot(mapping = ggplot2::aes(
-          y = !!y,
-          col = !!col,
-          fill = !!col,
-          group = !!group
-        ))
+    else if (x_null & !y_null) {
+      if (!col_null) {
+        plot <- data %>%
+          ggplot2::ggplot(mapping = ggplot2::aes(
+            y = !!y,
+            col = !!col,
+            fill = !!col,
+            group = !!group
+          ))
+      }
+      else if (col_null) {
+        plot <- data %>%
+          ggplot2::ggplot(mapping = ggplot2::aes(
+            y = !!y,
+            # col = "",
+            # fill = "",
+            group = !!group
+          ))
+      }
     }
-    else if (col_null) {
-      plot <- data %>%
-        ggplot2::ggplot(mapping = ggplot2::aes(
-          y = !!y,
-          # col = "",
-          # fill = "",
-          group = !!group
-        ))
-    }
-  }
-  else if (x_null & y_null) {
-    if (!col_null) {
-      plot <- data %>%
-        ggplot2::ggplot(mapping = ggplot2::aes(
-          col = !!col,
-          fill = !!col,
-          group = !!group
-        ))
-    }
-    else if (col_null) {
-      plot <- data %>%
-        ggplot2::ggplot(mapping = ggplot2::aes(
-          # col = "",
-          # fill = "",
-          group = !!group
-        ))
+    else if (x_null & y_null) {
+      if (!col_null) {
+        plot <- data %>%
+          ggplot2::ggplot(mapping = ggplot2::aes(
+            col = !!col,
+            fill = !!col,
+            group = !!group
+          ))
+      }
+      else if (col_null) {
+        plot <- data %>%
+          ggplot2::ggplot(mapping = ggplot2::aes(
+            # col = "",
+            # fill = "",
+            group = !!group
+          ))
+      }
     }
   }
 
@@ -317,7 +340,7 @@ gg_smooth <- function(
     else pal <- as.vector(pal[1])
 
     plot <- plot +
-      ggplot2::geom_smooth(
+      ggplot2::geom_bin_2d(
         ggplot2::aes(text = !!text), stat = stat,
         position = position,
         alpha = alpha,
@@ -330,7 +353,7 @@ gg_smooth <- function(
   }
   else {
     plot <- plot +
-      ggplot2::geom_smooth(
+      ggplot2::geom_bin_2d(
         ggplot2::aes(text = !!text), stat = stat,
         position = position,
         alpha = alpha,
@@ -1288,3 +1311,4 @@ gg_smooth <- function(
   #return beautiful plot
   return(plot)
 }
+

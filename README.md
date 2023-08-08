@@ -39,68 +39,35 @@ to expert.
 install.packages("ggblanket")
 ```
 
-## Examples
+## Example
 
 ``` r
+library(dplyr)
 library(ggblanket)
 library(palmerpenguins)
-library(dplyr)
 
-penguins |>
-  tidyr::drop_na() |>
-  mutate(sex = stringr::str_to_sentence(sex)) |>
-  gg_point(
-    x = flipper_length_mm,
-    y = body_mass_g,
-    col = sex,
-    title = "Penguins body mass by flipper length",
-    subtitle = "Palmer Archipelago, Antarctica",
-    caption = "Source: Gorman, 2020"
-  )
-```
-
-<img src="man/figures/README-unnamed-chunk-2-1.png" width="75%" /> <br>
-<br>
-
-``` r
-penguins |>
-  tidyr::drop_na() |>
-  mutate(sex = stringr::str_to_sentence(sex)) |>
-  gg_point(
-    x = flipper_length_mm,
-    y = body_mass_g,
-    col = sex,
-    facet = species,
-    title = "Penguins body mass by flipper length",
-    subtitle = "Palmer Archipelago, Antarctica",
-    caption = "Source: Gorman, 2020",
-    theme = dark_mode()
-  )
-```
-
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="75%" />
-
-``` r
 penguins |>
   tidyr::drop_na(sex) |> 
   mutate(sex = stringr::str_to_sentence(sex)) |>
   gg_histogram(
     x = flipper_length_mm,
     col = sex,
-    facet = species,
+    facet = species, 
     pal = c("#2596be", "#fc7c24"))
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="75%" />
+<img src="man/figures/README-unnamed-chunk-2-1.png" width="75%" />
 
 ## Get started
 
 Click
 [here](https://davidhodge931.github.io/ggblanket/articles/ggblanket.html)
-to get started learning how ggblanket works.
+to start learning how ggblanket works.
 
 ## Thanks!
 
 Thank you to all authors and contributors to ggplot2, tidyverse, and the
-wider R ecosystem. If you like ggblanket, please give the repository a
-star and help spread the word.
+wider R ecosystem.
+
+If you like ggblanket, please give the repository a star and help spread
+the word.

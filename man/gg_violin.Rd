@@ -12,7 +12,7 @@ gg_violin(
   facet = NULL,
   facet2 = NULL,
   group = NULL,
-  stat = "ydensity",
+  text = NULL,
   position = "dodge",
   coord = ggplot2::coord_cartesian(clip = "off"),
   pal = NULL,
@@ -27,7 +27,7 @@ gg_violin(
   x_include = NULL,
   x_labels = NULL,
   x_limits = NULL,
-  x_oob = scales::oob_censor,
+  x_oob = scales::oob_keep,
   x_sec_axis = ggplot2::waiver(),
   x_title = NULL,
   x_trans = "identity",
@@ -37,7 +37,7 @@ gg_violin(
   y_include = NULL,
   y_labels = NULL,
   y_limits = NULL,
-  y_oob = scales::oob_censor,
+  y_oob = scales::oob_keep,
   y_sec_axis = ggplot2::waiver(),
   y_title = NULL,
   y_trans = "identity",
@@ -50,7 +50,7 @@ gg_violin(
   col_legend_nrow = NULL,
   col_legend_rev = FALSE,
   col_limits = NULL,
-  col_oob = scales::oob_censor,
+  col_oob = scales::oob_keep,
   col_rescale = scales::rescale(),
   col_title = NULL,
   col_trans = "identity",
@@ -81,11 +81,11 @@ gg_violin(
 
 \item{group}{Unquoted group aesthetic variable.}
 
-\item{stat}{Statistical transformation. A character string (e.g. "identity").}
+\item{text}{Unquoted text aesthetic variable.}
 
 \item{position}{Position adjustment. Either a character string (e.g."identity"), or a function (e.g. ggplot2::position_identity()).}
 
-\item{coord}{A coordinate function from ggplot2 (e.g. ggplot2::coord_cartesian()).}
+\item{coord}{A coordinate function from ggplot2 (e.g. ggplot2::coord_cartesian(clip = "off")).}
 
 \item{pal}{Colours to use. A character vector of hex codes (or names).}
 
@@ -99,55 +99,55 @@ gg_violin(
 
 \item{subtitle}{Subtitle string.}
 
-\item{x_breaks}{A function on the limits (e.g. scales::breaks_pretty()), or a vector of breaks.}
+\item{x_breaks}{A scales::breaks_* function (e.g. scales::breaks_pretty()), or a vector of breaks.}
 
 \item{x_expand}{Padding to the limits with the ggplot2::expansion function, or a vector of length 2 (e.g. c(0, 0)).}
 
 \item{x_gridlines}{TRUE or FALSE for vertical x gridlines. NULL guesses based on the classes of the x and y.}
 
-\item{x_include}{For a numeric or date variable, any values that the scale should include (e.g. 0).}
+\item{x_include}{For a continuous x variable, any values that the limits should encompass (e.g. 0).}
 
 \item{x_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels.}
 
 \item{x_limits}{A vector of length 2 to determine the limits of the axis.}
 
-\item{x_oob}{A scales::oob_* function that handles values outside of limits for continuous scales. Defaults to scales::oob_censor.}
+\item{x_oob}{For a continuous x variable, a scales::oob_* function of how to handle values outside of limits (e.g. scales::oob_keep). Defaults to scales::oob_keep.}
 
 \item{x_sec_axis}{A secondary axis using the ggplot2::sec_axis or ggplot2::dup_axis function.}
 
 \item{x_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
 
-\item{x_trans}{For a numeric variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
+\item{x_trans}{For a numeric x variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
 
-\item{y_breaks}{A function on the limits (e.g. scales::breaks_pretty()), or a vector of breaks.}
+\item{y_breaks}{A scales::breaks_* function (e.g. scales::breaks_pretty()), or a vector of breaks.}
 
 \item{y_expand}{Padding to the limits with the ggplot2::expansion function, or a vector of length 2 (e.g. c(0, 0)).}
 
 \item{y_gridlines}{TRUE or FALSE of horizontal y gridlines. NULL guesses based on the classes of the x and y.}
 
-\item{y_include}{For a numeric or date variable, any values that the scale should include (e.g. 0).}
+\item{y_include}{For a continuous y variable, any values that the limits should encompass (e.g. 0).}
 
 \item{y_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels.}
 
 \item{y_limits}{A vector of length 2 to determine the limits of the axis.}
 
-\item{y_oob}{A scales::oob_* function that handles values outside of limits for continuous scales. Defaults to scales::oob_censor.}
+\item{y_oob}{For a continuous y variable, a scales::oob_* function of how to handle values outside of limits (e.g. scales::oob_keep). Defaults to scales::oob_keep.}
 
 \item{y_sec_axis}{A secondary axis using the ggplot2::sec_axis or ggplot2::dup_axis function.}
 
 \item{y_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
 
-\item{y_trans}{For a numeric variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
+\item{y_trans}{For a numeric y variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
 
-\item{col_breaks}{A function on the limits (e.g. scales::breaks_pretty()), or a vector of breaks.}
+\item{col_breaks}{A scales::breaks_* function (e.g. scales::breaks_pretty()), or a vector of breaks.}
 
-\item{col_continuous}{Type of colouring for a continuous variable. Either "gradient" or "steps". Defaults to "steps" - or just the first letter of these e.g. "g".}
+\item{col_continuous}{For a continuous col variable, the type of colouring. Either "gradient" or "steps". Defaults to "gradient".}
 
-\item{col_include}{For a numeric or date variable, any values that the scale should include (e.g. 0).}
+\item{col_include}{For a continuous col variable, any values that the limits should encompass (e.g. 0).}
 
-\item{col_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels. Note this does not affect where col_intervals is not NULL.}
+\item{col_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels.}
 
-\item{col_legend_place}{The place for the legend. Either "b" (bottom), "r" (right), "t" (top) or "l" (left).}
+\item{col_legend_place}{The place for the legend. Either "bottom", "right", "top" or "left". Or just the first letter of each.}
 
 \item{col_legend_ncol}{The number of columns for the legend elements.}
 
@@ -157,13 +157,13 @@ gg_violin(
 
 \item{col_limits}{A vector to determine the limits of the colour scale.}
 
-\item{col_oob}{A scales::oob_* function that handles values outside of limits for continuous scales. Defaults to scales::oob_censor.}
+\item{col_oob}{For a continuous col variable, a scales::oob_* function of how to handle values outside of limits (e.g. scales::oob_keep). Defaults to scales::oob_keep.}
 
 \item{col_rescale}{For a continuous col variable, a scales::rescale function.}
 
 \item{col_title}{Legend title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
 
-\item{col_trans}{For a numeric variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
+\item{col_trans}{For a numeric col variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
 
 \item{facet_labels}{A function that takes the breaks as inputs (e.g. scales::label_comma()), or a named vector of labels (e.g. c("value" = "label", ...)).}
 
@@ -189,7 +189,7 @@ gg_violin(
 A ggplot object.
 }
 \description{
-Create a violin plot with a wrapper around the ggplot2::geom_violin function.
+Create a violin plot with a wrapper around ggplot2::geom_violin(stat = "ydensity", ...).
 }
 \examples{
 library(dplyr)

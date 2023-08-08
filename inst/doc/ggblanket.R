@@ -20,14 +20,14 @@ penguins <- palmerpenguins::penguins |>
   mutate(sex = stringr::str_to_sentence(sex)) |>
   tidyr::drop_na(sex)
 
-## -----------------------------------------------------------------------------
+## ---- fig.asp=0.6-------------------------------------------------------------
 # ggplot2
 penguins |> 
   ggplot() + 
   geom_point(aes(x = flipper_length_mm, 
                  y = body_mass_g))
 
-## -----------------------------------------------------------------------------
+## ---- fig.asp=0.6-------------------------------------------------------------
 # ggblanket
 penguins |>
   gg_point(
@@ -40,15 +40,15 @@ p1 <- penguins |>
   ggplot() + 
   geom_point(aes(x = flipper_length_mm, 
                  y = body_mass_g,
-                 col = species)) + 
+                 colour = species)) + 
   theme(legend.position = "bottom") +
-  guides(col = guide_legend(title.position = "top")) +
-  labs(col = "Species") +
+  guides(colour = guide_legend(title.position = "top")) +
+  labs(colour = "Species") +
   scale_x_continuous(breaks = scales::breaks_pretty(n = 3))
 
 p2 <- penguins |>
   ggplot() +
-  geom_density(aes(x = body_mass_g, 
+  geom_density(aes(x = flipper_length_mm, 
                    fill = species)) +
   theme(legend.position = "bottom") +
   guides(fill = guide_legend(title.position = "top")) +
@@ -68,14 +68,14 @@ p1 <- penguins |>
 
 p2 <- penguins |>
   gg_density(
-    x = body_mass_g, 
+    x = flipper_length_mm, 
     col = species,
     x_breaks = scales::breaks_pretty(n = 3), 
     col_legend_ncol = 2)
 
 p1 + p2
 
-## -----------------------------------------------------------------------------
+## ---- fig.asp=0.5-------------------------------------------------------------
 # ggplot2
 p1 <- penguins |>
   ggplot() +
@@ -87,8 +87,8 @@ p2 <- penguins |>
   ggplot() +
   geom_jitter(aes(x = species, 
                   y = body_mass_g, 
-                  col = sex)) +
-  scale_color_manual(values = c("#2596be", "#fc7c24"))
+                  colour = sex)) +
+  scale_colour_manual(values = c("#2596be", "#fc7c24"))
 
 p1 + p2
 
@@ -105,7 +105,8 @@ p2 <- penguins |>
     x = species, 
     y = body_mass_g, 
     col = sex, 
-    pal = c("#2596be", "#fc7c24"))
+    pal = c("#2596be", "#fc7c24")
+    )
 
 p1 + p2
 
@@ -130,15 +131,15 @@ penguins |>
 penguins |>
   ggplot() +
   geom_histogram(aes(x = flipper_length_mm)) +
-  facet_grid(species ~ sex)
+  facet_grid(sex ~ species)
 
-## -----------------------------------------------------------------------------
+## ---- fig.asp=0.75------------------------------------------------------------
 # ggblanket
 penguins |>
   gg_histogram(
     x = flipper_length_mm,
-    facet = sex,
-    facet2 = species)
+    facet = species,
+    facet2 = sex)
 
 ## ---- echo = FALSE,   fig.width = 3, fig.asp = 2------------------------------
 knitr::include_graphics("screenshot_autotab_y.png", dpi = 300)
@@ -149,7 +150,7 @@ penguins |>
   ggplot() +
   geom_jitter(aes(x = species, 
                   y = body_mass_g, 
-                  col = sex)) +
+                  colour = sex)) +
   expand_limits(y = 0) +
   scale_x_discrete(labels = \(x) stringr::str_sub(x, 1, 1)) +
   scale_y_continuous(breaks = scales::breaks_width(1500),
@@ -176,13 +177,13 @@ penguins |>
     y_title = "Body mass (g)", 
     col_legend_place = "t")
 
-## -----------------------------------------------------------------------------
+## ---- fig.asp=0.5-------------------------------------------------------------
 # ggplot2
 penguins |>
   ggplot() +
   geom_point(aes(x = flipper_length_mm, 
                  y = body_mass_g, 
-                 col = sex)) +
+                 colour = sex)) +
   facet_wrap(~species) +
   scale_x_continuous(breaks = scales::breaks_pretty(n = 3)) 
 
@@ -207,9 +208,10 @@ penguins |>
     title = "Penguins body mass by flipper length",
     subtitle = "Palmer Archipelago, Antarctica",
     caption = "Source: Gorman, 2020",
-    pal = c("#2596be", "#fc7c24"))
+    pal = c("#2596be", "#fc7c24")
+    )
 
-## ---- fig.asp=0.75------------------------------------------------------------
+## ---- fig.asp=0.8-------------------------------------------------------------
 # ggblanket
 theme_set(light_mode(base_size = 12))
 
@@ -221,10 +223,11 @@ penguins |>
     title = "Penguins body mass by flipper length",
     subtitle = "Palmer Archipelago, Antarctica",
     caption = "Source: Gorman, 2020",
-    pal = c("#2596be", "#fc7c24"))
+    pal = c("#2596be", "#fc7c24")
+    )
 theme_set(theme_grey()) #unset the theme
 
-## -----------------------------------------------------------------------------
+## ---- fig.asp=0.6-------------------------------------------------------------
 # ggplot2
 penguins |>
   group_by(species, sex) |> 
@@ -258,14 +261,14 @@ penguins |>
     linewidth = 0.5, #accessed via geom_smooth
     level = 0.99) #accessed via geom_smooth
 
-## -----------------------------------------------------------------------------
+## ---- fig.asp=0.6-------------------------------------------------------------
 # ggblanket + ggplot2
 penguins |>
   gg_boxplot(x = species,
              y = body_mass_g,
              width = 0.5,
              outlier.colour = NA) +
-  geom_jitter(col = pal_blue)
+  geom_jitter(colour = pal_blue)
 
 ## ---- fig.asp=0.75------------------------------------------------------------
 # ggblanket + ggplot2
@@ -284,9 +287,10 @@ p1 <- d |>
     xmax = upper,
     x_include = 0, 
     x_labels = \(x) x / 1000, 
-    x_title = "Body mass kg") +
+    x_title = "Body mass kg",
+    col_legend_place = "r") +
   geom_col(alpha = 0.9, width = 0.75) +
-  geom_errorbar(col = "black", width = 0.1)
+  geom_errorbar(colour = "black", width = 0.1)
 
 p2 <- d |>
   gg_blank(
@@ -297,8 +301,9 @@ p2 <- d |>
     col = species,
     x_include = 0, 
     x_labels = \(x) x / 1000, 
-    x_title = "Body mass kg") +
-  geom_col(col = NA, fill = "#d3d3d3", width = 0.75) +
+    x_title = "Body mass kg", 
+    col_legend_place = "r") +
+  geom_col(colour = NA, fill = "#d3d3d3", width = 0.75) +
   geom_errorbar(width = 0.1)
 
 p1 / p2
@@ -323,7 +328,7 @@ d_long |>
   gg_blank(x = life_expectancy,
            y = country,
            col = year,
-           pal = pal_hue[c(2, 1)],
+           pal = pal_discrete[c(2, 1)],
            x_include = 0,
            col_legend_place = "r",
            title = "We're living longer",
@@ -333,6 +338,74 @@ d_long |>
   geom_segment(aes(x = `1967`, xend = `2007`, 
                    y = country, yend = country), 
                data = d_wide, inherit.aes = FALSE, 
-               col = "#dddddd", linewidth = 2) +
+               colour = "#dddddd", linewidth = 2) +
   geom_point(size = 2) 
+
+## ---- fig.asp=0.4-------------------------------------------------------------
+penguins |>
+  gg_blank(
+    x = body_mass_g,
+    y = species,
+    stat = "summary"
+  ) +
+  geom_pointrange(stat = "summary", colour = pal_blue)
+
+## ---- fig.asp=0.75------------------------------------------------------------
+p1 <- economics |>
+  gg_line(
+    x = date,
+    y = unemploy,
+    x_limits = c(lubridate::ymd("2010-01-01"), lubridate::NA_Date_),
+    x_labels = \(x) stringr::str_sub(x, 3, 4),
+    title = "Limits set with default",
+    theme = light_mode(title_face = "plain"))
+
+p2 <- economics |>
+  gg_line(
+    x = date,
+    y = unemploy,
+    x_limits = c(lubridate::ymd("2010-01-01"), lubridate::NA_Date_),
+    x_labels = \(x) stringr::str_sub(x, 3, 4),
+    coord = ggplot2::coord_cartesian(clip = "on"),
+    title = "Limits set with clip = 'off'",
+    theme = light_mode(title_face = "plain"))
+
+p3 <- economics |>
+  gg_line(
+    x = date,
+    y = unemploy,
+    x_limits = c(lubridate::ymd("2010-01-01"), lubridate::NA_Date_),
+    x_labels = \(x) stringr::str_sub(x, 3, 4),
+    coord = ggplot2::coord_cartesian(clip = "on"),
+    x_oob = scales::oob_censor,
+    title = "Limits set with oob_censor",
+    theme = light_mode(title_face = "plain"))
+
+p4 <- economics |>
+  filter(date >= lubridate::ymd("2010-01-01")) |> 
+  gg_line(
+    x = date,
+    y = unemploy,
+    x_labels = \(x) stringr::str_sub(x, 3, 4), 
+    title = "Limits set by filtering data",
+    theme = light_mode(title_face = "plain"))
+
+(p1 + p2) / (p3 + p4)
+
+## ---- fig.asp=0.5-------------------------------------------------------------
+p1 <- palmerpenguins::penguins |> 
+  gg_jitter(x = sex, 
+            y = body_mass_g,
+            col = sex, 
+            col_legend_place = "n")
+
+p2 <- palmerpenguins::penguins |> 
+  mutate(sex = factor(sex, levels = c("male", "female"))) |> 
+  tidyr::drop_na(sex) |> 
+  gg_jitter(x = sex, 
+            y = body_mass_g, 
+            col = sex, 
+            col_legend_place = "n")
+
+p1 + p2
 

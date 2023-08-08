@@ -1,10 +1,10 @@
-#' @title Smooth ggplot
+#' @title Contour_filled ggplot
 #'
-#' @description Create a smooth ggplot with a wrapper around ggplot2::geom_smooth(stat = "smooth", ...).
+#' @description Create a contour_filled ggplot with a wrapper around ggplot2::geom_contour_filled(stat = "contour_filled", ...).
 #' @param data A data frame or tibble.
 #' @param x Unquoted x aesthetic variable.
 #' @param y Unquoted y aesthetic variable.
-#' @param col Unquoted col and fill aesthetic variable.
+#' @param z Unquoted z aesthetic variable
 #' @param facet Unquoted facet aesthetic variable.
 #' @param facet2 Unquoted second facet variable.
 #' @param group Unquoted group aesthetic variable.
@@ -14,7 +14,7 @@
 #' @param pal Colours to use. A character vector of hex codes (or names).
 #' @param pal_na Colour to use for NA values. A character vector of a hex code (or name).
 #' @param alpha Opacity. A number between 0 and 1.
-#' @param ... Other arguments passed to the ggplot2::geom_smooth function.
+#' @param ... Other arguments passed to the ggplot2::geom_contour_filled function.
 #' @param title Title string.
 #' @param subtitle Subtitle string.
 #' @param x_breaks A scales::breaks_* function (e.g. scales::breaks_pretty()), or a vector of breaks.
@@ -37,19 +37,12 @@
 #' @param y_sec_axis A secondary axis using the ggplot2::sec_axis or ggplot2::dup_axis function.
 #' @param y_title Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.
 #' @param y_trans For a numeric y variable, a transformation object (e.g. "log10", "sqrt" or "reverse").
-#' @param col_breaks A scales::breaks_* function (e.g. scales::breaks_pretty()), or a vector of breaks.
-#' @param col_continuous For a continuous col variable, the type of colouring. Either "gradient" or "steps". Defaults to "gradient".
-#' @param col_include For a continuous col variable, any values that the limits should encompass (e.g. 0).
 #' @param col_labels A function that takes the breaks as inputs (e.g. scales::label_comma()), or a vector of labels.
 #' @param col_legend_ncol The number of columns for the legend elements.
 #' @param col_legend_nrow The number of rows for the legend elements.
 #' @param col_legend_place The place for the legend. Either "bottom", "right", "top" or "left". Or just the first letter of each.
 #' @param col_legend_rev Reverse the elements of the legend. Defaults to FALSE.
-#' @param col_limits A vector to determine the limits of the colour scale.
-#' @param col_oob For a continuous col variable, a scales::oob_* function of how to handle values outside of limits (e.g. scales::oob_keep). Defaults to scales::oob_keep.
-#' @param col_rescale For a continuous col variable, a scales::rescale function.
 #' @param col_title Legend title string. Defaults to converting to sentence case with spaces. Use "" for no title.
-#' @param col_trans For a numeric col variable, a transformation object (e.g. "log10", "sqrt" or "reverse").
 #' @param facet_labels A function that takes the breaks as inputs (e.g. scales::label_comma()), or a named vector of labels (e.g. c("value" = "label", ...)).
 #' @param facet_ncol The number of columns of facets. Only applies to a facet layout of "wrap".
 #' @param facet_nrow The number of rows of facets. Only applies to a facet layout of "wrap".
@@ -63,23 +56,20 @@
 #'
 #' @return A ggplot object.
 #' @export
-#'
 #' @examples
-#' library(palmerpenguins)
+#' ggplot2::faithfuld |>
+#'  gg_contour_filled(
+#'    x = waiting,
+#'    y = eruptions,
+#'    z = density,
+#'    bins = 8
+#'  )
 #'
-#' penguins |>
-#'   tidyr::drop_na(sex) |>
-#'   gg_smooth(
-#'     x = flipper_length_mm,
-#'     y = body_mass_g,
-#'     facet = species
-#'   )
-#'
-gg_smooth <- function(
+gg_contour_filled <- function(
     data = NULL,
     x = NULL,
     y = NULL,
-    col = NULL,
+    z = NULL,
     facet = NULL,
     facet2 = NULL,
     group = NULL,
@@ -88,43 +78,36 @@ gg_smooth <- function(
     coord = ggplot2::coord_cartesian(clip = "off"),
     pal = NULL,
     pal_na = pal_grey,
-    alpha = 0.5,
+    alpha = 1,
     ...,
     title = NULL,
     subtitle = NULL,
     x_breaks = NULL,
-    x_expand = NULL,
+    x_expand = c(0, 0),
     x_gridlines = NULL,
     x_include = NULL,
     x_labels = NULL,
-    x_limits = NULL,
+    x_limits = c(NA, NA),
     x_oob = scales::oob_keep,
     x_sec_axis = ggplot2::waiver(),
     x_title = NULL,
     x_trans = "identity",
     y_breaks = NULL,
-    y_expand = NULL,
+    y_expand = c(0, 0),
     y_gridlines = NULL,
     y_include = NULL,
     y_labels = NULL,
-    y_limits = NULL,
+    y_limits = c(NA, NA),
     y_oob = scales::oob_keep,
     y_sec_axis = ggplot2::waiver(),
     y_title = NULL,
     y_trans = "identity",
-    col_breaks = NULL,
-    col_continuous = "gradient",
-    col_include = NULL,
     col_labels = NULL,
     col_legend_place = NULL,
     col_legend_ncol = NULL,
     col_legend_nrow = NULL,
     col_legend_rev = FALSE,
-    col_limits = NULL,
-    col_oob = scales::oob_keep,
-    col_rescale = scales::rescale(),
     col_title = NULL,
-    col_trans = "identity",
     facet_labels = NULL,
     facet_ncol = NULL,
     facet_nrow = NULL,
@@ -140,12 +123,12 @@ gg_smooth <- function(
   #Unique code: part 1
   ##############################################################################
 
-  stat <- "smooth"
+  stat <- "contour_filled"
 
   #quote
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
-  col <- rlang::enquo(col)
+  z <- rlang::enquo(z)
   facet <- rlang::enquo(facet)
   facet2 <- rlang::enquo(facet2)
   group <- rlang::enquo(group)
@@ -155,9 +138,7 @@ gg_smooth <- function(
   data <- data %>%
     dplyr::ungroup() %>%
     dplyr::mutate(dplyr::across(
-      c(!!x, !!y,
-        !!col
-      ),
+      c(!!x, !!y),
       na_if_inf))
 
   #get classes
@@ -175,16 +156,25 @@ gg_smooth <- function(
   y_datetime <- lubridate::is.POSIXct(rlang::eval_tidy(y, data))
   y_time <- hms::is_hms(rlang::eval_tidy(y, data))
 
-  col_null <- rlang::quo_is_null(col)
-  col_factor <- is.factor(rlang::eval_tidy(col, data))
-  col_forcat <- is.character(rlang::eval_tidy(col, data)) | is.factor(rlang::eval_tidy(col, data)) | is.logical(rlang::eval_tidy(col, data))
-  col_numeric <- is.numeric(rlang::eval_tidy(col, data))
-  col_date <- lubridate::is.Date(rlang::eval_tidy(col, data))
-  col_datetime <- lubridate::is.POSIXct(rlang::eval_tidy(col, data))
-  col_time <- hms::is_hms(rlang::eval_tidy(col, data))
+  col_null <- TRUE
+  col_factor <- FALSE
+  col_forcat <- FALSE
+  col_numeric <- FALSE
+  col_date <- FALSE
+  col_datetime <- FALSE
+  col_time <- FALSE
 
   facet_null <- rlang::quo_is_null(facet)
   facet2_null <- rlang::quo_is_null(facet2)
+
+  #removed col arg's
+  col_breaks <- NULL
+  col_continuous <- "gradient"
+  col_include <- NULL
+  col_limits <- NULL
+  col_oob <- scales::oob_keep
+  col_rescale <- scales::rescale()
+  col_trans <- "identity"
 
   ##############################################################################
   #Generic code: part 1 (adjust for gg_sf)
@@ -231,84 +221,158 @@ gg_smooth <- function(
   ##############################################################################
 
   ###make plot
-  if (!x_null & !y_null) {
-    if (!col_null) {
+  if (stat %in% c("bin2d", "bin_2d", "binhex", "density2d", "density_2d", "density2d_filled", "density_2d_filled")) {
+    if (!x_null & !y_null) {
       plot <- data %>%
         ggplot2::ggplot(mapping = ggplot2::aes(
           x = !!x,
           y = !!y,
-          col = !!col,
-          fill = !!col,
           group = !!group
         ))
     }
-    else if (col_null) {
+    else if (!x_null & y_null) {
       plot <- data %>%
         ggplot2::ggplot(mapping = ggplot2::aes(
           x = !!x,
+          group = !!group
+        ))
+    }
+    else if (x_null & !y_null) {
+      plot <- data %>%
+        ggplot2::ggplot(mapping = ggplot2::aes(
           y = !!y,
-          # col = "",
-          # fill = "",
+          group = !!group
+        ))
+    }
+    else if (x_null & y_null) {
+      plot <- data %>%
+        ggplot2::ggplot(mapping = ggplot2::aes(
           group = !!group
         ))
     }
   }
-  else if (!x_null & y_null) {
-    if (!col_null) {
+  else if (stat %in% c("contour", "contour_filled")) {
+    if (!x_null & !y_null) {
       plot <- data %>%
         ggplot2::ggplot(mapping = ggplot2::aes(
           x = !!x,
-          col = !!col,
-          fill = !!col,
+          y = !!y,
+          z = !!z,
           group = !!group
         ))
     }
-    else if (col_null) {
+    else if (!x_null & y_null) {
       plot <- data %>%
         ggplot2::ggplot(mapping = ggplot2::aes(
           x = !!x,
-          # col = "",
-          # fill = "",
+          z = !!z,
+          group = !!group
+        ))
+    }
+    else if (x_null & !y_null) {
+      plot <- data %>%
+        ggplot2::ggplot(mapping = ggplot2::aes(
+          y = !!y,
+          z = !!z,
+          group = !!group
+        ))
+    }
+    else if (x_null & y_null) {
+      plot <- data %>%
+        ggplot2::ggplot(mapping = ggplot2::aes(
+          z = !!z,
           group = !!group
         ))
     }
   }
-  else if (x_null & !y_null) {
-    if (!col_null) {
-      plot <- data %>%
-        ggplot2::ggplot(mapping = ggplot2::aes(
-          y = !!y,
-          col = !!col,
-          fill = !!col,
-          group = !!group
-        ))
+  else {
+    if (!x_null & !y_null) {
+      if (!col_null) {
+        plot <- data %>%
+          ggplot2::ggplot(mapping = ggplot2::aes(
+            x = !!x,
+            y = !!y,
+            z = !!z,
+            col = !!col,
+            fill = !!col,
+            group = !!group
+          ))
+      }
+      else if (col_null) {
+        plot <- data %>%
+          ggplot2::ggplot(mapping = ggplot2::aes(
+            x = !!x,
+            y = !!y,
+            z = !!z,
+            # col = "",
+            # fill = "",
+            group = !!group
+          ))
+      }
     }
-    else if (col_null) {
-      plot <- data %>%
-        ggplot2::ggplot(mapping = ggplot2::aes(
-          y = !!y,
-          # col = "",
-          # fill = "",
-          group = !!group
-        ))
+    else if (!x_null & y_null) {
+      if (!col_null) {
+        plot <- data %>%
+          ggplot2::ggplot(mapping = ggplot2::aes(
+            x = !!x,
+            z = !!z,
+            col = !!col,
+            fill = !!col,
+            group = !!group
+          ))
+      }
+      else if (col_null) {
+        plot <- data %>%
+          ggplot2::ggplot(mapping = ggplot2::aes(
+            x = !!x,
+            z = !!z,
+            # col = "",
+            # fill = "",
+            group = !!group
+          ))
+      }
     }
-  }
-  else if (x_null & y_null) {
-    if (!col_null) {
-      plot <- data %>%
-        ggplot2::ggplot(mapping = ggplot2::aes(
-          col = !!col,
-          fill = !!col,
-          group = !!group
-        ))
+    else if (x_null & !y_null) {
+      if (!col_null) {
+        plot <- data %>%
+          ggplot2::ggplot(mapping = ggplot2::aes(
+            y = !!y,
+            z = !!z,
+            col = !!col,
+            fill = !!col,
+            group = !!group
+          ))
+      }
+      else if (col_null) {
+        plot <- data %>%
+          ggplot2::ggplot(mapping = ggplot2::aes(
+            y = !!y,
+            z = !!z,
+            # col = "",
+            # fill = "",
+            group = !!group
+          ))
+      }
     }
-    else if (col_null) {
-      plot <- data %>%
-        ggplot2::ggplot(mapping = ggplot2::aes(
-          # col = "",
-          # fill = "",
-          group = !!group
-        ))
+    else if (x_null & y_null) {
+      if (!col_null) {
+        plot <- data %>%
+          ggplot2::ggplot(mapping = ggplot2::aes(
+            z = !!z,
+            col = !!col,
+            fill = !!col,
+            group = !!group
+          ))
+      }
+      else if (col_null) {
+        plot <- data %>%
+          ggplot2::ggplot(mapping = ggplot2::aes(
+            z = !!z,
+            # col = "",
+            # fill = "",
+            group = !!group
+          ))
+      }
     }
   }
 
@@ -317,7 +381,7 @@ gg_smooth <- function(
     else pal <- as.vector(pal[1])
 
     plot <- plot +
-      ggplot2::geom_smooth(
+      ggplot2::geom_contour_filled(
         ggplot2::aes(text = !!text), stat = stat,
         position = position,
         alpha = alpha,
@@ -330,7 +394,7 @@ gg_smooth <- function(
   }
   else {
     plot <- plot +
-      ggplot2::geom_smooth(
+      ggplot2::geom_contour_filled(
         ggplot2::aes(text = !!text), stat = stat,
         position = position,
         alpha = alpha,
@@ -1288,3 +1352,4 @@ gg_smooth <- function(
   #return beautiful plot
   return(plot)
 }
+
