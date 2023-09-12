@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -20,14 +20,14 @@ penguins <- palmerpenguins::penguins |>
   mutate(sex = stringr::str_to_sentence(sex)) |>
   tidyr::drop_na(sex)
 
-## ---- fig.asp=0.6-------------------------------------------------------------
+## ----fig.asp=0.6--------------------------------------------------------------
 # ggplot2
 penguins |> 
   ggplot() + 
   geom_point(aes(x = flipper_length_mm, 
                  y = body_mass_g))
 
-## ---- fig.asp=0.6-------------------------------------------------------------
+## ----fig.asp=0.6--------------------------------------------------------------
 # ggblanket
 penguins |>
   gg_point(
@@ -75,7 +75,7 @@ p2 <- penguins |>
 
 p1 + p2
 
-## ---- fig.asp=0.5-------------------------------------------------------------
+## ----fig.asp=0.5--------------------------------------------------------------
 # ggplot2
 p1 <- penguins |>
   ggplot() +
@@ -126,14 +126,14 @@ penguins |>
     y = body_mass_g,
     facet = species)
 
-## ---- fig.asp=0.75------------------------------------------------------------
+## ----fig.asp=0.75-------------------------------------------------------------
 # ggplot2
 penguins |>
   ggplot() +
   geom_histogram(aes(x = flipper_length_mm)) +
   facet_grid(sex ~ species)
 
-## ---- fig.asp=0.75------------------------------------------------------------
+## ----fig.asp=0.75-------------------------------------------------------------
 # ggblanket
 penguins |>
   gg_histogram(
@@ -141,7 +141,7 @@ penguins |>
     facet = species,
     facet2 = sex)
 
-## ---- echo = FALSE,   fig.width = 3, fig.asp = 2------------------------------
+## ----echo = FALSE,   fig.width = 3, fig.asp = 2-------------------------------
 knitr::include_graphics("screenshot_autotab_y.png", dpi = 300)
 
 ## -----------------------------------------------------------------------------
@@ -177,7 +177,7 @@ penguins |>
     y_title = "Body mass (g)", 
     col_legend_place = "t")
 
-## ---- fig.asp=0.5-------------------------------------------------------------
+## ----fig.asp=0.5--------------------------------------------------------------
 # ggplot2
 penguins |>
   ggplot() +
@@ -196,7 +196,7 @@ penguins |>
       col = sex,
       facet = species)
 
-## ---- fig.asp=0.7-------------------------------------------------------------
+## ----fig.asp=0.7--------------------------------------------------------------
 # ggblanket
 theme_set(dark_mode())
 
@@ -211,7 +211,7 @@ penguins |>
     pal = c("#2596be", "#fc7c24")
     )
 
-## ---- fig.asp=0.8-------------------------------------------------------------
+## ----fig.asp=0.8--------------------------------------------------------------
 # ggblanket
 theme_set(light_mode(base_size = 12))
 
@@ -227,7 +227,7 @@ penguins |>
     )
 theme_set(theme_grey()) #unset the theme
 
-## ---- fig.asp=0.6-------------------------------------------------------------
+## ----fig.asp=0.6--------------------------------------------------------------
 # ggplot2
 penguins |>
   group_by(species, sex) |> 
@@ -261,7 +261,7 @@ penguins |>
     linewidth = 0.5, #accessed via geom_smooth
     level = 0.99) #accessed via geom_smooth
 
-## ---- fig.asp=0.6-------------------------------------------------------------
+## ----fig.asp=0.6--------------------------------------------------------------
 # ggblanket + ggplot2
 penguins |>
   gg_boxplot(x = species,
@@ -270,7 +270,7 @@ penguins |>
              outlier.colour = NA) +
   geom_jitter(colour = pal_blue)
 
-## ---- fig.asp=0.75------------------------------------------------------------
+## ----fig.asp=0.75-------------------------------------------------------------
 # ggblanket + ggplot2
 d <- penguins |>
   group_by(species) |>
@@ -341,71 +341,150 @@ d_long |>
                colour = "#dddddd", linewidth = 2) +
   geom_point(size = 2) 
 
-## ---- fig.asp=0.4-------------------------------------------------------------
-penguins |>
-  gg_blank(
-    x = body_mass_g,
-    y = species,
-    stat = "summary"
-  ) +
-  geom_pointrange(stat = "summary", colour = pal_blue)
+## ----fig.asp=0.75-------------------------------------------------------------
+p1 <- diamonds |>
+  count(color) |>
+  gg_col(
+    x = n,
+    y = color,
+    width = 0.75,
+    x_labels = \(x) x / 1000,
+    x_title = "Count (thousands)",
+    title = "Default y",
+    theme = light_mode(title_face = "plain")
+  )
 
-## ---- fig.asp=0.75------------------------------------------------------------
-p1 <- economics |>
-  gg_line(
-    x = date,
-    y = unemploy,
-    x_limits = c(lubridate::ymd("2010-01-01"), lubridate::NA_Date_),
-    x_labels = \(x) stringr::str_sub(x, 3, 4),
-    title = "Limits set with default",
-    theme = light_mode(title_face = "plain"))
 
-p2 <- economics |>
-  gg_line(
-    x = date,
-    y = unemploy,
-    x_limits = c(lubridate::ymd("2010-01-01"), lubridate::NA_Date_),
-    x_labels = \(x) stringr::str_sub(x, 3, 4),
-    coord = ggplot2::coord_cartesian(clip = "on"),
-    title = "Limits set with clip = 'off'",
-    theme = light_mode(title_face = "plain"))
+p2 <- diamonds |>
+  count(color) |>
+  mutate(color = forcats::fct_rev(color)) |>
+  gg_col(
+    x = n,
+    y = color,
+    width = 0.75,
+    x_labels = \(x) x / 1000,
+    x_title = "Count (thousands)",
+    title = "Reverse y",
+    theme = light_mode(title_face = "plain")
+  )
 
-p3 <- economics |>
-  gg_line(
-    x = date,
-    y = unemploy,
-    x_limits = c(lubridate::ymd("2010-01-01"), lubridate::NA_Date_),
-    x_labels = \(x) stringr::str_sub(x, 3, 4),
-    coord = ggplot2::coord_cartesian(clip = "on"),
-    x_oob = scales::oob_censor,
-    title = "Limits set with oob_censor",
-    theme = light_mode(title_face = "plain"))
+p3 <- diamonds |>
+  count(color) |>
+  mutate(color = forcats::fct_reorder(color, n)) |>
+  gg_col(
+    x = n,
+    y = color,
+    width = 0.75,
+    x_labels = \(x) x / 1000,
+    x_title = "Count (thousands)",
+    title = "Reordered y ascending by x",
+    theme = light_mode(title_face = "plain")
+  )
 
-p4 <- economics |>
-  filter(date >= lubridate::ymd("2010-01-01")) |> 
-  gg_line(
-    x = date,
-    y = unemploy,
-    x_labels = \(x) stringr::str_sub(x, 3, 4), 
-    title = "Limits set by filtering data",
-    theme = light_mode(title_face = "plain"))
+p4 <- diamonds |>
+  count(color) |>
+  mutate(color = color |>
+           forcats::fct_reorder(n) |>
+           forcats::fct_rev()) |>
+  gg_col(
+    x = n,
+    y = color,
+    width = 0.75,
+    x_labels = \(x) x / 1000,
+    x_title = "Count (thousands)",
+    title = "Reordered y decending by x",
+    theme = light_mode(title_face = "plain")
+  )
 
 (p1 + p2) / (p3 + p4)
 
-## ---- fig.asp=0.5-------------------------------------------------------------
-p1 <- palmerpenguins::penguins |> 
-  gg_jitter(x = sex, 
-            y = body_mass_g,
-            col = sex, 
-            col_legend_place = "n")
+## ----fig.asp=0.4--------------------------------------------------------------
+p1 <- diamonds |> 
+  count(color) |> 
+  filter(color %in% c("E", "G", "I")) |>
+  gg_col(
+    x = n,
+    y = color,
+    x_labels = \(x) x / 1000,
+    x_title = "Count (thousands)",
+    title = "A factor filtered",
+    theme = light_mode(title_face = "plain")
+  )
 
-p2 <- palmerpenguins::penguins |> 
-  mutate(sex = factor(sex, levels = c("male", "female"))) |> 
-  tidyr::drop_na(sex) |> 
-  gg_jitter(x = sex, 
-            y = body_mass_g, 
-            col = sex, 
-            col_legend_place = "n")
+p2 <- diamonds |> 
+  count(color) |>
+  filter(color %in% c("E", "G", "I")) |>
+  mutate(color = forcats::fct_drop(color)) |> 
+  gg_col(
+    x = n,
+    y = color,
+    width = 0.75,
+    x_labels = \(x) x / 1000,
+    x_title = "Count (thousands)",
+    title = "A factor filtered & unused levels dropped",
+    theme = light_mode(title_face = "plain")
+  )
 
 p1 + p2
+
+## ----fig.asp=1----------------------------------------------------------------
+p1 <- economics |> 
+  gg_smooth(
+    x = date, 
+    y = unemploy, 
+    y_labels = str_keep_seq,
+    title = "No x_limits set", 
+    theme = light_mode(title_face = "plain")) +
+  geom_vline(xintercept = c(lubridate::ymd("1985-01-01", "1995-01-01")),
+             col = pal_blue, 
+             linetype = 3) +
+  geom_point(col = pal_blue, alpha = 0.05)
+
+p2 <- economics |> 
+  gg_smooth(
+    x = date, 
+    y = unemploy, 
+    x_limits = c(lubridate::ymd("1985-01-01", "1995-01-01")),
+    x_labels = \(x) stringr::str_sub(x, 3, 4),
+    y_labels = str_keep_seq,
+    title = "x_limits set", 
+    theme = light_mode(title_face = "plain")) +
+  geom_point(col = pal_blue, alpha = 0.1)
+
+p3 <- economics |> 
+  gg_smooth(
+    x = date, 
+    y = unemploy, 
+    x_limits = c(lubridate::ymd("1985-01-01", "1995-01-01")),
+    x_labels = \(x) stringr::str_sub(x, 3, 4),
+    y_labels = str_keep_seq,
+    coord = coord_cartesian(clip = "on"), 
+    title = "x_limits set & cartesian space clipped", 
+    theme = light_mode(title_face = "plain")) +
+  geom_point(col = pal_blue, alpha = 0.1)
+
+p4 <- economics |> 
+  gg_smooth(
+    x = date, 
+    y = unemploy, 
+    x_limits = c(lubridate::ymd("1985-01-01", "1995-01-01")),
+    x_labels = \(x) stringr::str_sub(x, 3, 4),
+    x_oob = scales::oob_censor,
+    y_labels = str_keep_seq,
+    title = "x_limits set & x_oob censored", 
+    theme = light_mode(title_face = "plain")) +
+  geom_point(col = pal_blue, alpha = 0.1)
+
+p5 <- economics |> 
+  filter(between(date, lubridate::ymd("1985-01-01"), lubridate::ymd("1995-01-01"))) |> 
+  gg_smooth(
+    x = date, 
+    y = unemploy,
+    x_labels = \(x) stringr::str_sub(x, 3, 4),
+    y_labels = str_keep_seq,
+    title = "x data filtered", 
+    theme = light_mode(title_face = "plain")) +
+  geom_point(col = pal_blue, alpha = 0.1)
+
+p1 / (p2 + p3) / (p4 + p5) 
 

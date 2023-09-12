@@ -14,6 +14,8 @@ gg_contour(
   group = NULL,
   text = NULL,
   position = "identity",
+  mapping = NULL,
+  stat = "contour",
   coord = ggplot2::coord_cartesian(clip = "off"),
   pal = NULL,
   pal_na = pal_grey,
@@ -48,6 +50,9 @@ gg_contour(
   facet_space = "fixed",
   facet_layout = NULL,
   facet_switch = NULL,
+  linetype_title = NULL,
+  shape_title = NULL,
+  size_title = NULL,
   caption = NULL,
   titles = snakecase::to_sentence_case,
   theme = NULL
@@ -71,6 +76,10 @@ gg_contour(
 \item{text}{Unquoted text aesthetic variable.}
 
 \item{position}{Position adjustment. Either a character string (e.g."identity"), or a function (e.g. ggplot2::position_identity()).}
+
+\item{mapping}{Map additional aesthetics using the ggplot2::aes function (e.g. shape). Excludes colour, fill or alpha.}
+
+\item{stat}{A ggplot2 character string stat.}
 
 \item{coord}{A coordinate function from ggplot2 (e.g. ggplot2::coord_cartesian(clip = "off")).}
 
@@ -102,7 +111,7 @@ gg_contour(
 
 \item{x_sec_axis}{A secondary axis using the ggplot2::sec_axis or ggplot2::dup_axis function.}
 
-\item{x_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
+\item{x_title}{Axis title string. Use "" for no title.}
 
 \item{x_trans}{For a numeric x variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
 
@@ -122,7 +131,7 @@ gg_contour(
 
 \item{y_sec_axis}{A secondary axis using the ggplot2::sec_axis or ggplot2::dup_axis function.}
 
-\item{y_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
+\item{y_title}{Axis title string. Use "" for no title.}
 
 \item{y_trans}{For a numeric y variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
 
@@ -140,9 +149,15 @@ gg_contour(
 
 \item{facet_switch}{Whether the facet layout is "grid", whether to switch the facet labels to the opposite side of the plot. Either "x", "y" or "both".}
 
+\item{linetype_title}{Legend title string. Use "" for no title.}
+
+\item{shape_title}{Legend title string. Use "" for no title.}
+
+\item{size_title}{Legend title string. Use "" for no title.}
+
 \item{caption}{Caption title string.}
 
-\item{titles}{A function to format the x, y and col titles. Defaults to snakecase::to_sentence_case.}
+\item{titles}{A function to format unspecified titles. Defaults to snakecase::to_sentence_case.}
 
 \item{theme}{A ggplot2 theme.}
 }
@@ -153,12 +168,25 @@ A ggplot object.
 Create a contour ggplot with a wrapper around ggplot2::geom_contour(stat = "contour", ...).
 }
 \examples{
-ggplot2::faithfuld |>
+library(ggplot2)
+
+faithfuld |>
  gg_contour(
    x = waiting,
    y = eruptions,
    z = density,
    bins = 8
  )
+
+ # add a colour aesthetic with gg_blank
+ faithfuld |>
+   gg_blank(
+     x = waiting,
+     y = eruptions,
+     z = density,
+     stat = "contour",
+     bins = 8) +
+   geom_contour(aes(colour = after_stat(level)), bins = 8) +
+   labs(colour = "Level")
 
 }

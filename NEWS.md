@@ -1,7 +1,19 @@
+# ggblanket 5.0.0
+
+* Added `mapping` argument to allow extra aesthetics to be included, such as shape (or use delayed evaluation for aesthetics other than `col`, `colour`, `fill` or `alpha`).
+* Added `stat` argument back for flexibility.
+* Added `linetype_title`, `shape_title`, and `size_title` arguments.
+* Added `str_keep_seq` helper function to support keeping labels in a sequence.
+* Breaking: made horizontal y characters and factors plot values from low at bottom to high at top.  
+* Breaking: removed `lower`, `middle`, `upper`, `xlower`, `xmiddle`, and `xupper` arguments from `gg_blank`.
+* Updated `*_breaks` defaults.
+* Made plot order logical variables with `TRUE` first.  
+* Added `pal_discrete2` with 6 colour blind safe colours for a light background theme.
+
 # ggblanket 4.0.0
 
 * Breaking: removed the `stat` argument for all `gg_*` functions except `gg_blank`.
-* Breaking: renamed `pal_hue` to `pal_discrete` and made colours relatively red/green colour-blind safe.
+* Breaking: renamed `pal_hue` to `pal_discrete` and made colours relatively red/green colour blind safe.
 * Breaking: renamed `gg_bin2d` to `gg_bin_2d`.
 * Breaking: changed `*_oob` default back to `scales::oob_keep`.
 * Improved scales to work better with transformations, limits, breaks etc.
@@ -9,7 +21,7 @@
 * Made default to keep unused factors across all scales and facets.
 * Made default continuous label function to drop trailing zeros.
 * Made default legend place simpler: bottom, unless continuous. Otherwise right.
-* Added `text` aesthetic in for `plotly::ggplotly`.
+* Added `text` aesthetic in for `plotly::ggplotly`. 
 
 # ggblanket 3.0.0
 

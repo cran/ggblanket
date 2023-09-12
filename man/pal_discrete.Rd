@@ -3,7 +3,7 @@
 \docType{data}
 \name{pal_discrete}
 \alias{pal_discrete}
-\title{Default categorical palette.}
+\title{Default colour blind safe categorical palette with 5 colours}
 \format{
 An object of class \code{character} of length 5.
 }
@@ -14,10 +14,31 @@ pal_discrete
 A character vector of hex codes.
 }
 \description{
-A default colour blind safe 5 colour palette used to colour a categorical col variable.
+The default colour blind safe 5 colour palette used to colour a categorical col variable.
 }
 \examples{
 scales::show_col(pal_discrete)
+
+ggplot2::diamonds |>
+  gg_bar(x = color,
+         col = color,
+         pal = pal_discrete,
+         width = 0.75)
+
+ggplot2::diamonds |>
+  gg_blank(x = color,
+           col = color,
+           stat = "count",
+           pal = pal_discrete) +
+  ggplot2::geom_point(stat = "count")
+
+ggplot2::diamonds |>
+  gg_blank(x = color,
+           col = color,
+           stat = "count",
+           pal = pal_discrete,
+           theme = dark_mode()) +
+  ggplot2::geom_point(stat = "count")
 
 }
 \references{

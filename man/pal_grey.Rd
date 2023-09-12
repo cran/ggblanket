@@ -3,7 +3,7 @@
 \docType{data}
 \name{pal_grey}
 \alias{pal_grey}
-\title{Default grey colour.}
+\title{Default grey colour}
 \format{
 An object of class \code{character} of length 1.
 }
@@ -14,7 +14,7 @@ pal_grey
 A character vector.
 }
 \description{
-A default grey colour used to colour NA values.
+The default grey colour used to colour NA values.
 }
 \examples{
 scales::show_col(pal_grey)

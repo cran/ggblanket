@@ -12,6 +12,8 @@ gg_bin_2d(
   facet2 = NULL,
   group = NULL,
   text = NULL,
+  mapping = NULL,
+  stat = "bin2d",
   position = "identity",
   coord = ggplot2::coord_cartesian(clip = "off"),
   pal = NULL,
@@ -60,6 +62,9 @@ gg_bin_2d(
   facet_space = "fixed",
   facet_layout = NULL,
   facet_switch = NULL,
+  linetype_title = NULL,
+  shape_title = NULL,
+  size_title = NULL,
   caption = NULL,
   titles = snakecase::to_sentence_case,
   theme = NULL
@@ -79,6 +84,10 @@ gg_bin_2d(
 \item{group}{Unquoted group aesthetic variable.}
 
 \item{text}{Unquoted text aesthetic variable.}
+
+\item{mapping}{Map additional aesthetics using the ggplot2::aes function (e.g. shape). Excludes colour, fill or alpha.}
+
+\item{stat}{A ggplot2 character string stat.}
 
 \item{position}{Position adjustment. Either a character string (e.g."identity"), or a function (e.g. ggplot2::position_identity()).}
 
@@ -112,7 +121,7 @@ gg_bin_2d(
 
 \item{x_sec_axis}{A secondary axis using the ggplot2::sec_axis or ggplot2::dup_axis function.}
 
-\item{x_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
+\item{x_title}{Axis title string. Use "" for no title.}
 
 \item{x_trans}{For a numeric x variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
 
@@ -132,7 +141,7 @@ gg_bin_2d(
 
 \item{y_sec_axis}{A secondary axis using the ggplot2::sec_axis or ggplot2::dup_axis function.}
 
-\item{y_title}{Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
+\item{y_title}{Axis title string. Use "" for no title.}
 
 \item{y_trans}{For a numeric y variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
 
@@ -158,7 +167,7 @@ gg_bin_2d(
 
 \item{col_rescale}{For a continuous col variable, a scales::rescale function.}
 
-\item{col_title}{Legend title string. Defaults to converting to sentence case with spaces. Use "" for no title.}
+\item{col_title}{Legend title string. Use "" for no title.}
 
 \item{col_trans}{For a numeric col variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
 
@@ -176,9 +185,15 @@ gg_bin_2d(
 
 \item{facet_switch}{Whether the facet layout is "grid", whether to switch the facet labels to the opposite side of the plot. Either "x", "y" or "both".}
 
+\item{linetype_title}{Legend title string. Use "" for no title.}
+
+\item{shape_title}{Legend title string. Use "" for no title.}
+
+\item{size_title}{Legend title string. Use "" for no title.}
+
 \item{caption}{Caption title string.}
 
-\item{titles}{A function to format the x, y and col titles. Defaults to snakecase::to_sentence_case.}
+\item{titles}{A function to format unspecified titles. Defaults to snakecase::to_sentence_case.}
 
 \item{theme}{A ggplot2 theme.}
 }

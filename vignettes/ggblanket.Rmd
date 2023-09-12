@@ -36,7 +36,7 @@ To simplify ggplot2 visualisation, ggblanket provides:
 9.  Pretty defaults for symmetry
 10. Access to other geom\_\* arguments via ...
 11. Ability to add multiple geom\_\* layers
-12. Other differences: stats, oobs, clipping, unused factor levels, ordering, alpha etc
+12. Other key differences
 
 ```{r setup}
 library(dplyr)
@@ -51,7 +51,7 @@ penguins <- palmerpenguins::penguins |>
 
 ### 1. Over thirty gg\_\* wrapper functions
 
-Each `gg_*` function wraps a ggplot2 `ggplot(aes(...))` function with the applicable ggplot2 `geom_*()` function. All aesthetics are placed directly in the `gg_*` function: they are not within a `ggplot2::aes` function. For all functions except `gg_blank`, the stat is locked to that which is default to the applicable `geom_*` function. 
+Each `gg_*` function wraps a ggplot2 `ggplot(aes(...))` function with the applicable ggplot2 `geom_*()` function. All aesthetics are placed directly in the `gg_*` function: they are not within a `ggplot2::aes` function.  
 
 ```{r, fig.asp=0.6}
 # ggplot2
@@ -272,7 +272,7 @@ penguins |>
 
 The `ggplot2::theme_set` function can be used to set the theme globally, such that all subsequent plots will use this where the `theme` argument of a plot is left as NULL. Alternatively, users can use the `theme` argument in a `gg_*` function.
 
-ggblanket provides two complete ggplot2 theme functions called `light_mode` (the default) and `dark_mode`. The first argument is the `base_size`. This changes the size of all the text to this, except the title is 10% higher and the caption is 10% lower. There are other arguments to change the family, face, colour, size, margins and vertical adjustment of text.
+ggblanket provides two complete ggplot2 theme functions called `light_mode` (the default) and `dark_mode`. The first argument is the `base_size`. This changes the size of all the text to this, except the title is 10% higher and the caption is 10% lower. In quarto, it is likely that users will want to set the `*_mode` theme to have a larger `base_size` (e.g. `ggplot2::theme_set(light_mode(11))`). 
 
 Note that the `gg_*` function will control what gridlines are present and the placement of the legend - despite the theme provided. Therefore, if you are providing a theme other than `light_mode` or `dark_mode`, ggblanket works well  if this theme has both vertical and horizontal gridlines. If users want everything adjusted as per the theme, then they can `+` their theme onto the plot instead.
 
@@ -320,7 +320,7 @@ Where the orientation is normal (i.e. vertical):
 -   Default categorical (or numeric transformed) y scale limits and expanding are as per ggplot2 defaults
 -   Default removal of vertical gridlines
 
-It does the opposite where the orientation is horizontal (and also keeps y categorical values in correct order).
+It does the opposite where the orientation is horizontal. 
 
 Note this symmetry approach does _not_ apply:
 * if a transformation other than identity or reverse is applied to x or y scales.
@@ -354,7 +354,7 @@ penguins |>
 
 ### 10. Access to other geom\_\* arguments via `...`
 
-The `...` argument is placed in the `gg_*` function within the wrapped `ggplot2::geom_*` function. This means all other arguments in the `geom_*` function are available to users (except the mapping and stat argument). Common arguments from `...` to add are `size`, `linewidth` and `width`.
+The `...` argument is placed in the `gg_*` function within the wrapped `ggplot2::geom_*` function. This means all other arguments in the `geom_*` function are available to users. Common arguments from `...` to add are `size`, `linewidth` and `width`.
 
 ```{r}
 # ggblanket
@@ -464,104 +464,190 @@ d_long |>
   geom_point(size = 2) 
 ```
 
-### 12. Other differences: stats, oobs, clipping, unused factor levels, ordering etc
+### 12. Other key differences
 
-ggblanket has some other key different defaults to ggplot2, which users should be aware of.
+##### Unquoted variables only
 
-For all `gg_*` functions other than `gg_blank`, the stat is locked to the relevant `geom_*` default. This means if you would like to use a stat different to the default, you should use `gg_blank`. By setting the `stat` to that of the layer to follow if necessary to help the scales etc be created appropriately. Note `gg_blank` only accepts stats that are characters.
-
-```{r, fig.asp=0.4}
-penguins |>
-  gg_blank(
-    x = body_mass_g,
-    y = species,
-    stat = "summary"
-  ) +
-  geom_pointrange(stat = "summary", colour = pal_blue)
-```
-
-By default, ggblanket keeps values outside of the limits (`*_oob = scales::oob_keep`) in calculating the geoms and scales to plot. It also does _not_ clip anything outside the cartesian coordinate space by default (`coord = ggplot2::coord_cartesian(clip = "off"`)). 
-
-ggplot2 by default drops values outside of the limits in calculating the geoms and scales to plot (`scales::oob_censor`). It also clips anything outside the cartesian coordinate space by default (`coord = ggplot2::coord_cartesian(clip = "on"`)).
-
-These deviations from ggplot2 were considered to be safer defaults for ggblanket (i.e. fail by plotting data outside the panel rather than fail by dropping data).
+ggblanket requires unquoted variables only for `x`, `y`, `col`, `facet` and `facet2`. You cannot wrap these in a function. Instead you need to apply the function to the relevant variable in the data prior to plotting. For example, reordering or reversing a factor or dropping NAs. 
 
 ```{r, fig.asp=0.75}
-p1 <- economics |>
-  gg_line(
-    x = date,
-    y = unemploy,
-    x_limits = c(lubridate::ymd("2010-01-01"), lubridate::NA_Date_),
-    x_labels = \(x) stringr::str_sub(x, 3, 4),
-    title = "Limits set with default",
-    theme = light_mode(title_face = "plain"))
+p1 <- diamonds |>
+  count(color) |>
+  gg_col(
+    x = n,
+    y = color,
+    width = 0.75,
+    x_labels = \(x) x / 1000,
+    x_title = "Count (thousands)",
+    title = "Default y",
+    theme = light_mode(title_face = "plain")
+  )
 
-p2 <- economics |>
-  gg_line(
-    x = date,
-    y = unemploy,
-    x_limits = c(lubridate::ymd("2010-01-01"), lubridate::NA_Date_),
-    x_labels = \(x) stringr::str_sub(x, 3, 4),
-    coord = ggplot2::coord_cartesian(clip = "on"),
-    title = "Limits set with clip = 'off'",
-    theme = light_mode(title_face = "plain"))
 
-p3 <- economics |>
-  gg_line(
-    x = date,
-    y = unemploy,
-    x_limits = c(lubridate::ymd("2010-01-01"), lubridate::NA_Date_),
-    x_labels = \(x) stringr::str_sub(x, 3, 4),
-    coord = ggplot2::coord_cartesian(clip = "on"),
-    x_oob = scales::oob_censor,
-    title = "Limits set with oob_censor",
-    theme = light_mode(title_face = "plain"))
+p2 <- diamonds |>
+  count(color) |>
+  mutate(color = forcats::fct_rev(color)) |>
+  gg_col(
+    x = n,
+    y = color,
+    width = 0.75,
+    x_labels = \(x) x / 1000,
+    x_title = "Count (thousands)",
+    title = "Reverse y",
+    theme = light_mode(title_face = "plain")
+  )
 
-p4 <- economics |>
-  filter(date >= lubridate::ymd("2010-01-01")) |> 
-  gg_line(
-    x = date,
-    y = unemploy,
-    x_labels = \(x) stringr::str_sub(x, 3, 4), 
-    title = "Limits set by filtering data",
-    theme = light_mode(title_face = "plain"))
+p3 <- diamonds |>
+  count(color) |>
+  mutate(color = forcats::fct_reorder(color, n)) |>
+  gg_col(
+    x = n,
+    y = color,
+    width = 0.75,
+    x_labels = \(x) x / 1000,
+    x_title = "Count (thousands)",
+    title = "Reordered y ascending by x",
+    theme = light_mode(title_face = "plain")
+  )
+
+p4 <- diamonds |>
+  count(color) |>
+  mutate(color = color |>
+           forcats::fct_reorder(n) |>
+           forcats::fct_rev()) |>
+  gg_col(
+    x = n,
+    y = color,
+    width = 0.75,
+    x_labels = \(x) x / 1000,
+    x_title = "Count (thousands)",
+    title = "Reordered y decending by x",
+    theme = light_mode(title_face = "plain")
+  )
 
 (p1 + p2) / (p3 + p4)
 ```
 
-ggblanket keeps unused factor levels in the plot. If users wish to drop unused levels they should do by mutating the variable prior to plotting (i.e. `data |> mutate(var = forcats::fct_drop(var))`). Similarly, ggblanket requires unquoted variables for it's aesthetics. If you wish to reorder a variable or drop NAs, you should do it likewise prior to plotting. 
+##### Unused factor levels kept
 
-```{r, fig.asp=0.5}
-p1 <- palmerpenguins::penguins |> 
-  gg_jitter(x = sex, 
-            y = body_mass_g,
-            col = sex, 
-            col_legend_place = "n")
+ggblanket keeps unused factor levels in the plot. If users wish to drop unused levels they should likewise do it in the data prior to plotting. 
 
-p2 <- palmerpenguins::penguins |> 
-  mutate(sex = factor(sex, levels = c("male", "female"))) |> 
-  tidyr::drop_na(sex) |> 
-  gg_jitter(x = sex, 
-            y = body_mass_g, 
-            col = sex, 
-            col_legend_place = "n")
+```{r, fig.asp=0.4}
+p1 <- diamonds |> 
+  count(color) |> 
+  filter(color %in% c("E", "G", "I")) |>
+  gg_col(
+    x = n,
+    y = color,
+    x_labels = \(x) x / 1000,
+    x_title = "Count (thousands)",
+    title = "A factor filtered",
+    theme = light_mode(title_face = "plain")
+  )
+
+p2 <- diamonds |> 
+  count(color) |>
+  filter(color %in% c("E", "G", "I")) |>
+  mutate(color = forcats::fct_drop(color)) |> 
+  gg_col(
+    x = n,
+    y = color,
+    width = 0.75,
+    x_labels = \(x) x / 1000,
+    x_title = "Count (thousands)",
+    title = "A factor filtered & unused levels dropped",
+    theme = light_mode(title_face = "plain")
+  )
 
 p1 + p2
 ```
 
+##### Different oob & clip defaults
+
+By default, ggblanket keeps values outside of the limits (`*_oob = scales::oob_keep`) in calculating the geoms and scales to plot. It also does _not_ clip anything outside the cartesian coordinate space by default (`coord = ggplot2::coord_cartesian(clip = "off"`)). 
+ggplot2 by default drops values outside of the limits in calculating the geoms and scales to plot (`scales::oob_censor`). It also clips anything outside the cartesian coordinate space by default (`coord = ggplot2::coord_cartesian(clip = "on"`)).
+
+Users should be particularly careful when setting limits for stats other than `identity`. 
+
+```{r, fig.asp=1}
+p1 <- economics |> 
+  gg_smooth(
+    x = date, 
+    y = unemploy, 
+    y_labels = str_keep_seq,
+    title = "No x_limits set", 
+    theme = light_mode(title_face = "plain")) +
+  geom_vline(xintercept = c(lubridate::ymd("1985-01-01", "1995-01-01")),
+             col = pal_blue, 
+             linetype = 3) +
+  geom_point(col = pal_blue, alpha = 0.05)
+
+p2 <- economics |> 
+  gg_smooth(
+    x = date, 
+    y = unemploy, 
+    x_limits = c(lubridate::ymd("1985-01-01", "1995-01-01")),
+    x_labels = \(x) stringr::str_sub(x, 3, 4),
+    y_labels = str_keep_seq,
+    title = "x_limits set", 
+    theme = light_mode(title_face = "plain")) +
+  geom_point(col = pal_blue, alpha = 0.1)
+
+p3 <- economics |> 
+  gg_smooth(
+    x = date, 
+    y = unemploy, 
+    x_limits = c(lubridate::ymd("1985-01-01", "1995-01-01")),
+    x_labels = \(x) stringr::str_sub(x, 3, 4),
+    y_labels = str_keep_seq,
+    coord = coord_cartesian(clip = "on"), 
+    title = "x_limits set & cartesian space clipped", 
+    theme = light_mode(title_face = "plain")) +
+  geom_point(col = pal_blue, alpha = 0.1)
+
+p4 <- economics |> 
+  gg_smooth(
+    x = date, 
+    y = unemploy, 
+    x_limits = c(lubridate::ymd("1985-01-01", "1995-01-01")),
+    x_labels = \(x) stringr::str_sub(x, 3, 4),
+    x_oob = scales::oob_censor,
+    y_labels = str_keep_seq,
+    title = "x_limits set & x_oob censored", 
+    theme = light_mode(title_face = "plain")) +
+  geom_point(col = pal_blue, alpha = 0.1)
+
+p5 <- economics |> 
+  filter(between(date, lubridate::ymd("1985-01-01"), lubridate::ymd("1995-01-01"))) |> 
+  gg_smooth(
+    x = date, 
+    y = unemploy,
+    x_labels = \(x) stringr::str_sub(x, 3, 4),
+    y_labels = str_keep_seq,
+    title = "x data filtered", 
+    theme = light_mode(title_face = "plain")) +
+  geom_point(col = pal_blue, alpha = 0.1)
+
+p1 / (p2 + p3) / (p4 + p5) 
+```
+
+##### Different pal and alpha defaults
+
 ggblanket uses different defaults for colouring. The default `pal` is:
+
 * `ggblanket::pal_blue` for where there is no `col` variable
 * `viridis::viridis` for a continuous `col` variable
-* `ggblanket::pal_discrete` for a discrete `col` variable with 5 or less levels (or unique values if not ordered). Testing suggests this is red/green colourblind-safe.
+* `ggblanket::pal_discrete` for a discrete `col` variable with 5 or less levels (or unique values if a character). Testing suggests this is safe for colour blindness. 
 * `scales::hue_pal` for a discrete `col` variable with more than 5 levels (or unique values if not ordered).
 
 ggblanket uses different `alpha` defaults for the different `gg_*` functions. Polygons that generally have no gap or overlap default to 1: `gg_bin_2d`, `gg_contour_filled`, `gg_density_2d_filled`, `gg_hex` - as well as `gg_sf` for polygons with a `col` aesthetic. Polygons that generally overlap default to 0.5: `gg_density`. Polygons that generally have key lines within them also default to 0.5: `gg_boxplot`, `gg_crossbar`, `gg_ribbon` and `gg_smooth`. `gg_label` defaults to 0.05. `gg_blank` has no alpha argument. Other polygons default to 0.9: `gg_area`, `gg_bar`, `gg_col`, `gg_histogram`, `gg_polygon`, `gg_rect`, `gg_tile` and `gg_violin`. For all other contexts, alpha defaults to 1. 
 
-Other differences:
+##### Other minor stuff
 
 * `*_title` is equivalent to `ggplot2::labs(* = ...)` or `ggplot2::scale_*(name = ...)`.
+* Logical variables are reversed, so that `TRUE` always comes before `FALSE`.
 * `*_include` works in a similar way to `ggplot2::expand_limits(* = ...)`.
 
 ## Further information 
 
-See the other [articles](https://davidhodge931.github.io/ggblanket/articles/) and [reference](https://davidhodge931.github.io/ggblanket/reference/index.html) information on the ggblanket website for further information.
+See the ggblanket [website](https://davidhodge931.github.io/ggblanket/index.html) for further information, including [articles](https://davidhodge931.github.io/ggblanket/articles/) and [function reference](https://davidhodge931.github.io/ggblanket/reference/index.html).

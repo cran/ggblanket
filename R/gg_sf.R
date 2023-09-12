@@ -7,6 +7,8 @@
 #' @param facet2 Unquoted second facet variable.
 #' @param group Unquoted group aesthetic variable.
 #' @param text Unquoted text aesthetic variable.
+#' @param mapping Map additional aesthetics using the ggplot2::aes function (e.g. shape). Excludes colour, fill or alpha.
+#' @param stat A ggplot2 character string stat.
 #' @param position Position adjustment. Either a character string (e.g."identity"), or a function (e.g. ggplot2::position_identity()).
 #' @param coord A coordinate function from ggplot2 (e.g. ggplot2::coord_sf(clip = "off")).
 #' @param pal Colours to use. A character vector of hex codes (or names).
@@ -16,9 +18,9 @@
 #' @param title Title string.
 #' @param subtitle Subtitle string.
 #' @param x_gridlines TRUE or FALSE for vertical x gridlines. NULL guesses based on the classes of the x and y.
-#' @param x_title Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.
+#' @param x_title Axis title string. Use "" for no title.
 #' @param y_gridlines TRUE or FALSE of horizontal y gridlines. NULL guesses based on the classes of the x and y.
-#' @param y_title Axis title string. Defaults to converting to sentence case with spaces. Use "" for no title.
+#' @param y_title Axis title string. Use "" for no title.
 #' @param col_breaks A scales::breaks_* function (e.g. scales::breaks_pretty()), or a vector of breaks.
 #' @param col_continuous For a continuous col variable, the type of colouring. Either "gradient" or "steps". Defaults to "gradient".
 #' @param col_include For a continuous col variable, any values that the limits should encompass (e.g. 0).
@@ -30,7 +32,7 @@
 #' @param col_limits A vector to determine the limits of the colour scale.
 #' @param col_oob For a continuous col variable, a scales::oob_* function of how to handle values outside of limits (e.g. scales::oob_keep). Defaults to scales::oob_keep.
 #' @param col_rescale For a continuous col variable, a scales::rescale function.
-#' @param col_title Legend title string. Defaults to converting to sentence case with spaces. Use "" for no title.
+#' @param col_title Legend title string. Use "" for no title.
 #' @param col_trans For a numeric col variable, a transformation object (e.g. "log10", "sqrt" or "reverse").
 #' @param facet_labels A function that takes the breaks as inputs (e.g. scales::label_comma()), or a named vector of labels (e.g. c("value" = "label", ...)).
 #' @param facet_ncol The number of columns of facets. Only applies to a facet layout of "wrap".
@@ -39,8 +41,11 @@
 #' @param facet_space Whether facet space should be "fixed" across facets, "free" to be proportional in both directions, or free to be proportional in just one direction (i.e. "free_x" or "free_y"). Defaults to "fixed". Only applies where the facet layout is "grid" and facet scales are not "fixed".
 #' @param facet_layout Whether the layout is to be "wrap" or "grid". If NULL and a single facet (or facet2) argument is provided, then defaults to "wrap". If NULL and both facet and facet2 arguments are provided, defaults to "grid".
 #' @param facet_switch Whether the facet layout is "grid", whether to switch the facet labels to the opposite side of the plot. Either "x", "y" or "both".
-#' @param titles A function to format the x, y and col titles. Defaults to snakecase::to_sentence_case.
+#' @param linetype_title Legend title string. Use "" for no title.
+#' @param shape_title Legend title string. Use "" for no title.
+#' @param size_title Legend title string. Use "" for no title.
 #' @param caption Caption title string.
+#' @param titles A function to format unspecified titles. Defaults to snakecase::to_sentence_case.
 #' @param theme A ggplot2 theme.
 #'
 #' @return A ggplot object.
@@ -61,6 +66,8 @@ gg_sf <- function(
     facet2 = NULL,
     group = NULL,
     text = NULL,
+    mapping = NULL,
+    stat = "sf",
     position = "identity",
     coord = ggplot2::coord_sf(clip = "off"),
     pal = NULL,
@@ -93,6 +100,9 @@ gg_sf <- function(
     facet_space = "fixed",
     facet_layout = NULL,
     facet_switch = NULL,
+    linetype_title = NULL,
+    shape_title = NULL,
+    size_title = NULL,
     caption = NULL,
     titles = snakecase::to_sentence_case,
     theme = NULL) {
@@ -101,7 +111,7 @@ gg_sf <- function(
   #Unique code: part 1
   ##############################################################################
 
-  stat <- "sf"
+  #stat <- "sf"
 
   #quote
   col <- rlang::enquo(col)
@@ -119,6 +129,8 @@ gg_sf <- function(
 
   #get classes
   x_null <- TRUE
+  x_character <- FALSE
+  x_logical <- FALSE
   x_factor <- FALSE
   x_forcat <- FALSE
   x_numeric <- FALSE
@@ -127,6 +139,8 @@ gg_sf <- function(
   x_time <- FALSE
 
   y_null <- TRUE
+  y_character <- FALSE
+  y_logical <- FALSE
   y_factor <- FALSE
   y_forcat <- FALSE
   y_numeric <- FALSE
@@ -135,15 +149,19 @@ gg_sf <- function(
   y_time <- FALSE
 
   col_null <- rlang::quo_is_null(col)
+  col_character <- is.character(rlang::eval_tidy(col, data))
+  col_logical <- is.logical(rlang::eval_tidy(col, data))
   col_factor <- is.factor(rlang::eval_tidy(col, data))
-  col_forcat <- is.character(rlang::eval_tidy(col, data)) | is.factor(rlang::eval_tidy(col, data)) | is.logical(rlang::eval_tidy(col, data))
+  col_forcat <- col_character | col_factor | col_logical
   col_numeric <- is.numeric(rlang::eval_tidy(col, data))
   col_date <- lubridate::is.Date(rlang::eval_tidy(col, data))
   col_datetime <- lubridate::is.POSIXct(rlang::eval_tidy(col, data))
   col_time <- hms::is_hms(rlang::eval_tidy(col, data))
 
   facet_null <- rlang::quo_is_null(facet)
+  facet_logical <- is.logical(rlang::eval_tidy(facet, data))
   facet2_null <- rlang::quo_is_null(facet2)
+  facet2_logical <- is.logical(rlang::eval_tidy(facet2, data))
 
   if (rlang::is_null(alpha)) {
     # geometry_type <- unique(sf::st_geometry_type(data))
@@ -169,8 +187,18 @@ gg_sf <- function(
   }
 
   ##############################################################################
-  #Generic code: part 1 (adjust for gg_sf)
+  #Generic code: part 1 (adjust for gg_sf & gg_rect)
   ##############################################################################
+
+  #abort if unsupported aesthetic in mapping
+  if (!rlang::is_null(mapping)) {
+    if (any(names(unlist(mapping)) %in% c("colour", "fill", "alpha"))) {
+      rlang::abort("mapping argument does not support colour, fill or alpha aesthetics")
+    }
+    if (any(names(unlist(mapping)) %in% c("facet", "facet2"))) {
+      rlang::abort("mapping argument does not support facet or facet2")
+    }
+  }
 
   #get default theme if global theme not set
   if (rlang::is_null(theme)) {
@@ -179,34 +207,25 @@ gg_sf <- function(
     }
   }
 
-  #process for horizontal
-  # if (stat != "sf") {
-  #   if (y_forcat) {
-  #     if (!(!col_null &
-  #           (identical(rlang::eval_tidy(y, data), rlang::eval_tidy(col, data))))) {
-  #
-  #       if (is.logical(rlang::eval_tidy(y, data))) {
-  #         data <- data %>%
-  #           dplyr::mutate(dplyr::across(!!y, function(x) as.character(x)))
-  #       }
-  #
-  #       data <- data %>%
-  #         dplyr::mutate(dplyr::across(!!y, function(x) forcats::fct_rev(x)))
-  #     }
-  #   }
-  #
-  #   if (col_forcat) {
-  #     if (y_forcat) {
-  #       if (is.logical(rlang::eval_tidy(col, data))) {
-  #         data <- data %>%
-  #           dplyr::mutate(dplyr::across(!!col, function(x) as.character(x)))
-  #       }
-  #
-  #       data <- data %>%
-  #         dplyr::mutate(dplyr::across(!!col, function(x) forcats::fct_rev(x)))
-  #     }
-  #   }
-  # }
+  #order for horizontal & logical
+  if (col_logical) {
+    data <- data %>%
+      dplyr::mutate(dplyr::across(!!col, function(x) factor(x, levels = c(TRUE, FALSE))))
+  }
+
+  if (col_character) {
+    data <- data %>%
+      dplyr::mutate(dplyr::across(!!col, function(x) factor(x)))
+  }
+
+  if (facet_logical) {
+    data <- data %>%
+      dplyr::mutate(dplyr::across(!!facet, function(x) factor(x, levels = c(TRUE, FALSE))))
+  }
+  if (facet2_logical) {
+    data <- data %>%
+      dplyr::mutate(dplyr::across(!!facet2, function(x) factor(x, levels = c(TRUE, FALSE))))
+  }
 
   ##############################################################################
   #Unique code: part 2
@@ -219,7 +238,7 @@ gg_sf <- function(
         geometry = sf::st_geometry(data),
         col = !!col,
         fill = !!col,
-        group = !!group
+        group = !!group, !!!mapping
       ))
   }
   else if (col_null) {
@@ -228,7 +247,7 @@ gg_sf <- function(
         geometry = sf::st_geometry(data),
         # col = "",
         # fill = "",
-        group = !!group
+        group = !!group, !!!mapping
       ))
   }
 
@@ -237,6 +256,7 @@ gg_sf <- function(
     else pal <- as.vector(pal[1])
 
     plot <- plot +
+      # ggplot2::geom_blank(stat = stat, position = position, ...) +
       ggplot2::geom_sf(
         ggplot2::aes(text = !!text), stat = stat,
         position = position,
@@ -250,6 +270,7 @@ gg_sf <- function(
   }
   else {
     plot <- plot +
+      # ggplot2::geom_blank(stat = stat, position = position, ...) +
       ggplot2::geom_sf(
         ggplot2::aes(text = !!text), stat = stat,
         position = position,
@@ -377,10 +398,10 @@ gg_sf <- function(
   #   else if (x_forcat) {
   #     if (any(x_trans %in% "reverse") & !rlang::is_null(x_limits)) {
   #       plot <- plot +
-  #         ggplot2::scale_x_discrete(limits = x_limits[c(2, 1)])
+  #         ggplot2::scale_x_discrete(limits = x_limits[c(2, 1)], drop = FALSE)
   #     } else {
   #       plot <- plot +
-  #         ggplot2::scale_x_discrete(limits = x_limits)
+  #         ggplot2::scale_x_discrete(limits = x_limits, drop = FALSE)
   #     }
   #   }
   #
@@ -428,10 +449,10 @@ gg_sf <- function(
   #   else if (y_forcat) {
   #     if (any(y_trans %in% "reverse") & !rlang::is_null(y_limits)) {
   #       plot <- plot +
-  #         ggplot2::scale_y_discrete(limits = y_limits[c(2, 1)])
+  #         ggplot2::scale_y_discrete(limits = y_limits[c(2, 1)], drop = FALSE)
   #     } else {
   #       plot <- plot +
-  #         ggplot2::scale_y_discrete(limits = y_limits)
+  #         ggplot2::scale_y_discrete(limits = y_limits, drop = FALSE)
   #     }
   #     if (!rlang::is_null(y_include)) {
   #       plot <- plot +
@@ -533,7 +554,7 @@ gg_sf <- function(
   #         if (rlang::is_null(x_breaks)) {
   #
   #           if (!facet_null & !facet2_null) x_breaks_n <- 3
-  #           else if (!facet_null & facet2_null) x_breaks_n <- 3
+  #           else if (!facet_null | !facet2_null) x_breaks_n <- 3
   #           else x_breaks_n <- 6
   #
   #           if (x_time) x_breaks <- ggplot2::waiver()
@@ -577,7 +598,7 @@ gg_sf <- function(
   #         if (rlang::is_null(x_breaks)) {
   #
   #           if (!facet_null & !facet2_null) x_breaks_n <- 3
-  #           else if (!facet_null & facet2_null) x_breaks_n <- 3
+  #           else if (!facet_null | !facet2_null) x_breaks_n <- 3
   #           else x_breaks_n <- 6
   #
   #           if (x_time) x_breaks <- ggplot2::waiver
@@ -741,8 +762,8 @@ gg_sf <- function(
   #       if (rlang::is_null(y_limits)) {
   #         if (rlang::is_null(y_breaks)) {
   #
-  #           if (!facet_null & !facet2_null) y_breaks_n <- 6
-  #           else if (facet_null & !facet2_null) y_breaks_n <- 6
+  #           if (!facet_null & !facet2_null) y_breaks_n <- 5
+  #           else if (!facet_null | !facet2_null) y_breaks_n <- 6
   #           else y_breaks_n <- 8
   #
   #           if (y_time) y_breaks <- ggplot2::waiver
@@ -781,8 +802,8 @@ gg_sf <- function(
   #
   #         if (rlang::is_null(y_breaks)) {
   #
-  #           if (!facet_null & !facet2_null) y_breaks_n <- 6
-  #           else if (facet_null & !facet2_null) y_breaks_n <- 6
+  #           if (!facet_null & !facet2_null) y_breaks_n <- 5
+  #           else if (!facet_null | !facet2_null) y_breaks_n <- 6
   #           else y_breaks_n <- 8
   #
   #           if (y_time) y_breaks <- ggplot2::waiver
@@ -937,26 +958,30 @@ gg_sf <- function(
 
       plot <- plot +
         ggplot2::scale_colour_manual(
-          values = pal, drop = FALSE,
+          values = pal,
+          drop = FALSE,
           breaks = col_breaks,
           limits = col_limits,
           labels = col_labels,
-          na.value = as.vector(pal_na),
-          guide = ggplot2::guide_legend(
+          na.value = as.vector(pal_na)
+        ) +
+        ggplot2::scale_fill_manual(
+          values = pal,
+          drop = FALSE,
+          breaks = col_breaks,
+          limits = col_limits,
+          labels = col_labels,
+          na.value = as.vector(pal_na)
+        ) +
+        ggplot2::guides(
+          colour = ggplot2::guide_legend(
             reverse = col_legend_rev_auto,
             title.position = "top",
             ncol = col_legend_ncol,
             nrow = col_legend_nrow,
             byrow = TRUE
-          )
-        ) +
-        ggplot2::scale_fill_manual(
-          values = pal, drop = FALSE,
-          breaks = col_breaks,
-          limits = col_limits,
-          labels = col_labels,
-          na.value = as.vector(pal_na),
-          guide = ggplot2::guide_legend(
+          ),
+          fill = ggplot2::guide_legend(
             reverse = col_legend_rev_auto,
             title.position = "top",
             ncol = col_legend_ncol,
@@ -1005,14 +1030,7 @@ gg_sf <- function(
             breaks = col_breaks,
             limits = col_limits,
             trans = col_trans,
-            na.value = as.vector(pal_na),
-            guide = ggplot2::guide_colourbar(
-              title.position = "top",
-              draw.ulim = TRUE,
-              draw.llim = TRUE,
-              ticks.colour = "#F1F3F5",
-              reverse = col_legend_rev
-            )
+            na.value = as.vector(pal_na)
           ) +
           ggplot2::scale_fill_gradientn(
             colours = pal,
@@ -1021,8 +1039,17 @@ gg_sf <- function(
             breaks = col_breaks,
             limits = col_limits,
             trans = col_trans,
-            na.value = as.vector(pal_na),
-            guide = ggplot2::guide_colourbar(
+            na.value = as.vector(pal_na)
+          ) +
+          ggplot2::guides(
+            colour = ggplot2::guide_colourbar(
+              title.position = "top",
+              draw.ulim = TRUE,
+              draw.llim = TRUE,
+              ticks.colour = "#F1F3F5",
+              reverse = col_legend_rev
+            ),
+            fill = ggplot2::guide_colourbar(
               title.position = "top",
               draw.ulim = TRUE,
               draw.llim = TRUE,
@@ -1041,10 +1068,7 @@ gg_sf <- function(
             limits = col_limits,
             trans = col_trans,
             oob = col_oob,
-            na.value = as.vector(pal_na),
-            guide = ggplot2::guide_coloursteps(
-              title.position = "top",
-              reverse = col_legend_rev)
+            na.value = as.vector(pal_na)
           ) +
           ggplot2::scale_fill_stepsn(
             colours = pal,
@@ -1054,8 +1078,13 @@ gg_sf <- function(
             limits = col_limits,
             trans = col_trans,
             oob = col_oob,
-            na.value = as.vector(pal_na),
-            guide = ggplot2::guide_coloursteps(
+            na.value = as.vector(pal_na)
+          ) +
+          ggplot2::guides(
+            colour = ggplot2::guide_coloursteps(
+              title.position = "top",
+              reverse = col_legend_rev),
+            fill = ggplot2::guide_coloursteps(
               title.position = "top",
               reverse = col_legend_rev)
           )
@@ -1081,21 +1110,34 @@ gg_sf <- function(
     else if (!rlang::is_null(plot_build$plot$labels$colour)) {
       col_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$colour[1]), titles)
     }
+  }
 
+  if (rlang::is_null(linetype_title)) {
+    if (!rlang::is_null(plot_build$plot$labels$linetype)) {
+      linetype_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$linetype[1]), titles)
+    }
+  }
+  if (rlang::is_null(shape_title)) {
+    if (!rlang::is_null(plot_build$plot$labels$shape)) {
+      shape_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$shape[1]), titles)
+    }
+  }
+  if (rlang::is_null(size_title)) {
+    if (!rlang::is_null(plot_build$plot$labels$size)) {
+      size_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$size[1]), titles)
+    }
   }
 
   plot <- plot +
     ggplot2::labs(
       title = title,
       subtitle = subtitle,
-      caption = caption)
-
-  if (!col_null | stat %in% c("bin2d", "bin_2d", "binhex", "contour_filled", "density2d_filled", "density_2d_filled")) {
-    plot <- plot +
-      ggplot2::labs(
-        col = col_title,
-        fill = col_title)
-  }
+      caption = caption,
+      linetype = linetype_title,
+      shape = shape_title,
+      size = size_title,
+      col = col_title,
+      fill = col_title)
 
   # if (stat != "sf") {
   #   plot <- plot +
@@ -1166,7 +1208,7 @@ gg_sf <- function(
     }
     else if (col_legend_place == "none") {
       plot <- plot +
-        ggplot2::guides(col = "none", fill = "none")
+        ggplot2::guides(colour = "none", fill = "none")
     }
   }
 

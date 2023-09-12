@@ -33,17 +33,26 @@
 #' library(palmerpenguins)
 #' library(ggplot2)
 #'
-#' theme_set(light_mode())
-#'
+#' #set for a plot
 #' penguins |>
 #'   gg_point(
 #'     x = flipper_length_mm,
 #'     y = body_mass_g,
 #'     col = species,
-#'     title = "Penguins body mass by flipper length",
-#'     subtitle = "Palmer Archipelago, Antarctica",
-#'     caption = "Source: Gorman, 2020"
+#'     theme = dark_mode()
 #'   )
+#'
+#' #set globally
+#' \dontrun{
+#'   theme_set(dark_mode())
+#'
+#'   penguins |>
+#'     gg_point(
+#'       x = flipper_length_mm,
+#'       y = body_mass_g,
+#'       col = species
+#'     )
+#' }
 #'
 dark_mode <- function (
     base_size = 10,
@@ -97,8 +106,9 @@ dark_mode <- function (
     axis.title.x.top = ggplot2::element_text(margin = ggplot2::margin(b = base_size * 0.75)),
     axis.title.y = ggplot2::element_text(margin = ggplot2::margin(r = base_size * 1), angle = 90),
     axis.title.y.right = ggplot2::element_text(margin = ggplot2::margin(l = base_size * 1), angle = -90),
-    legend.spacing = grid::unit(base_size * 0.125, "pt"),
+    legend.spacing = grid::unit(base_size * 1, "pt"),
     legend.spacing.x = NULL,
+    legend.spacing.y = NULL,
     legend.margin = ggplot2::margin(),
     legend.key = ggplot2::element_rect(fill = "#1f2f3e", colour = "#1f2f3e"),
     legend.key.size = grid::unit(1.2, "lines"),
