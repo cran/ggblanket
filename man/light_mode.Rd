@@ -20,7 +20,7 @@ light_mode(
   subtitle_pal = NULL,
   subtitle_size = NULL,
   subtitle_vjust = 1,
-  subtitle_margin = ggplot2::margin(t = base_size * -1, b = base_size * 2),
+  subtitle_margin = ggplot2::margin(t = base_size * -1, b = base_size + 10),
   caption_family = NULL,
   caption_face = NULL,
   caption_alpha = 0.33,
@@ -44,7 +44,7 @@ light_mode(
 
 \item{title_face}{The font face of the title. Defaults to "bold".}
 
-\item{title_pal}{The colour of the title. Defaults to the base_pal.}
+\item{title_pal}{The colour of the title. Defaults to the base_pal first element.}
 
 \item{title_size}{The size of the title. Defaults to the base_size * 1.1.}
 
@@ -56,7 +56,7 @@ light_mode(
 
 \item{subtitle_face}{The font face of the subtitle. Defaults to the base_face.}
 
-\item{subtitle_pal}{The colour of the subtitle. Defaults to the base_pal.}
+\item{subtitle_pal}{The colour of the subtitle. Defaults to the base_pal first element.}
 
 \item{subtitle_size}{The size of the subtitle. Defaults to the base_size.}
 
@@ -70,7 +70,7 @@ light_mode(
 
 \item{caption_alpha}{The alpha of the caption pal. Defaults to 0.33. Use 1 for no alpha.}
 
-\item{caption_pal}{The colour of the caption (before caption_alpha is applied). Defaults to the base_pal.}
+\item{caption_pal}{The colour of the caption (before caption_alpha is applied). Defaults to the base_pal first element.}
 
 \item{caption_size}{The size of the caption. Defaults to the base_size * 0.9.}
 

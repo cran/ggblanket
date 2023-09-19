@@ -16,111 +16,99 @@ library(ggplot2)
 library(ggblanket)
 library(patchwork)
 
-penguins <- palmerpenguins::penguins |>
+penguins2 <- palmerpenguins::penguins |>
   mutate(sex = stringr::str_to_sentence(sex)) |>
   tidyr::drop_na(sex)
 
-## ----fig.asp=0.6--------------------------------------------------------------
+## ----fig.asp=0.55-------------------------------------------------------------
 # ggplot2
-penguins |> 
+penguins2 |> 
   ggplot() + 
   geom_point(aes(x = flipper_length_mm, 
                  y = body_mass_g))
 
-## ----fig.asp=0.6--------------------------------------------------------------
+## ----fig.asp=0.55-------------------------------------------------------------
 # ggblanket
-penguins |>
+penguins2 |>
   gg_point(
     x = flipper_length_mm,
     y = body_mass_g)
 
-## -----------------------------------------------------------------------------
+## ----fig.asp=0.85-------------------------------------------------------------
 # ggplot2
-p1 <- penguins |> 
+p1 <- penguins2 |> 
   ggplot() + 
   geom_point(aes(x = flipper_length_mm, 
                  y = body_mass_g,
-                 colour = species)) + 
-  theme(legend.position = "bottom") +
-  guides(colour = guide_legend(title.position = "top")) +
-  labs(colour = "Species") +
-  scale_x_continuous(breaks = scales::breaks_pretty(n = 3))
+                 colour = species)) 
 
-p2 <- penguins |>
+p2 <- penguins2 |>
   ggplot() +
   geom_density(aes(x = flipper_length_mm, 
                    fill = species)) +
-  theme(legend.position = "bottom") +
-  guides(fill = guide_legend(title.position = "top")) +
   labs(fill = "Species")
 
-p1 + p2
+p1 / p2
 
-## -----------------------------------------------------------------------------
+## ----fig.asp=1.05-------------------------------------------------------------
 # ggblanket
-p1 <- penguins |>
+p1 <- penguins2 |>
   gg_point(
     x = flipper_length_mm,
     y = body_mass_g, 
-    col = species, 
-    x_breaks = scales::breaks_pretty(n = 3), 
-    col_legend_ncol = 2)
+    col = species)
 
-p2 <- penguins |>
+p2 <- penguins2 |>
   gg_density(
     x = flipper_length_mm, 
-    col = species,
-    x_breaks = scales::breaks_pretty(n = 3), 
-    col_legend_ncol = 2)
+    col = species)
 
-p1 + p2
+p1 / p2
 
-## ----fig.asp=0.5--------------------------------------------------------------
+## ----fig.asp=0.85-------------------------------------------------------------
 # ggplot2
-p1 <- penguins |>
+p1 <- penguins2 |>
   ggplot() +
   geom_histogram(aes(x = body_mass_g),
-                 fill = "#1B9E77") +
-  scale_x_continuous(breaks = scales::breaks_pretty(n = 3)) 
+                 fill = "#1B9E77")
 
-p2 <- penguins |>
+p2 <- penguins2 |>
   ggplot() +
   geom_jitter(aes(x = species, 
                   y = body_mass_g, 
                   colour = sex)) +
   scale_colour_manual(values = c("#2596be", "#fc7c24"))
 
-p1 + p2
+p1 / p2
 
-## -----------------------------------------------------------------------------
+## ----fig.asp=0.95-------------------------------------------------------------
 # ggblanket
-p1 <- penguins |>
+p1 <- penguins2 |>
   gg_histogram(
     x = body_mass_g, 
-    pal = "#1B9E77", 
-    x_breaks = scales::breaks_pretty(n = 3))
+    pal = "#1b9e77")
 
-p2 <- penguins |>
+p2 <- penguins2 |>
   gg_jitter(
     x = species, 
     y = body_mass_g, 
     col = sex, 
     pal = c("#2596be", "#fc7c24")
-    )
+  )
 
-p1 + p2
+p1 / p2
 
-## -----------------------------------------------------------------------------
+## ----fig.asp=0.55-------------------------------------------------------------
 # ggplot2
-penguins |>
+penguins2 |>
   ggplot() +
   geom_violin(aes(x = sex, 
                   y = body_mass_g)) +
-  facet_wrap(~species) 
+  facet_wrap(vars(species)) 
 
-## -----------------------------------------------------------------------------
+## ----fig.asp=0.55-------------------------------------------------------------
 # ggblanket
-penguins |>
+penguins2 |>
   gg_violin(
     x = sex,
     y = body_mass_g,
@@ -128,14 +116,14 @@ penguins |>
 
 ## ----fig.asp=0.75-------------------------------------------------------------
 # ggplot2
-penguins |>
+penguins2 |>
   ggplot() +
   geom_histogram(aes(x = flipper_length_mm)) +
-  facet_grid(sex ~ species)
+  facet_grid(rows = vars(sex), cols = vars(species))
 
 ## ----fig.asp=0.75-------------------------------------------------------------
 # ggblanket
-penguins |>
+penguins2 |>
   gg_histogram(
     x = flipper_length_mm,
     facet = species,
@@ -144,9 +132,9 @@ penguins |>
 ## ----echo = FALSE,   fig.width = 3, fig.asp = 2-------------------------------
 knitr::include_graphics("screenshot_autotab_y.png", dpi = 300)
 
-## -----------------------------------------------------------------------------
+## ----fig.asp=0.6--------------------------------------------------------------
 # ggplot2
-penguins |>
+penguins2 |>
   ggplot() +
   geom_jitter(aes(x = species, 
                   y = body_mass_g, 
@@ -155,16 +143,17 @@ penguins |>
   scale_x_discrete(labels = \(x) stringr::str_sub(x, 1, 1)) +
   scale_y_continuous(breaks = scales::breaks_width(1500),
                      labels = scales::label_number(big.mark = " "),
+                     expand = expansion(mult = c(0, 0.05)),
                      trans = "sqrt") +
-  labs(x = "Species", y = "Body mass (g)", col = "Sex") +
+  labs(x = "Species", y = "Body mass (g)", col = NULL) +
   theme(legend.position = "top") +
   theme(legend.justification = "left") +
   scale_colour_manual(values = scales::hue_pal()(2), 
                       guide = ggplot2::guide_legend(title.position = "top"))
 
-## -----------------------------------------------------------------------------
+## ----fig.asp=0.55-------------------------------------------------------------
 # ggblanket
-penguins |>
+penguins2 |>
   gg_jitter(
     x = species,
     y = body_mass_g,
@@ -173,34 +162,36 @@ penguins |>
     y_include = 0,
     y_breaks = scales::breaks_width(1500), 
     y_labels = scales::label_number(big.mark = " "), 
+    y_expand = expansion(mult = c(0, 0.05)),
     y_trans = "sqrt",
     y_title = "Body mass (g)", 
-    col_legend_place = "t")
+    col_legend_place = "t", 
+    col_title = "")
 
-## ----fig.asp=0.5--------------------------------------------------------------
+## ----fig.asp=0.525------------------------------------------------------------
 # ggplot2
-penguins |>
+penguins2 |>
   ggplot() +
   geom_point(aes(x = flipper_length_mm, 
                  y = body_mass_g, 
                  colour = sex)) +
-  facet_wrap(~species) +
+  facet_wrap(vars(species)) +
   scale_x_continuous(breaks = scales::breaks_pretty(n = 3)) 
 
 ## -----------------------------------------------------------------------------
 # ggblanket
-penguins |>
+penguins2 |>
   gg_point(
       x = flipper_length_mm,
       y = body_mass_g, 
       col = sex,
       facet = species)
 
-## ----fig.asp=0.7--------------------------------------------------------------
+## ----fig.asp=0.66-------------------------------------------------------------
 # ggblanket
 theme_set(dark_mode())
 
-penguins |>
+penguins2 |>
   gg_point(
     x = flipper_length_mm,
     y = body_mass_g,
@@ -208,14 +199,13 @@ penguins |>
     title = "Penguins body mass by flipper length",
     subtitle = "Palmer Archipelago, Antarctica",
     caption = "Source: Gorman, 2020",
-    pal = c("#2596be", "#fc7c24")
-    )
+    pal = c("#2596be", "#fc7c24"))
 
 ## ----fig.asp=0.8--------------------------------------------------------------
 # ggblanket
 theme_set(light_mode(base_size = 12))
 
-penguins |>
+penguins2 |>
   gg_point(
     x = flipper_length_mm,
     y = body_mass_g,
@@ -223,13 +213,13 @@ penguins |>
     title = "Penguins body mass by flipper length",
     subtitle = "Palmer Archipelago, Antarctica",
     caption = "Source: Gorman, 2020",
-    pal = c("#2596be", "#fc7c24")
-    )
+    pal = c("#2596be", "#fc7c24"))
+
 theme_set(theme_grey()) #unset the theme
 
-## ----fig.asp=0.6--------------------------------------------------------------
+## ----fig.asp=0.55-------------------------------------------------------------
 # ggplot2
-penguins |>
+penguins2 |>
   group_by(species, sex) |> 
   summarise(body_mass_g = mean(body_mass_g)) |> 
   ggplot() +
@@ -241,7 +231,7 @@ penguins |>
 
 ## -----------------------------------------------------------------------------
 # ggblanket
-penguins |>
+penguins2 |>
   group_by(species, sex) |> 
   summarise(body_mass_g = mean(body_mass_g)) |> 
   gg_col(
@@ -253,7 +243,7 @@ penguins |>
 
 ## -----------------------------------------------------------------------------
 # ggblanket
-penguins |>
+penguins2 |>
   gg_smooth(
     x = flipper_length_mm,
     y = body_mass_g,
@@ -263,7 +253,7 @@ penguins |>
 
 ## ----fig.asp=0.6--------------------------------------------------------------
 # ggblanket + ggplot2
-penguins |>
+penguins2 |>
   gg_boxplot(x = species,
              y = body_mass_g,
              width = 0.5,
@@ -272,7 +262,7 @@ penguins |>
 
 ## ----fig.asp=0.75-------------------------------------------------------------
 # ggblanket + ggplot2
-d <- penguins |>
+d <- penguins2 |>
   group_by(species) |>
   summarise(body_mass_g = mean(body_mass_g)) |>
   mutate(lower = body_mass_g * 0.95) |> 
@@ -344,7 +334,7 @@ d_long |>
 ## ----fig.asp=0.75-------------------------------------------------------------
 p1 <- diamonds |>
   count(color) |>
-  gg_col(
+  gg_point(
     x = n,
     y = color,
     width = 0.75,
@@ -402,28 +392,25 @@ p4 <- diamonds |>
 p1 <- diamonds |> 
   count(color) |> 
   filter(color %in% c("E", "G", "I")) |>
-  gg_col(
+  gg_point(
     x = n,
     y = color,
     x_labels = \(x) x / 1000,
     x_title = "Count (thousands)",
     title = "A factor filtered",
-    theme = light_mode(title_face = "plain")
-  )
+    theme = light_mode(title_face = "plain"))
 
 p2 <- diamonds |> 
   count(color) |>
   filter(color %in% c("E", "G", "I")) |>
   mutate(color = forcats::fct_drop(color)) |> 
-  gg_col(
+  gg_point(
     x = n,
     y = color,
-    width = 0.75,
     x_labels = \(x) x / 1000,
     x_title = "Count (thousands)",
     title = "A factor filtered & unused levels dropped",
-    theme = light_mode(title_face = "plain")
-  )
+    theme = light_mode(title_face = "plain"))
 
 p1 + p2
 
