@@ -19,7 +19,7 @@ gg_label(
   position = "identity",
   coord = ggplot2::coord_cartesian(clip = "off"),
   pal = NULL,
-  pal_na = pal_grey,
+  pal_na = "#bebebe",
   alpha = 0.05,
   ...,
   title = NULL,
@@ -55,6 +55,7 @@ gg_label(
   col_limits = NULL,
   col_oob = scales::oob_keep,
   col_rescale = scales::rescale(),
+  col_scale = NULL,
   col_title = NULL,
   col_trans = "identity",
   facet_labels = NULL,
@@ -173,6 +174,8 @@ gg_label(
 
 \item{col_rescale}{For a continuous col variable, a scales::rescale function.}
 
+\item{col_scale}{TRUE or FALSE of whether to add a col scale or not.}
+
 \item{col_title}{Legend title string. Use "" for no title.}
 
 \item{col_trans}{For a numeric col variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
@@ -224,7 +227,7 @@ bind_rows(
     label = model,
     size = 3.53,
     y_include = c(min(.$mpg) * 0.95, max(.$mpg) * 1.05),
-    pal = RColorBrewer::brewer.pal(9, "RdBu"),
+    pal = c(guardian()[2], "white", "#357BA2"),
     y_title = "Miles per gallon"
   )
 

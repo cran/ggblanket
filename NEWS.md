@@ -1,3 +1,18 @@
+# ggblanket 5.2.0
+
+* Updated colours: `#357BA2` or `mako[9](5)` where no col aesthetic, `guardian` where discrete and 4 or less colours, scales:hue_pal for 5 or more colours, `viridis::mako` reversed for continuous, and `"grey"` for NA.
+* Breaking: removed all `pal_*` functions.
+* Removed some unnecessary messages.
+* Fixed bug where `col_breaks` was not working for a numeric `col`.
+* Fixed bug where `str_keep_seq` was not working for date, datetime or time class.
+* Fixed bug so that time class variables work.
+* Fixed bug for `gg_contour_filled` and `gg_density_filled` with default number of colours.
+* Improved default positional breaks.
+* Ensured positional breaks take expand into account.
+* Updated `gg_qq`, so it includes a `geom_qq_line` layer, has nicer `x_title`, `y_title` and `coord` defaults. 
+* Added more positional scale arguments to `gg_sf` (i.e. `*_limits`, `*_expand`, `*_breaks`, and `*_labels`).
+* Improved margins where `col_legend_place` is top.
+
 # ggblanket 5.1.0
 
 * Fixed bug where `col` variable was reversing for non-flipped.
@@ -5,7 +20,7 @@
 
 # ggblanket 5.0.0
 
-* Added `mapping` argument to allow extra aesthetics to be included, such as shape (or use delayed evaluation for aesthetics other than `col`, `colour`, `fill` or `alpha`).
+* Added `mapping` argument to allow extra aesthetics to be included, such as `shape` (or use delayed evaluation for aesthetics other than `col`, `colour`, `fill` or `alpha`).
 * Added `stat` argument back for flexibility.
 * Added `linetype_title`, `shape_title`, and `size_title` arguments.
 * Added `str_keep_seq` helper function to support keeping labels in a sequence.

@@ -70,14 +70,14 @@ p1 / p2
 p1 <- penguins2 |>
   ggplot() +
   geom_histogram(aes(x = body_mass_g),
-                 fill = "#1B9E77")
+                 fill = "#414D6B")
 
 p2 <- penguins2 |>
   ggplot() +
   geom_jitter(aes(x = species, 
                   y = body_mass_g, 
                   colour = sex)) +
-  scale_colour_manual(values = c("#2596be", "#fc7c24"))
+  scale_colour_manual(values = c("#1B9E77", "#9E361B"))
 
 p1 / p2
 
@@ -86,15 +86,14 @@ p1 / p2
 p1 <- penguins2 |>
   gg_histogram(
     x = body_mass_g, 
-    pal = "#1b9e77")
+    pal = "#414D6B")
 
 p2 <- penguins2 |>
   gg_jitter(
     x = species, 
     y = body_mass_g, 
     col = sex, 
-    pal = c("#2596be", "#fc7c24")
-  )
+    pal = c("#1B9E77", "#9E361B"))
 
 p1 / p2
 
@@ -129,8 +128,24 @@ penguins2 |>
     facet = species,
     facet2 = sex)
 
-## ----echo = FALSE,   fig.width = 3, fig.asp = 2-------------------------------
-knitr::include_graphics("screenshot_autotab_y.png", dpi = 300)
+## ----fig.asp=0.525------------------------------------------------------------
+# ggplot2
+penguins2 |>
+  ggplot() +
+  geom_point(aes(x = flipper_length_mm, 
+                 y = body_mass_g, 
+                 colour = sex)) +
+  facet_wrap(vars(species)) +
+  scale_x_continuous(breaks = scales::breaks_pretty(n = 3)) 
+
+## -----------------------------------------------------------------------------
+# ggblanket
+penguins2 |>
+  gg_point(
+      x = flipper_length_mm,
+      y = body_mass_g, 
+      col = sex,
+      facet = species)
 
 ## ----fig.asp=0.6--------------------------------------------------------------
 # ggplot2
@@ -168,54 +183,55 @@ penguins2 |>
     col_legend_place = "t", 
     col_title = "")
 
-## ----fig.asp=0.525------------------------------------------------------------
-# ggplot2
+## ----echo = FALSE,   fig.width = 3, fig.asp = 2-------------------------------
+knitr::include_graphics("autocomplete_y.png", dpi = 300)
+
+## ----fig.asp=0.75-------------------------------------------------------------
+# ggblanket
+
+# theme_set(dark_mode(10))
+
 penguins2 |>
-  ggplot() +
-  geom_point(aes(x = flipper_length_mm, 
-                 y = body_mass_g, 
-                 colour = sex)) +
-  facet_wrap(vars(species)) +
-  scale_x_continuous(breaks = scales::breaks_pretty(n = 3)) 
+  gg_point(
+    x = flipper_length_mm,
+    y = body_mass_g,
+    col = sex,
+    title = "Penguins body mass by flipper length",
+    subtitle = "Palmer Archipelago, Antarctica",
+    caption = "Source: Gorman, 2020", 
+    theme = dark_mode(10))
+
+## -----------------------------------------------------------------------------
+# ggblanket
+p1 <- penguins2 |>
+  gg_point(
+    x = flipper_length_mm,
+    y = body_mass_g,
+    col = sex,
+    x_breaks = scales::breaks_pretty(n = 3),
+    theme = theme_grey(),
+    title = "theme= theme_grey()")
+
+p2 <- penguins2 |>
+  gg_point(
+    x = flipper_length_mm,
+    y = body_mass_g,
+    col = sex,
+    x_breaks = scales::breaks_pretty(n = 3),
+    title = "+ theme_grey()") +
+  theme_grey()
+
+p1 + p2
 
 ## -----------------------------------------------------------------------------
 # ggblanket
 penguins2 |>
-  gg_point(
-      x = flipper_length_mm,
-      y = body_mass_g, 
-      col = sex,
-      facet = species)
-
-## ----fig.asp=0.66-------------------------------------------------------------
-# ggblanket
-theme_set(dark_mode())
-
-penguins2 |>
-  gg_point(
+  gg_smooth(
     x = flipper_length_mm,
     y = body_mass_g,
-    col = sex,
-    title = "Penguins body mass by flipper length",
-    subtitle = "Palmer Archipelago, Antarctica",
-    caption = "Source: Gorman, 2020",
-    pal = c("#2596be", "#fc7c24"))
-
-## ----fig.asp=0.8--------------------------------------------------------------
-# ggblanket
-theme_set(light_mode(base_size = 12))
-
-penguins2 |>
-  gg_point(
-    x = flipper_length_mm,
-    y = body_mass_g,
-    col = sex,
-    title = "Penguins body mass by flipper length",
-    subtitle = "Palmer Archipelago, Antarctica",
-    caption = "Source: Gorman, 2020",
-    pal = c("#2596be", "#fc7c24"))
-
-theme_set(theme_grey()) #unset the theme
+    col = sex, 
+    linewidth = 0.5, #accessed via geom_smooth
+    level = 0.99) #accessed via geom_smooth
 
 ## ----fig.asp=0.55-------------------------------------------------------------
 # ggplot2
@@ -227,7 +243,7 @@ penguins2 |>
                y = species, 
                fill = sex),
            position = "dodge",
-           width = 0.75)
+           width = 0.66)
 
 ## -----------------------------------------------------------------------------
 # ggblanket
@@ -239,26 +255,57 @@ penguins2 |>
     y = species,
     col = sex,
     position = "dodge",
-    width = 0.75)
+    width = 0.66)
 
 ## -----------------------------------------------------------------------------
 # ggblanket
 penguins2 |>
-  gg_smooth(
-    x = flipper_length_mm,
+  group_by(species, sex) |> 
+  summarise(body_mass_g = mean(body_mass_g)) |> 
+  ungroup() |> 
+  gg_col(
     y = body_mass_g,
+    x = species,
     col = sex,
-    linewidth = 0.5, #accessed via geom_smooth
-    level = 0.99) #accessed via geom_smooth
+    position = "dodge",
+    width = 0.5,
+    x_labels = \(x) stringr::str_sub(x, 1, 1),
+    y_labels = \(x) str_keep_seq(x),
+    title = "Keep every 2nd label", 
+    theme = light_mode(title_face = "plain"))
 
-## ----fig.asp=0.6--------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # ggblanket + ggplot2
-penguins2 |>
-  gg_boxplot(x = species,
-             y = body_mass_g,
-             width = 0.5,
-             outlier.colour = NA) +
-  geom_jitter(colour = pal_blue)
+p1 <- ggplot2::economics |>
+  slice_min(order_by = date, n = 10) |> 
+  gg_line(
+    x = date,
+    y = unemploy,
+    pal = guardian()[1],
+    x_title = "",
+    y_title = "Unemployment",
+    y_include = 0,
+    linewidth = 1, 
+    x_breaks = scales::breaks_width("3 months"),
+    title = "gg_line + geom_point", 
+    theme = light_mode(title_face = "plain")) +
+  geom_point(colour = guardian()[2])
+
+p2 <- ggplot2::economics |>
+  slice_min(order_by = date, n = 10) |> 
+  gg_point(
+    x = date,
+    y = unemploy,
+    pal = guardian()[2],
+    x_title = "",
+    y_title = "Unemployment",
+    y_include = 0,
+    x_breaks = scales::breaks_width("3 months"),
+    title = "gg_point + geom_line", 
+    theme = light_mode(title_face = "plain")) +
+  geom_line(colour = guardian()[1], linewidth = 1)
+
+p1 + p2
 
 ## ----fig.asp=0.75-------------------------------------------------------------
 # ggblanket + ggplot2
@@ -269,72 +316,42 @@ d <- penguins2 |>
   mutate(upper = body_mass_g * 1.2)
 
 p1 <- d |>
-  gg_blank(    
-    y = species,
-    x = body_mass_g,
+  gg_col(
+    x = species,
+    y = body_mass_g,
     col = species,
-    xmin = lower,
-    xmax = upper,
-    x_include = 0, 
-    x_labels = \(x) x / 1000, 
-    x_title = "Body mass kg",
-    col_legend_place = "r") +
-  geom_col(alpha = 0.9, width = 0.75) +
-  geom_errorbar(colour = "black", width = 0.1)
+    width = 0.75,
+    y_include = c(0, max(d$upper)), 
+    y_labels = \(x) x / 1000, 
+    y_title = "Body mass kg", 
+    col_legend_place = "n") +
+  geom_errorbar(aes(ymin = lower, ymax = upper), 
+                colour = "black",
+                width = 0.1) +
+  coord_flip()
 
 p2 <- d |>
-  gg_blank(
-    y = species,
-    x = body_mass_g,
-    xmin = lower, 
-    xmax = upper, 
+  gg_col(
+    x = species,
+    y = body_mass_g,
     col = species,
-    x_include = 0, 
-    x_labels = \(x) x / 1000, 
-    x_title = "Body mass kg", 
-    col_legend_place = "r") +
-  geom_col(colour = NA, fill = "#d3d3d3", width = 0.75) +
-  geom_errorbar(width = 0.1)
+    colour = "#d3d3d3",
+    fill = "#d3d3d3",
+    width = 0.75,
+    y_include = c(0, max(d$upper)), 
+    y_labels = \(x) x / 1000, 
+    y_title = "Body mass kg", 
+    col_legend_place = "n") +
+  geom_errorbar(aes(ymin = lower, ymax = upper), 
+                width = 0.1) +
+  coord_flip()
 
 p1 / p2
-
-## -----------------------------------------------------------------------------
-# ggblanket + ggplot2
-d_wide <- gapminder::gapminder |>
-  filter(year %in% c(1967, 2007)) |>
-  select(country, year, lifeExp) |>
-  tidyr::pivot_wider(names_from = year, values_from = lifeExp) |>
-  mutate(gap = `2007` - `1967`) |>
-  slice_max(gap, n = 10) |>
-  mutate(country = forcats::fct_inorder(forcats::fct_drop(country))) 
-
-d_long <- d_wide |>
-  select(-gap) |> 
-  tidyr::pivot_longer(-country, 
-                      names_to = "year", 
-                      values_to = "life_expectancy")
-
-d_long |> 
-  gg_blank(x = life_expectancy,
-           y = country,
-           col = year,
-           pal = pal_discrete[c(2, 1)],
-           x_include = 0,
-           col_legend_place = "r",
-           title = "We're living longer",
-           subtitle = "Biggest life expectancy rise, 1967\u20132007",
-           x_title = "Life expectancy", 
-           y_title = "") +
-  geom_segment(aes(x = `1967`, xend = `2007`, 
-                   y = country, yend = country), 
-               data = d_wide, inherit.aes = FALSE, 
-               colour = "#dddddd", linewidth = 2) +
-  geom_point(size = 2) 
 
 ## ----fig.asp=0.75-------------------------------------------------------------
 p1 <- diamonds |>
   count(color) |>
-  gg_point(
+  gg_col(
     x = n,
     y = color,
     width = 0.75,
@@ -419,13 +436,13 @@ p1 <- economics |>
   gg_smooth(
     x = date, 
     y = unemploy, 
-    y_labels = str_keep_seq,
+    y_labels = \(x) str_keep_seq(x),
     title = "No x_limits set", 
     theme = light_mode(title_face = "plain")) +
   geom_vline(xintercept = c(lubridate::ymd("1985-01-01", "1995-01-01")),
-             col = pal_blue, 
+             col = guardian(n = 1), 
              linetype = 3) +
-  geom_point(col = pal_blue, alpha = 0.05)
+  geom_point(col = guardian(n = 1), alpha = 0.05)
 
 p2 <- economics |> 
   gg_smooth(
@@ -433,10 +450,10 @@ p2 <- economics |>
     y = unemploy, 
     x_limits = c(lubridate::ymd("1985-01-01", "1995-01-01")),
     x_labels = \(x) stringr::str_sub(x, 3, 4),
-    y_labels = str_keep_seq,
+    y_labels = \(x) str_keep_seq(x),
     title = "x_limits set", 
     theme = light_mode(title_face = "plain")) +
-  geom_point(col = pal_blue, alpha = 0.1)
+  geom_point(col = guardian(n = 1), alpha = 0.1)
 
 p3 <- economics |> 
   gg_smooth(
@@ -444,11 +461,11 @@ p3 <- economics |>
     y = unemploy, 
     x_limits = c(lubridate::ymd("1985-01-01", "1995-01-01")),
     x_labels = \(x) stringr::str_sub(x, 3, 4),
-    y_labels = str_keep_seq,
+    y_labels = \(x) str_keep_seq(x),
     coord = coord_cartesian(clip = "on"), 
     title = "x_limits set & cartesian space clipped", 
     theme = light_mode(title_face = "plain")) +
-  geom_point(col = pal_blue, alpha = 0.1)
+  geom_point(col = guardian(n = 1), alpha = 0.1)
 
 p4 <- economics |> 
   gg_smooth(
@@ -457,10 +474,10 @@ p4 <- economics |>
     x_limits = c(lubridate::ymd("1985-01-01", "1995-01-01")),
     x_labels = \(x) stringr::str_sub(x, 3, 4),
     x_oob = scales::oob_censor,
-    y_labels = str_keep_seq,
+    y_labels = \(x) str_keep_seq(x),
     title = "x_limits set & x_oob censored", 
     theme = light_mode(title_face = "plain")) +
-  geom_point(col = pal_blue, alpha = 0.1)
+  geom_point(col = guardian(n = 1), alpha = 0.1)
 
 p5 <- economics |> 
   filter(between(date, lubridate::ymd("1985-01-01"), lubridate::ymd("1995-01-01"))) |> 
@@ -468,10 +485,25 @@ p5 <- economics |>
     x = date, 
     y = unemploy,
     x_labels = \(x) stringr::str_sub(x, 3, 4),
-    y_labels = str_keep_seq,
+    y_labels = \(x) str_keep_seq(x),
     title = "x data filtered", 
     theme = light_mode(title_face = "plain")) +
-  geom_point(col = pal_blue, alpha = 0.1)
+  geom_point(col = guardian(n = 1), alpha = 0.1)
 
 p1 / (p2 + p3) / (p4 + p5) 
+
+## -----------------------------------------------------------------------------
+bench::mark({
+  penguins2 |> 
+    gg_point(x = flipper_length_mm, 
+             y = body_mass_g, 
+             col = species)
+}, iterations = 10)
+
+## -----------------------------------------------------------------------------
+bench::mark({
+  penguins2 |>
+    ggplot() +
+    geom_point(aes(x = flipper_length_mm, y = body_mass_g, colour = species)) 
+}, iterations = 10)
 

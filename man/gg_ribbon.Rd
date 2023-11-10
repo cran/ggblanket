@@ -22,7 +22,7 @@ gg_ribbon(
   position = "identity",
   coord = ggplot2::coord_cartesian(clip = "off"),
   pal = NULL,
-  pal_na = pal_grey,
+  pal_na = "#bebebe",
   alpha = 0.5,
   ...,
   title = NULL,
@@ -58,6 +58,7 @@ gg_ribbon(
   col_limits = NULL,
   col_oob = scales::oob_keep,
   col_rescale = scales::rescale(),
+  col_scale = NULL,
   col_title = NULL,
   col_trans = "identity",
   facet_labels = NULL,
@@ -182,6 +183,8 @@ gg_ribbon(
 
 \item{col_rescale}{For a continuous col variable, a scales::rescale function.}
 
+\item{col_scale}{TRUE or FALSE of whether to add a col scale or not.}
+
 \item{col_title}{Legend title string. Use "" for no title.}
 
 \item{col_trans}{For a numeric col variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
@@ -228,9 +231,9 @@ data.frame(year = 1875:1972, level = as.vector(LakeHuron)) |>
     x = year,
     ymin = level_min,
     ymax = level_max,
-    pal = scales::alpha("#1B9E77", 0),
+    pal = scales::alpha("steelblue", 0),
     y_title = "Level"
   ) +
-  geom_line(aes(x = year, y = level), col = "#1B9E77")
+  geom_line(aes(x = year, y = level), col = "steelblue")
 
 }

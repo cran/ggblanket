@@ -20,7 +20,7 @@ gg_rect(
   position = "identity",
   coord = ggplot2::coord_cartesian(clip = "off"),
   pal = NULL,
-  pal_na = pal_grey,
+  pal_na = "#bebebe",
   alpha = 0.9,
   ...,
   title = NULL,
@@ -56,6 +56,7 @@ gg_rect(
   col_limits = NULL,
   col_oob = scales::oob_keep,
   col_rescale = scales::rescale(),
+  col_scale = NULL,
   col_title = NULL,
   col_trans = "identity",
   facet_labels = NULL,
@@ -176,6 +177,8 @@ gg_rect(
 
 \item{col_rescale}{For a continuous col variable, a scales::rescale function.}
 
+\item{col_scale}{TRUE or FALSE of whether to add a col scale or not.}
+
 \item{col_title}{Legend title string. Use "" for no title.}
 
 \item{col_trans}{For a numeric col variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
@@ -216,7 +219,7 @@ Create a rect ggplot with a wrapper around ggplot2::geom_rect(stat = "identity",
 data.frame(
   x = rep(c(2, 5, 7, 9, 12), 2),
   y = rep(c(1, 2), each = 5),
-  z = factor(rep(1:5, each = 2)),
+  z = factor(c(rep(1:3, each = 3), 4)),
   w = rep(diff(c(0, 4, 6, 8, 10, 14)), 2)
 ) \%>\%
   dplyr::mutate(

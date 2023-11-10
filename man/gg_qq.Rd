@@ -17,9 +17,9 @@ gg_qq(
   mapping = NULL,
   stat = "qq",
   position = "identity",
-  coord = ggplot2::coord_cartesian(clip = "off"),
+  coord = ggplot2::coord_cartesian(clip = "on"),
   pal = NULL,
-  pal_na = pal_grey,
+  pal_na = "#bebebe",
   alpha = 1,
   ...,
   title = NULL,
@@ -32,7 +32,7 @@ gg_qq(
   x_limits = NULL,
   x_oob = scales::oob_keep,
   x_sec_axis = ggplot2::waiver(),
-  x_title = NULL,
+  x_title = "Theoretical",
   x_trans = "identity",
   y_breaks = NULL,
   y_expand = NULL,
@@ -42,7 +42,7 @@ gg_qq(
   y_limits = NULL,
   y_oob = scales::oob_keep,
   y_sec_axis = ggplot2::waiver(),
-  y_title = NULL,
+  y_title = "Sample",
   y_trans = "identity",
   col_breaks = NULL,
   col_continuous = "gradient",
@@ -55,6 +55,7 @@ gg_qq(
   col_limits = NULL,
   col_oob = scales::oob_keep,
   col_rescale = scales::rescale(),
+  col_scale = NULL,
   col_title = NULL,
   col_trans = "identity",
   facet_labels = NULL,
@@ -173,6 +174,8 @@ gg_qq(
 
 \item{col_rescale}{For a continuous col variable, a scales::rescale function.}
 
+\item{col_scale}{TRUE or FALSE of whether to add a col scale or not.}
+
 \item{col_title}{Legend title string. Use "" for no title.}
 
 \item{col_trans}{For a numeric col variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
@@ -207,18 +210,21 @@ gg_qq(
 A ggplot object.
 }
 \description{
-Create a qq ggplot with a wrapper around ggplot2::geom_qq(stat = "qq", ...).
+Create a qq ggplot with a wrapper around ggplot2::geom_qq(...) + ggplot2::geom_qq_line(...).
 }
 \examples{
-library(palmerpenguins)
+d <- tibble::tibble(y = rt(200, df = 5))
 
-penguins |>
-  gg_qq(
-    sample = body_mass_g,
-    facet = species,
-    pal = "#1B9E77",
-    coord = ggplot2::coord_cartesian(clip = "on")
-  ) +
-  ggplot2::geom_qq_line(alpha = 0.5)
+d |>
+  gg_qq(sample = y)
+
+d |>
+  gg_qq(sample = y,
+        distribution = \(p) stats::qt(p, df = 4.465806))
+
+d |>
+  gg_qq(sample = y,
+        distribution = \(p) stats::qt(p, df = 4.465806),
+        linewidth = 0)
 
 }

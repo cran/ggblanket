@@ -17,7 +17,7 @@ gg_hex(
   position = "identity",
   coord = ggplot2::coord_cartesian(clip = "off"),
   pal = NULL,
-  pal_na = pal_grey,
+  pal_na = "#bebebe",
   alpha = 1,
   ...,
   title = NULL,
@@ -53,6 +53,7 @@ gg_hex(
   col_limits = NULL,
   col_oob = scales::oob_keep,
   col_rescale = scales::rescale(),
+  col_scale = NULL,
   col_title = NULL,
   col_trans = "identity",
   facet_labels = NULL,
@@ -167,6 +168,8 @@ gg_hex(
 
 \item{col_rescale}{For a continuous col variable, a scales::rescale function.}
 
+\item{col_scale}{TRUE or FALSE of whether to add a col scale or not.}
+
 \item{col_title}{Legend title string. Use "" for no title.}
 
 \item{col_trans}{For a numeric col variable, a transformation object (e.g. "log10", "sqrt" or "reverse").}
@@ -210,7 +213,7 @@ diamonds |>
   gg_hex(
     x = carat,
     y = price,
-    pal = viridis::cividis(9),
+    pal = viridis::viridis(9),
     y_limits = c(0, 20000),
     coord = ggplot2::coord_cartesian(clip = "on")
   )
