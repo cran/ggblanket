@@ -15,6 +15,7 @@ downloads](https://cranlogs.r-pkg.org/badges/last-month/ggblanket?color=lightgre
 downloads](https://cranlogs.r-pkg.org/badges/last-week/ggblanket?color=lightgrey)](https://r-pkg.org/pkg/ggblanket)
 [![CRAN RStudio mirror
 downloads](https://cranlogs.r-pkg.org/badges/last-day/ggblanket?color=lightgrey)](https://r-pkg.org/pkg/ggblanket)
+[![R-CMD-check](https://github.com/davidhodge931/ggblanket/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/davidhodge931/ggblanket/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 ## Overview
@@ -25,9 +26,9 @@ The primary objective is to **simplify ggplot2 visualisation**.
 
 Secondary objectives relate to:
 
-- Design: produce well-designed visualisation by default
-- Scope: cover the most useful 80% of what ggplot2 does
-- Alignment: use conventions generally aligned with ggplot2.
+- Design: produce well-designed visualisation
+- Alignment: use conventions aligned with ggplot2
+- Scope: cover much of what ggplot2 does.
 
 ## Installation
 
@@ -38,17 +39,15 @@ install.packages("ggblanket")
 ## Example
 
 ``` r
-library(dplyr)
 library(ggblanket)
 library(palmerpenguins)
+library(tidyverse)
 
 penguins |>
-  tidyr::drop_na(sex) |> 
-  mutate(sex = stringr::str_to_sentence(sex)) |>
   gg_histogram(
     x = flipper_length_mm,
-    col = sex,
-    facet = species)
+    col = species,
+  )
 ```
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="75%" />
@@ -59,9 +58,8 @@ Click
 [here](https://davidhodge931.github.io/ggblanket/articles/ggblanket.html)
 to start learning how ggblanket works.
 
-## Thanks!
+## Thank you
 
-Thank you to all authors of ggplot2, tidyverse, and the wider R
-ecosystem.
+Thanks to all authors of ggplot2, tidyverse, and the wider R ecosystem.
 
-If you like ggblanket, please give the repository a star.
+This R package is dedicated to my Dad (Peter Hodge, 1953-2023).

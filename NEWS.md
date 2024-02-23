@@ -1,6 +1,54 @@
+# ggblanket 6.0.0
+
+* Rewrote code completely.
+* Exported `gg_blanket` function, which allows for a ggproto geom (or character string) to be added.
+* Added `aes_contrast` for a colour aesthetic that automatically contrasts with the fill aesthetic based on work by (@teunbrand, #649)
+** Added `alpha` aesthetic support with new `alpha`, `alpha_pal` and `alpha_*` arguments.
+* Added `stat` support for a ggproto object (or character string).
+* Added `position` support for a ggproto object (or character string).
+* Added `transform` support for a transform class object (or character string).
+* Added `facet_axes` and `facet_axis_labels` arguments.
+* Added `facet_labels_position` argument.
+* Added `gg_quantile`, `gg_rug`, and `gg_function` functions.
+* Added `col_steps` argument to support colouring by steps. 
+* Added `*_position` argument to support changing axis positions.
+* Added `mode_set` function.
+* Breaking: made `theme_set` set the theme globally with no side-effects.
+* Breaking: Added `light_mode_*`, `dark_mode_*` and `grey_mode_*` family of functions.
+* Updated `gg_*` functions to pretty removal of a axis line and ticks.
+* Changed default theme to place the legend on the top right.
+* Changed NULL effect of pretty axis `*_limits = c(NA, NA)` on `y_expand` NULL.
+* Improved default gridlines, and changed their default colour.
+* Fixed bug when `col` is logical class.
+* Added new helper hex codes `blue`, `teal`, `orange`, `navy`, `plum`, and `greys` 
+* Updated the default discrete palette.
+* Breaking: shift `...` to the front to require users to name arguments.
+* Breaking: renamed `theme` argument to `mode`.
+* Breaking: renamed `pal` to `col_pal`.
+* Breaking: renamed `pal_na` to `col_pal_na`.
+* Breaking: renamed `alpha` to `alpha_pal`.
+* Breaking: `alpha` now refers to the aesthetic only.
+* Breaking: renamed `*_include` to `*_expand_limits`.
+* Breaking: renamed `*_trans` to `*_transform`.
+* Breaking: removed `col_legend_place` argument.
+* Breaking: removed `*_sec_axis` argument.
+* Breaking: removed `light_mode` and `dark_mode` functions.
+* Breaking: removed `col_scale` argument.
+* Breaking: removed `gg_blank` function.
+* Breaking: removed `*_gridlines` arguments.
+* Breaking: renamed `facet_switch` argument to `facet_labels_switch`.
+* Breaking: removed `guardian` function.
+* Breaking: renamed `str_keep_seq` to `replace_seq`.
+* Breaking: renamed `titles` to `titles_to_case`.
+* Breaking: removed magic where `*_title = ""` removed the title.
+* Improved log transform defaults.
+* Changed `legend.byrow` to FALSE.
+* Each `gg_*` function's help now inherits parameters from `gg_blanket` (@olivroy, #625).
+ Other improved documentation of help (@olivroy, #643).
+
 # ggblanket 5.2.0
 
-* Updated colours: `#357BA2` or `mako[9](5)` where no col aesthetic, `guardian` where discrete and 4 or less colours, scales:hue_pal for 5 or more colours, `viridis::mako` reversed for continuous, and `"grey"` for NA.
+* Updated colours: `#357BA2` or `mako[9](5)` where no col aesthetic, `guardian` where discrete and 4 or less colours, scales:hue_pal for 5 or more colours, `viridisLite::mako` reversed for continuous, and `"grey"` for NA. 
 * Breaking: removed all `pal_*` functions.
 * Removed some unnecessary messages.
 * Fixed bug where `col_breaks` was not working for a numeric `col`.
@@ -57,6 +105,7 @@
 * For raster, removed col aesthetic so that legend would work.
 * Improved `gg_sf` default `alpha`.
 * Supported `gg_sf` to work with non-standard named geometry. 
+* Thanks Nik Mitchell and Rosie Percival for feedback.
 
 # ggblanket 2.0.0
 
@@ -91,6 +140,7 @@
 * Breaking: removed `void` argument from `gg_theme`.
 * Corrected bug with `gg_raster` legend not showing.
 * Updated `gg_raster` `*_limits` and `*_expand` defaults.
+* Internal function to make infinite values NA made compatible with dplyr 1.1.0 (#269, @DavisVaughan)
 
 # ggblanket 1.6.0
 

@@ -14,17 +14,13 @@ Simplify 'ggplot2' visualisation with 'ggblanket' wrapper functions.
 Useful links:
 \itemize{
   \item \url{https://davidhodge931.github.io/ggblanket/}
-  \item \url{https://github.com/davidhodge931/ggblanket/}
+  \item \url{https://github.com/davidhodge931/ggblanket}
+  \item Report bugs at \url{https://github.com/davidhodge931/ggblanket/issues}
 }
 
 }
 \author{
 \strong{Maintainer}: David Hodge \email{davidhodge931@gmail.com} (\href{https://orcid.org/0000-0002-3868-7501}{ORCID}) [copyright holder]
-
-Other contributors:
-\itemize{
-  \item Nik Mitchell (\href{https://orcid.org/0009-0002-8126-7745}{ORCID}) [contributor]
-}
 
 }
 \keyword{internal}

@@ -1,32 +1,34 @@
 Package: ggblanket
 Title: Simplify 'ggplot2' Visualisation
-Version: 5.2.0
-Authors@R: c(
-    person("David", "Hodge", email = "davidhodge931@gmail.com", 
-           role = c("aut", "cre", "cph"), comment = c(ORCID = "0000-0002-3868-7501")), 
-    person("Nik", "Mitchell", role = "ctb", comment = c(ORCID = "0009-0002-8126-7745"))
-    )
-Description: Simplify 'ggplot2' visualisation with 'ggblanket' wrapper functions. 
+Version: 6.0.0
+Authors@R: 
+    person("David", "Hodge", , "davidhodge931@gmail.com", role = c("aut", "cre", "cph"),
+           comment = c(ORCID = "0000-0002-3868-7501"))
+Description: Simplify 'ggplot2' visualisation with 'ggblanket' wrapper
+    functions.
 License: MIT + file LICENSE
 URL: https://davidhodge931.github.io/ggblanket/,
-        https://github.com/davidhodge931/ggblanket/
-Encoding: UTF-8
-RoxygenNote: 7.2.3
-Depends: viridisLite
-Imports: dplyr, forcats, ggplot2, grid, hms, lubridate, magrittr,
-        purrr, rlang, scales, snakecase, stringr, tidyr, tidyselect
-Suggests: bench, hexbin, knitr, palmerpenguins, patchwork, rmarkdown,
-        sf, stars, stats, tibble, viridis
-Config/Needs/website: concaveman, corrr, distributional, glue, pkgdown,
-        farver, geomtextpath, ggbeeswarm, ggblend, ggbump, ggdensity,
-        ggdist, ggeasy, ggforce, ggh4x, gghighlight, ggiraph,
-        ggnewscale, ggpattern, ggpointdensity, ggrepel, ggridges,
-        ggtext, plotly, RColorBrewer, showtext, sysfonts
+        https://github.com/davidhodge931/ggblanket
+BugReports: https://github.com/davidhodge931/ggblanket/issues
+Imports: dplyr (>= 1.0.4), farver, forcats, ggplot2 (>= 3.5.0), grid,
+        hms (>= 0.5.0), lubridate (>= 1.7.8), magrittr, purrr, rlang
+        (>= 1.1.0), scales (>= 1.3.0), snakecase, stringr (>= 1.3.0),
+        tidyr (>= 1.0.0), tidyselect (>= 1.2.0), viridisLite (>= 0.4.0)
+Suggests: hexbin, isoband, knitr, palmerpenguins, patchwork, quantreg,
+        rmarkdown, sf, testthat (>= 3.0.0), tibble, vdiffr
 VignetteBuilder: knitr
+Config/Needs/website: concaveman, corrr, deldir, distributional,
+        farver, geomtextpath, ggbeeswarm, ggblend, ggdensity, ggdist,
+        ggeasy, ggforce, ggh4x, gghighlight, ggiraph, ggnewscale,
+        ggrepel, ggridges, glue, mdthemes, plotly, RColorBrewer,
+        showtext, sysfonts
+Config/testthat/edition: 3
+Encoding: UTF-8
+Language: en-GB
+RoxygenNote: 7.3.1
 NeedsCompilation: no
-Packaged: 2023-11-10 00:17:21 UTC; david
-Author: David Hodge [aut, cre, cph] (<https://orcid.org/0000-0002-3868-7501>),
-  Nik Mitchell [ctb] (<https://orcid.org/0009-0002-8126-7745>)
+Packaged: 2024-02-23 20:52:25 UTC; david
+Author: David Hodge [aut, cre, cph] (<https://orcid.org/0000-0002-3868-7501>)
 Maintainer: David Hodge <davidhodge931@gmail.com>
 Repository: CRAN
-Date/Publication: 2023-11-10 01:20:05 UTC
+Date/Publication: 2024-02-23 21:40:02 UTC
