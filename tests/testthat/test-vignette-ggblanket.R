@@ -7,7 +7,7 @@ library(stringr)
 library(tidyr)
 library(palmerpenguins)
 library(patchwork)
-
+set_blanket()
 
 ## ---------------------------------------------------------------------------------------------------
 test_name <- "1"
@@ -250,7 +250,6 @@ test_that(test_name, {
     gg_histogram(
       x = flipper_length_mm,
       col = species,
-      col_pal = c(teal, orange, plum),
       title = "Penguin flipper length by species",
       subtitle = "Palmer Archipelago, Antarctica",
       caption = "Source: Gorman, 2020",
@@ -349,7 +348,7 @@ test_that(test_name, {
       x = flipper_length_mm,
       y = species,
       position = position_dodge2(preserve = "single"),
-      alpha_pal = 0, #or col_pal = scales::alpha(blue, 0),
+      alpha = 0,
     )
 
   vdiffr::expect_doppelganger(test_name, p)
@@ -367,7 +366,7 @@ test_that(test_name, {
       y = flipper_length_mm,
       col = sex,
       position = position_dodge2(preserve = "single"),
-      alpha_pal = 0,
+      alpha = 0,
     )
 
   vdiffr::expect_doppelganger(test_name, p)
@@ -449,10 +448,9 @@ test_that(test_name, {
       x = flipper_length_mm,
       y = body_mass_g,
       col = species,
-      alpha = species,
-      alpha_pal = c(1, 1, 0.33),
-      mapping = aes(shape = species),
-    )
+      mapping = aes(alpha = species, shape = species),
+    ) +
+    scale_alpha_manual(values = c(1, 1, 0.33))
 
   vdiffr::expect_doppelganger(test_name, p)
 })

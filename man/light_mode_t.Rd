@@ -4,16 +4,12 @@
 \alias{light_mode_t}
 \title{Light mode theme with top legend}
 \usage{
-light_mode_t(base_size = 11, base_family = "", x_title = TRUE, y_title = TRUE)
+light_mode_t(base_size = 11, base_family = "")
 }
 \arguments{
 \item{base_size}{The base size of the text. Defaults to 11.}
 
 \item{base_family}{The base family of the text. Defaults to "".}
-
-\item{x_title}{TRUE or FALSE whether to have a x axis title. Defaults to TRUE.}
-
-\item{y_title}{TRUE or FALSE whether to have a y axis title. Defaults to TRUE.}
 }
 \value{
 A ggplot theme.
@@ -24,6 +20,8 @@ Light mode theme for a ggplot visualisation with top legend. It uses the colours
 \examples{
 library(palmerpenguins)
 library(ggplot2)
+
+set_blanket()
 
 penguins |>
   gg_point(

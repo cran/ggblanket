@@ -8,7 +8,7 @@ library(stringr)
 library(tidyr)
 library(palmerpenguins)
 library(patchwork)
-
+set_blanket()
 
 ## ---------------------------------------------------------------------------------------------------
 test_name <- "1"
@@ -118,7 +118,7 @@ test_that(test_name, {
       col = sex,
       colour = "black", #or fill = #D3D3D3",
       position = position_dodge2(preserve = "single"),
-      alpha_pal = 0.9,
+      alpha = 0.9,
     )
 
   vdiffr::expect_doppelganger(test_name, p)
@@ -138,7 +138,7 @@ test_that(test_name, {
       col = hack,
       colour = "black", #or fill = #D3D3D3",
       width = 0.5,
-      alpha_pal = 0.9,
+      alpha = 0.9,
       mode = light_mode_n(),
     )
 
@@ -162,7 +162,7 @@ test_that(test_name, {
       x_labels = \(x) str_to_sentence(x),
     ) +
     geom_text(
-      mapping = aes(label = n, !!!aes_contrast(lightness)),
+      mapping = aes(label = n, !!!aes_contrast()),
       position = position_dodge2(width = 0.75, preserve = "single"),
       vjust = 1.33,
       show.legend = FALSE,
@@ -186,7 +186,7 @@ test_that(test_name, {
       y_labels = \(x) str_to_sentence(x),
     ) +
     geom_text(
-      mapping = aes(label = n, !!!aes_contrast(lightness)),
+      mapping = aes(label = n, !!!aes_contrast()),
       position = position_dodge2(width = 0.75, preserve = "single"),
       hjust = 1.33,
       show.legend = FALSE,
@@ -412,7 +412,7 @@ test_that(test_name, {
       x = displ,
       y = hwy,
       col = centred,
-      col_pal = c(blue, greys[1], plum),
+      col_pal = c(teal, "#E8EFF2", orange),
       col_breaks = scales::breaks_width(5),
       col_rescale = scales::rescale(c(min(.$centred), 0, max(.$centred)))
     )
@@ -433,7 +433,7 @@ test_that(test_name, {
       x = displ,
       y = hwy,
       col = centred,
-      col_pal = c(blue, greys[1], plum),
+      col_pal = c(teal, "#E8EFF2", orange),
       col_limits = max(abs(.$centred)) * c(-1, 1),
       col_breaks = scales::breaks_width(5)
     )

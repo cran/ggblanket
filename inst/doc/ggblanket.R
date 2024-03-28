@@ -18,6 +18,8 @@ library(tidyr)
 library(palmerpenguins)
 library(patchwork)
 
+set_blanket()
+
 ## -----------------------------------------------------------------------------
 penguins |>
   gg_point(
@@ -64,23 +66,6 @@ penguins |>
 
 ## -----------------------------------------------------------------------------
 penguins |>
-  gg_jitter(
-    x = species, 
-    y = body_mass_g, 
-    col_pal = "#7FCDBB",
-  )
-
-## ----fig.asp=0.33-------------------------------------------------------------
-viridisLite::rocket(n = 9)
-
-sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE) |> 
-  gg_sf(
-    col = AREA,
-    col_pal = viridisLite::rocket(n = 9)
-  )
-
-## -----------------------------------------------------------------------------
-penguins |>
   drop_na(sex) |>  
   gg_jitter(
     x = species,
@@ -95,6 +80,7 @@ penguins |>
     y_title = "Body mass (g)",
     col_steps = TRUE,
     col_breaks = \(x) quantile(x, seq(0, 1, 0.25)),
+    col_pal = viridisLite::rocket(n = 9, direction = -1),
     facet_labels = str_to_sentence,
   )
 
@@ -109,6 +95,145 @@ diamonds |>
     y = price,
     y_limits = c(0, 20000),
   )
+
+## -----------------------------------------------------------------------------
+penguins |>
+  mutate(across(sex, str_to_sentence)) |> 
+  drop_na(sex) |> 
+  gg_smooth(
+    x = flipper_length_mm,
+    y = body_mass_g,
+    col = sex, 
+    col_pal = c("#003f5c", "#ffa600"),
+    colour = "#bc5090", 
+    linewidth = 1, 
+    linetype = "dashed",
+    alpha = 1, 
+    se = TRUE, 
+    level = 0.999, 
+  ) 
+
+## ----fig.asp=0.5--------------------------------------------------------------
+penguins |> 
+  gg_boxplot(
+    y = island, 
+    x = flipper_length_mm, 
+    col = species,
+    fill = NA,
+    position = position_dodge2(preserve = "single")
+  ) 
+
+## ----echo=FALSE---------------------------------------------------------------
+d <- data.frame(
+  trt = factor(c(1, 1, 2, 2)),
+  resp = c(1, 5, 3, 4),
+  group = factor(c(1, 2, 1, 2)),
+  upper = c(1.1, 5.3, 3.3, 4.2),
+  lower = c(0.8, 4.6, 2.4, 3.6)
+)
+
+p1 <- d |>
+  gg_errorbar(
+    x = trt,
+    ymin = lower,
+    ymax = upper,
+    col = group,
+    width = 0.1,
+    x_title = "Treatment",
+    y_title = "Response",
+    subtitle = "\nDefault y scale",
+    mode = light_mode_n(),
+  ) 
+
+p2 <- d |>
+  gg_errorbar(
+    x = trt,
+    ymin = lower,
+    ymax = upper,
+    col = group,
+    width = 0.1,
+    x_title = "Treatment",
+    y_title = "Response",
+    y_limits = c(NA, NA),
+    subtitle = "\ny_limits = c(NA, NA),",
+    mode = light_mode_n(),
+  ) 
+
+p3 <- d |>
+  gg_col(
+    position = "dodge",
+    x = trt,
+    y = upper,
+    col = group,
+    width = 0.5,
+    x_title = "Treatment upper",
+    y_title = "Response",
+    y_limits = c(0, NA),
+    subtitle = "\ny_limits = c(0, NA),",
+    mode = light_mode_n(),
+  ) 
+
+p1 + p2 + p3
+
+## ----fig.asp = 0.4------------------------------------------------------------
+penguins |>
+  group_by(species) |>
+  summarise(body_mass_g = mean(body_mass_g, na.rm = TRUE)) |>
+  mutate(lower = body_mass_g * 0.95) |> 
+  mutate(upper = body_mass_g * 1.2) %>%
+  gg_col(
+    x = body_mass_g,
+    xmin = lower, 
+    xmax = upper,
+    y = species,
+    col = species,
+    width = 0.75,
+    x_expand_limits = c(0, max(.$upper)),
+    x_labels = \(x) x / 1000, 
+    x_title = "Body mass kg", 
+  ) +
+  geom_errorbar(
+    colour = "black", 
+    width = 0.1, 
+  ) 
+
+## ----fig.asp = 0.4------------------------------------------------------------
+penguins |>
+  group_by(species) |>
+  summarise(body_mass_g = mean(body_mass_g, na.rm = TRUE)) |>
+  mutate(lower = body_mass_g * 0.95) |> 
+  mutate(upper = body_mass_g * 1.2) |> 
+  gg_blanket( 
+    x = body_mass_g,
+    y = species,
+    col = species,
+    xmin = lower, 
+    xmax = upper,
+    width = 0.75,
+    x_expand_limits = 0,
+    x_labels = \(x) x / 1000, 
+    x_title = "Body mass kg",
+  ) +
+  geom_col(
+    colour = "#d3d3d3",
+    fill = "#d3d3d3",
+    alpha = 0.9,
+    width = 0.75,
+  ) +
+  geom_errorbar(
+    width = 0.1, 
+  )
+
+## -----------------------------------------------------------------------------
+penguins |> 
+  gg_jitter(
+    y = species, 
+    x = flipper_length_mm, 
+    col = species,
+    mapping = aes(alpha = species, shape = species),
+  ) +
+  scale_alpha_manual(values = c(0.33, 1, 0.33)) +
+  guides(alpha = guide_legend(reverse = TRUE))
 
 ## ----echo=FALSE---------------------------------------------------------------
 d <- data.frame(
@@ -175,167 +300,61 @@ penguins |>
   gg_histogram(
     x = flipper_length_mm,
     col = species,
-    col_pal = c(teal, orange, plum),
     title = "Penguin flipper length by species",
     subtitle = "Palmer Archipelago, Antarctica",
     caption = "Source: Gorman, 2020", 
     mode = dark_mode_r(),
   ) 
 
-## ----echo=FALSE---------------------------------------------------------------
-d <- data.frame(
-  trt = factor(c(1, 1, 2, 2)),
-  resp = c(1, 5, 3, 4),
-  group = factor(c(1, 2, 1, 2)),
-  upper = c(1.1, 5.3, 3.3, 4.2),
-  lower = c(0.8, 4.6, 2.4, 3.6)
-)
-
-p1 <- d |>
-  gg_errorbar(
-    x = trt,
-    ymin = lower,
-    ymax = upper,
-    col = group,
-    width = 0.1,
-    x_title = "Treatment",
-    y_title = "Response",
-    subtitle = "\nDefault y scale",
-    mode = light_mode_n(),
-  ) 
-
-p2 <- d |>
-  gg_errorbar(
-    x = trt,
-    ymin = lower,
-    ymax = upper,
-    col = group,
-    width = 0.1,
-    x_title = "Treatment",
-    y_title = "Response",
-    y_limits = c(NA, NA),
-    subtitle = "\ny_limits = c(NA, NA),",
-    mode = light_mode_n(),
-  ) 
-
-p3 <- d |>
-  gg_col(
-    position = "dodge",
-    x = trt,
-    y = upper,
-    col = group,
-    width = 0.5,
-    x_title = "Treatment upper",
-    y_title = "Response",
-    y_limits = c(0, NA),
-    subtitle = "\ny_limits = c(0, NA),",
-    mode = light_mode_n(),
-  ) 
-
-p1 + p2 + p3
-
 ## -----------------------------------------------------------------------------
-penguins |>
-  mutate(across(sex, str_to_sentence)) |> 
-  drop_na(sex) |> 
-  gg_smooth(
-    x = flipper_length_mm,
-    y = body_mass_g,
-    col = sex, 
-    se = TRUE, # via ... from geom_smooth
-    level = 0.999, # via ... from geom_smooth
-  ) 
+set_blanket(grey_mode_r(), "#ffa600")
 
-## ----fig.asp=0.4--------------------------------------------------------------
-penguins |>
-  gg_boxplot(
-    position = position_dodge2(preserve = "single"),
-    x = flipper_length_mm,
-    y = species,
-    alpha_pal = 0, #or col_pal = scales::alpha(blue, 0),
-  )
-
-## -----------------------------------------------------------------------------
-penguins |>
-  gg_boxplot(
-    position = position_dodge2(preserve = "single"),
-    x = species,
-    y = flipper_length_mm,
-    col = sex,
-    alpha_pal = 0,
-  )
-
-## ----fig.asp = 0.4------------------------------------------------------------
-penguins |>
-  group_by(species) |>
-  summarise(body_mass_g = mean(body_mass_g, na.rm = TRUE)) |>
-  mutate(lower = body_mass_g * 0.95) |> 
-  mutate(upper = body_mass_g * 1.2) %>%
-  gg_col(
-    x = body_mass_g,
-    xmin = lower, 
-    xmax = upper,
-    y = species,
-    col = species,
-    width = 0.75,
-    x_expand_limits = c(0, max(.$upper)),
-    x_labels = \(x) x / 1000, 
-    x_title = "Body mass kg", 
-  ) +
-  geom_errorbar(
-    colour = "black", 
-    width = 0.1, 
-  ) 
-
-## ----fig.asp=0.4--------------------------------------------------------------
-penguins |>
-  group_by(species) |>
-  summarise(body_mass_g = mean(body_mass_g, na.rm = TRUE)) |>
-  mutate(lower = body_mass_g * 0.95) |> 
-  mutate(upper = body_mass_g * 1.2) |> 
-  gg_blanket( 
-    x = body_mass_g,
-    y = species,
-    col = species,
-    xmin = lower, 
-    xmax = upper,
-    width = 0.75,
-    x_expand_limits = 0,
-    x_labels = \(x) x / 1000, 
-    x_title = "Body mass kg",
-  ) +
-  geom_col(
-    colour = "#d3d3d3",
-    fill = "#d3d3d3",
-    alpha = 0.9,
-    width = 0.75,
-  ) +
-  geom_errorbar(
-    width = 0.1, 
-  ) 
-
-## -----------------------------------------------------------------------------
-penguins |> 
+p1 <- penguins |>
   gg_point(
     x = flipper_length_mm, 
-    y = body_mass_g, 
-    col = species,
-    alpha = species,
-    alpha_pal = c(1, 1, 0.33),
-    mapping = aes(shape = species),
-  ) 
+    y = body_mass_g,
+    x_breaks = scales::breaks_pretty(3),
+  ) +
+  geom_vline(xintercept = 200) +
+  annotate("text", x = I(0.25), y = I(0.75), label = "Here")
+
+p2 <- penguins |> 
+  gg_histogram(
+    x = flipper_length_mm,
+    x_breaks = scales::breaks_pretty(3),
+  ) +
+  geom_vline(xintercept = 200) +
+  annotate("text", x = I(0.75), y = I(0.75), label = "Here")
+
+p1 + p2
 
 ## -----------------------------------------------------------------------------
-penguins |>
-  gg_blanket(
-    geom = "bar",
-    stat = "bin",
-    position = "stack",
+set_blanket(dark_mode_r(), "#bc5090", darkness[2])
+
+p1 <- penguins |>
+  gg_point(
     x = flipper_length_mm, 
-    col = species,
-  ) 
+    y = body_mass_g,
+    x_breaks = scales::breaks_pretty(3),
+  ) +
+  geom_vline(xintercept = 200) +
+  annotate("text", x = I(0.25), y = I(0.75), label = "Here")
+
+p2 <- penguins |> 
+  gg_histogram(
+    x = flipper_length_mm,
+    x_breaks = scales::breaks_pretty(3),
+  ) +
+  geom_vline(xintercept = 200) +
+  annotate("text", x = I(0.75), y = I(0.75), label = "Here")
+
+p1 + p2
+
+set_blanket()
 
 ## -----------------------------------------------------------------------------
+geom_violin()
+
 penguins |>
   drop_na(sex) |>
   mutate(across(sex, str_to_sentence)) |>
@@ -347,4 +366,32 @@ penguins |>
     y = body_mass_g,
     col = species,
   )
+
+## -----------------------------------------------------------------------------
+geom_histogram()
+
+penguins |>
+  gg_blanket(
+    geom = "bar",
+    stat = "bin",
+    position = "stack",
+    x = flipper_length_mm, 
+    col = species,
+  ) 
+
+## -----------------------------------------------------------------------------
+geom_spoke()
+
+expand.grid(x = 1:10, y = 1:10) |>
+  tibble() |>
+  mutate(angle = runif(100, 0, 2*pi)) |>
+  mutate(speed = runif(100, 0, sqrt(0.1 * x))) |>
+  gg_blanket(
+    geom = "spoke",
+    x = x, 
+    y = y,
+    col = speed,
+    mapping = aes(angle = angle, radius = speed),
+  ) +
+  geom_point()
 

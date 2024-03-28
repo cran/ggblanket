@@ -1,6 +1,20 @@
+# ggblanket 7.0.0
+
+* Added `set_blanket` function, which is now required to set the style.
+* Added `weave_geom_defaults` and `weave_annotate_defaults` helper functions.
+* Supported the use of `colour` and `fill`.
+* Breaking: removed all `alpha` arguments.
+* Breaking: renamed `mode_set` to `weave_mode`.
+* Breaking: in `aes_contrast`, renamed `col_pal` to `contrast_pal`.
+* Breaking: removed `greys`.
+* Breaking: removed `plum`.
+* Improved `*_expand` defaults for histograms and bar graphs etc.
+* Fixed bug to support use of a named `col_pal`.
+* Fixed bug when positional scale reversed with `*_expand_limits`.
+
 # ggblanket 6.0.0
 
-* Rewrote code completely.
+* Rewrote code completely. 
 * Exported `gg_blanket` function, which allows for a ggproto geom (or character string) to be added.
 * Added `aes_contrast` for a colour aesthetic that automatically contrasts with the fill aesthetic based on work by (@teunbrand, #649)
 ** Added `alpha` aesthetic support with new `alpha`, `alpha_pal` and `alpha_*` arguments.

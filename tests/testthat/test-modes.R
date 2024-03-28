@@ -3,6 +3,7 @@ testthat::skip_on_os(c("mac", "linux"))
 
 library(palmerpenguins)
 library(ggplot2)
+set_blanket()
 
 test_name <- "light_mode_r"
 
@@ -13,14 +14,12 @@ test_that(test_name, {
       x = flipper_length_mm,
       y = body_mass_g,
       col = species,
-      alpha = species,
       facet = sex,
       facet2 = island,
-      mapping = aes(shape = species),
-      col_pal = c(teal, orange, plum),
-      alpha_pal = c(1, 1, 0.33),
+      mapping = aes(alpha = species, shape = species),
       mode = light_mode_r()
-    )
+    ) +
+    scale_alpha_manual(values = c(1, 1, 0.33))
 
   vdiffr::expect_doppelganger(test_name, p)
 })
@@ -34,14 +33,12 @@ test_that(test_name, {
       x = flipper_length_mm,
       y = body_mass_g,
       col = species,
-      alpha = species,
       facet = sex,
       facet2 = island,
-      mapping = aes(shape = species),
-      col_pal = c(teal, orange, plum),
-      alpha_pal = c(1, 1, 0.33),
+      mapping = aes(alpha = species, shape = species),
       mode = light_mode_t()
-    )
+    ) +
+    scale_alpha_manual(values = c(1, 1, 0.33))
 
   vdiffr::expect_doppelganger(test_name, p)
 })
@@ -55,14 +52,12 @@ test_that(test_name, {
       x = flipper_length_mm,
       y = body_mass_g,
       col = species,
-      alpha = species,
       facet = sex,
       facet2 = island,
-      mapping = aes(shape = species),
-      col_pal = c(teal, orange, plum),
-      alpha_pal = c(1, 1, 0.33),
+      mapping = aes(alpha = species, shape = species),
       mode = light_mode_b()
-    )
+    ) +
+    scale_alpha_manual(values = c(1, 1, 0.33))
 
   vdiffr::expect_doppelganger(test_name, p)
 })
@@ -76,14 +71,12 @@ test_that(test_name, {
       x = flipper_length_mm,
       y = body_mass_g,
       col = species,
-      alpha = species,
       facet = sex,
       facet2 = island,
-      mapping = aes(shape = species),
-      col_pal = c(teal, orange, plum),
-      alpha_pal = c(1, 1, 0.33),
+      mapping = aes(alpha = species, shape = species),
       mode = light_mode_n()
-    )
+    ) +
+    scale_alpha_manual(values = c(1, 1, 0.33))
 
   vdiffr::expect_doppelganger(test_name, p)
 })
@@ -98,14 +91,12 @@ test_that(test_name, {
       x = flipper_length_mm,
       y = body_mass_g,
       col = species,
-      alpha = species,
       facet = sex,
       facet2 = island,
-      mapping = aes(shape = species),
-      col_pal = c(teal, orange, plum),
-      alpha_pal = c(1, 1, 0.33),
+      mapping = aes(alpha = species, shape = species),
       mode = grey_mode_r()
-    )
+    ) +
+    scale_alpha_manual(values = c(1, 1, 0.33))
 
   vdiffr::expect_doppelganger(test_name, p)
 })
@@ -120,14 +111,12 @@ test_that(test_name, {
       x = flipper_length_mm,
       y = body_mass_g,
       col = species,
-      alpha = species,
       facet = sex,
       facet2 = island,
-      mapping = aes(shape = species),
-      col_pal = c(teal, orange, plum),
-      alpha_pal = c(1, 1, 0.33),
+      mapping = aes(alpha = species, shape = species),
       mode = dark_mode_r()
-    )
+    ) +
+    scale_alpha_manual(values = c(1, 1, 0.33))
 
   vdiffr::expect_doppelganger(test_name, p)
 })

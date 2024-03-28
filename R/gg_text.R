@@ -1,4 +1,4 @@
-#' @title Text ggplot
+#' Text ggplot
 #'
 #' @description Create a text plot with a wrapper around [ggplot2::ggplot()] + [geom_text()][ggplot2::geom_text()].
 #'
@@ -8,9 +8,10 @@
 #' @export
 #'
 #' @examples
-#'
 #' library(ggplot2)
 #' library(dplyr)
+#'
+#' set_blanket()
 #'
 #' bind_rows(
 #'   mtcars |> slice_min(order_by = mpg),
@@ -21,7 +22,6 @@
 #'     y = mpg,
 #'     col = mpg,
 #'     label = model,
-#'     size = 3.53,
 #'     y_expand_limits = 0,
 #'     y_title = "Miles per gallon",
 #'     col_pal = c(orange, "white", teal),
@@ -44,7 +44,7 @@ gg_text <- function(
     yend = NULL,
     z = NULL,
     col = NULL,
-    alpha = NULL,
+    # alpha = NULL,
     facet = NULL,
     facet2 = NULL,
     group = NULL,
@@ -85,18 +85,6 @@ gg_text <- function(
     col_steps = FALSE,
     col_title = NULL,
     col_transform = NULL,
-    alpha_breaks = NULL,
-    alpha_expand_limits = NULL,
-    alpha_labels = NULL,
-    alpha_legend_ncol = NULL,
-    alpha_legend_nrow = NULL,
-    alpha_legend_rev = FALSE,
-    alpha_limits = NULL,
-    alpha_oob = scales::oob_keep,
-    alpha_pal = NULL,
-    alpha_pal_na = NA,
-    alpha_title = NULL,
-    alpha_transform = NULL,
     facet_axes = NULL,
     facet_axis_labels = "margins",
     facet_labels = NULL,
@@ -130,7 +118,7 @@ gg_text <- function(
     yend = {{ yend }},
     z = {{ z }},
     col = {{ col }},
-    alpha = {{ alpha }},
+    # alpha = {{ alpha }},
     facet = {{ facet }},
     facet2 = {{ facet2 }},
     group = {{ group }},
@@ -171,18 +159,6 @@ gg_text <- function(
     col_steps = col_steps,
     col_title = col_title,
     col_transform = col_transform,
-    alpha_breaks = alpha_breaks,
-    alpha_expand_limits = alpha_expand_limits,
-    alpha_labels = alpha_labels,
-    alpha_legend_ncol = alpha_legend_ncol,
-    alpha_legend_nrow = alpha_legend_nrow,
-    alpha_legend_rev = alpha_legend_rev,
-    alpha_limits = alpha_limits,
-    alpha_oob = alpha_oob,
-    alpha_pal = alpha_pal,
-    alpha_pal_na = alpha_pal_na,
-    alpha_title = alpha_title,
-    alpha_transform = alpha_transform,
     facet_axes = facet_axes,
     facet_axis_labels = facet_axis_labels,
     facet_labels = facet_labels,

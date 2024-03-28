@@ -30,6 +30,8 @@ Secondary objectives relate to:
 - Alignment: use conventions aligned with ggplot2
 - Scope: cover much of what ggplot2 does.
 
+Computational speed has been traded-off to achieve these objectives.
+
 ## Installation
 
 ``` r
@@ -41,7 +43,8 @@ install.packages("ggblanket")
 ``` r
 library(ggblanket)
 library(palmerpenguins)
-library(tidyverse)
+
+set_blanket()
 
 penguins |>
   gg_histogram(
@@ -62,4 +65,4 @@ to start learning how ggblanket works.
 
 Thanks to all authors of ggplot2, tidyverse, and the wider R ecosystem.
 
-This R package is dedicated to my Dad (Peter Hodge, 1953-2023).
+This R package is dedicated to my Dad (Peter Hodge, 1953–2023).

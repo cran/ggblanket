@@ -1,4 +1,4 @@
-#' @title Light mode theme with right legend
+#' Light mode theme with right legend
 #'
 #' @description Light mode theme for a ggplot visualisation with legend at right. It uses the colours from `lightness`.
 #'
@@ -11,6 +11,8 @@
 #' library(palmerpenguins)
 #' library(ggplot2)
 #'
+#' set_blanket()
+#'
 #' penguins |>
 #'   gg_point(
 #'     x = flipper_length_mm,
@@ -21,25 +23,21 @@
 #'
 light_mode_r <- function (
     base_size = 11,
-    base_family = "",
-    x_title = TRUE,
-    y_title = TRUE) {
+    base_family = "") {
 
   base_mode_r(
     base_size = base_size,
     base_family = base_family,
-    x_title = x_title,
-    y_title = y_title,
-    col_pal = c(
-      "text" = lightness[1],
-      "axis_line" = lightness[1],
-      "panel_background" = lightness[2],
-      "plot_background" = lightness[2],
-      "panel_grid" = lightness[3])
+    base_pal = c(
+      "text" = lightness[2],
+      "line" = lightness[2],
+      "panel" = lightness[3],
+      "plot" = lightness[3],
+      "grid" = lightness[1])
   )
 }
 
-#' @title Light mode theme with top legend
+#' Light mode theme with top legend
 #'
 #' @description Light mode theme for a ggplot visualisation with top legend. It uses the colours from `lightness`.
 #'
@@ -52,6 +50,8 @@ light_mode_r <- function (
 #' library(palmerpenguins)
 #' library(ggplot2)
 #'
+#' set_blanket()
+#'
 #' penguins |>
 #'   gg_point(
 #'     x = flipper_length_mm,
@@ -62,25 +62,21 @@ light_mode_r <- function (
 #'
 light_mode_t <- function (
     base_size = 11,
-    base_family = "",
-    x_title = TRUE,
-    y_title = TRUE) {
+    base_family = "") {
 
   base_mode_t(
     base_size = base_size,
     base_family = base_family,
-    x_title = x_title,
-    y_title = y_title,
-    col_pal = c(
-      "text" = lightness[1],
-      "axis_line" = lightness[1],
-      "panel_background" = lightness[2],
-      "plot_background" = lightness[2],
-      "panel_grid" = lightness[3])
+    base_pal = c(
+      "text" = lightness[2],
+      "line" = lightness[2],
+      "panel" = lightness[3],
+      "plot" = lightness[3],
+      "grid" = lightness[1])
   )
 }
 
-#' @title Light mode theme with bottom legend
+#' Light mode theme with bottom legend
 #'
 #' @description Light mode theme for a ggplot visualisation with bottom legend. It uses the colours from `lightness`.
 #'
@@ -93,6 +89,8 @@ light_mode_t <- function (
 #' library(palmerpenguins)
 #' library(ggplot2)
 #'
+#' set_blanket()
+#'
 #' penguins |>
 #'   gg_point(
 #'     x = flipper_length_mm,
@@ -103,25 +101,21 @@ light_mode_t <- function (
 #'
 light_mode_b <- function (
     base_size = 11,
-    base_family = "",
-    x_title = TRUE,
-    y_title = TRUE) {
+    base_family = "") {
 
   base_mode_b(
     base_size = base_size,
     base_family = base_family,
-    x_title = x_title,
-    y_title = y_title,
-    col_pal = c(
-      "text" = lightness[1],
-      "axis_line" = lightness[1],
-      "panel_background" = lightness[2],
-      "plot_background" = lightness[2],
-      "panel_grid" = lightness[3])
+    base_pal = c(
+      "text" = lightness[2],
+      "line" = lightness[2],
+      "panel" = lightness[3],
+      "plot" = lightness[3],
+      "grid" = lightness[1])
   )
 }
 
-#' @title Light mode theme with no legend
+#' Light mode theme with no legend
 #'
 #' @description Light mode theme for a ggplot visualisation with no legend. It uses the colours from `lightness`.
 #'
@@ -134,6 +128,8 @@ light_mode_b <- function (
 #' library(palmerpenguins)
 #' library(ggplot2)
 #'
+#' set_blanket()
+#'
 #' penguins |>
 #'   gg_jitter(
 #'     x = species,
@@ -144,20 +140,16 @@ light_mode_b <- function (
 #'
 light_mode_n <- function (
     base_size = 11,
-    base_family = "",
-    x_title = TRUE,
-    y_title = TRUE) {
+    base_family = "") {
 
   base_mode_n(
     base_size = base_size,
     base_family = base_family,
-    x_title = x_title,
-    y_title = y_title,
-    col_pal = c(
-      "text" = lightness[1],
-      "axis_line" = lightness[1],
-      "panel_background" = lightness[2],
-      "plot_background" = lightness[2],
-      "panel_grid" = lightness[3])
+    base_pal = c(
+      "text" = lightness[2],
+      "line" = lightness[2],
+      "panel" = lightness[3],
+      "plot" = lightness[3],
+      "grid" = lightness[1])
   )
 }

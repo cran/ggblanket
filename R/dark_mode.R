@@ -1,4 +1,4 @@
-#' @title Dark mode theme with right legend
+#' Dark mode theme with right legend
 #'
 #' @description Dark mode theme for a ggplot visualisation with legend at right. It uses the colours from `darkness`.
 #'
@@ -11,6 +11,8 @@
 #' library(palmerpenguins)
 #' library(ggplot2)
 #'
+#' set_blanket()
+#'
 #' penguins |>
 #'   gg_point(
 #'     x = flipper_length_mm,
@@ -21,25 +23,21 @@
 #'
 dark_mode_r <- function (
     base_size = 11,
-    base_family = "",
-    x_title = TRUE,
-    y_title = TRUE) {
+    base_family = "") {
 
   base_mode_r(
     base_size = base_size,
     base_family = base_family,
-    x_title = x_title,
-    y_title = y_title,
-    col_pal = c(
+    base_pal = c(
       "text" = darkness[2],
-      "axis_line" = darkness[2],
-      "panel_background" = darkness[3],
-      "plot_background" = darkness[1],
-      "panel_grid" = darkness[1])
+      "line" = darkness[2],
+      "panel" = darkness[3],
+      "plot" = darkness[1],
+      "grid" = darkness[1])
   )
 }
 
-#' @title Dark mode theme with top legend
+#' Dark mode theme with top legend
 #'
 #' @description Dark mode theme for a ggplot visualisation with top legend. It uses the colours from `darkness`.
 #'
@@ -52,6 +50,8 @@ dark_mode_r <- function (
 #' library(palmerpenguins)
 #' library(ggplot2)
 #'
+#' set_blanket()
+#'
 #' penguins |>
 #'   gg_point(
 #'     x = flipper_length_mm,
@@ -62,25 +62,21 @@ dark_mode_r <- function (
 #'
 dark_mode_t <- function (
     base_size = 11,
-    base_family = "",
-    x_title = TRUE,
-    y_title = TRUE) {
+    base_family = "") {
 
   base_mode_t(
     base_size = base_size,
     base_family = base_family,
-    x_title = x_title,
-    y_title = y_title,
-    col_pal = c(
+    base_pal = c(
       "text" = darkness[2],
-      "axis_line" = darkness[2],
-      "panel_background" = darkness[3],
-      "plot_background" = darkness[1],
-      "panel_grid" = darkness[1])
+      "line" = darkness[2],
+      "panel" = darkness[3],
+      "plot" = darkness[1],
+      "grid" = darkness[1])
   )
 }
 
-#' @title Dark mode theme with bottom legend
+#' Dark mode theme with bottom legend
 #'
 #' @description Dark mode theme for a ggplot visualisation with bottom legend. It uses the colours from `darkness`.
 #'
@@ -93,6 +89,8 @@ dark_mode_t <- function (
 #' library(palmerpenguins)
 #' library(ggplot2)
 #'
+#' set_blanket()
+#'
 #' penguins |>
 #'   gg_point(
 #'     x = flipper_length_mm,
@@ -103,25 +101,21 @@ dark_mode_t <- function (
 #'
 dark_mode_b <- function (
     base_size = 11,
-    base_family = "",
-    x_title = TRUE,
-    y_title = TRUE) {
+    base_family = "") {
 
   base_mode_b(
     base_size = base_size,
     base_family = base_family,
-    x_title = x_title,
-    y_title = y_title,
-    col_pal = c(
+    base_pal = c(
       "text" = darkness[2],
-      "axis_line" = darkness[2],
-      "panel_background" = darkness[3],
-      "plot_background" = darkness[1],
-      "panel_grid" = darkness[1])
+      "line" = darkness[2],
+      "panel" = darkness[3],
+      "plot" = darkness[1],
+      "grid" = darkness[1])
   )
 }
 
-#' @title Dark mode theme with no legend
+#' Dark mode theme with no legend
 #'
 #' @description Dark mode theme for a ggplot visualisation with no legend. It uses the colours from `darkness`.
 #'
@@ -134,6 +128,8 @@ dark_mode_b <- function (
 #' library(palmerpenguins)
 #' library(ggplot2)
 #'
+#' set_blanket()
+#'
 #' penguins |>
 #'   gg_jitter(
 #'     x = species,
@@ -144,20 +140,16 @@ dark_mode_b <- function (
 #'
 dark_mode_n <- function (
     base_size = 11,
-    base_family = "",
-    x_title = TRUE,
-    y_title = TRUE) {
+    base_family = "") {
 
   base_mode_n(
     base_size = base_size,
     base_family = base_family,
-    x_title = x_title,
-    y_title = y_title,
-    col_pal = c(
+    base_pal = c(
       "text" = darkness[2],
-      "axis_line" = darkness[2],
-      "panel_background" = darkness[3],
-      "plot_background" = darkness[1],
-      "panel_grid" = darkness[1])
-  )
+      "line" = darkness[2],
+      "panel" = darkness[3],
+      "plot" = darkness[1],
+      "grid" = darkness[1])
+    )
 }
