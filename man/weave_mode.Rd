@@ -2,34 +2,13 @@
 % Please edit documentation in R/weave.R
 \name{weave_mode}
 \alias{weave_mode}
-\title{Set the default mode}
+\title{Set a default mode}
 \usage{
-weave_mode(mode = light_mode_r())
+weave_mode(new = light_mode_r())
 }
 \arguments{
-\item{mode}{A new \verb{*_mode_*} theme (e.g. \code{\link[=dark_mode_r]{dark_mode_r()}}).}
-}
-\value{
-A globally set mode
+\item{new}{A default \verb{*_mode_*}. E.g. \code{\link[=light_mode_t]{light_mode_t()}}, \code{\link[=grey_mode_r]{grey_mode_r()}}, or \code{\link[=dark_mode_r]{dark_mode_r()}}.}
 }
 \description{
-Set the default \code{mode} for \verb{gg_*} functions.
-}
-\examples{
-library(ggplot2)
-library(ggblanket)
-library(palmerpenguins)
-
-set_blanket()
-weave_mode(dark_mode_r())
-
-penguins |>
-  gg_point(
-    x = flipper_length_mm,
-    y = body_mass_g,
-    x_breaks = scales::breaks_pretty(3),
-  )
-
-weave_mode(dark_mode_r())
-
+Set a default mode for the mode argument in \verb{gg_*} functions.
 }

@@ -80,7 +80,7 @@ penguins |>
     y_title = "Body mass (g)",
     col_steps = TRUE,
     col_breaks = \(x) quantile(x, seq(0, 1, 0.25)),
-    col_pal = viridisLite::rocket(n = 9, direction = -1),
+    col_palette = viridis::magma(n = 9, direction = -1),
     facet_labels = str_to_sentence,
   )
 
@@ -104,7 +104,7 @@ penguins |>
     x = flipper_length_mm,
     y = body_mass_g,
     col = sex, 
-    col_pal = c("#003f5c", "#ffa600"),
+    col_palette = c("#003f5c", "#ffa600"),
     colour = "#bc5090", 
     linewidth = 1, 
     linetype = "dashed",
@@ -161,7 +161,7 @@ p2 <- d |>
 
 p3 <- d |>
   gg_col(
-    position = "dodge",
+    position = "dodge2",
     x = trt,
     y = upper,
     col = group,
@@ -230,10 +230,10 @@ penguins |>
     y = species, 
     x = flipper_length_mm, 
     col = species,
-    mapping = aes(alpha = species, shape = species),
+    mapping = aes(shape = species),
   ) +
-  scale_alpha_manual(values = c(0.33, 1, 0.33)) +
-  guides(alpha = guide_legend(reverse = TRUE))
+  guides(shape = guide_legend(reverse = TRUE)) +
+  scale_shape_manual(values = rev(scales::shape_pal()(3)))
 
 ## ----echo=FALSE---------------------------------------------------------------
 d <- data.frame(
@@ -307,7 +307,10 @@ penguins |>
   ) 
 
 ## -----------------------------------------------------------------------------
-set_blanket(grey_mode_r(), "#ffa600")
+set_blanket(
+  mode = grey_mode_r(), 
+  geom_colour = "#ffa600",
+)
 
 p1 <- penguins |>
   gg_point(
@@ -329,7 +332,11 @@ p2 <- penguins |>
 p1 + p2
 
 ## -----------------------------------------------------------------------------
-set_blanket(dark_mode_r(), "#bc5090", darkness[2])
+set_blanket(
+  mode = dark_mode_r(), 
+  geom_colour = "#bc5090",
+  annotate_colour = "#c8d7df",
+)
 
 p1 <- penguins |>
   gg_point(
@@ -350,9 +357,11 @@ p2 <- penguins |>
 
 p1 + p2
 
-set_blanket()
-
 ## -----------------------------------------------------------------------------
+set_blanket(
+  light_mode_t() + theme(legend.title = element_blank())
+)
+
 geom_violin()
 
 penguins |>
@@ -380,6 +389,8 @@ penguins |>
   ) 
 
 ## -----------------------------------------------------------------------------
+set_blanket()
+
 geom_spoke()
 
 expand.grid(x = 1:10, y = 1:10) |>

@@ -1,25 +1,28 @@
 #' Get contrast
 #'
 #' @param fill A fill aesthetic from which to determine the colour scale for contrast.
-#' @param contrast_pal A vector of a dark colour and then a light colour (e.g. `greyness[2:3]` or `darkness[1:2]`). Defaults to `lightness[2:3]`.
+#' @param dark A dark colour. Defaults to `"black"`.
+#' @param light A light colour. Defaults to `"white"`.
 #'
 #' @noRd
 #'
 #' @examples
-#' get_contrast(fill = c("navy", "yellow", "orange"), contrast_pal = c("black", "white"))
+#' get_contrast(fill = c("navy", "yellow", "orange"), dark = "black", light = "white")
 #'
-get_contrast <- function(fill, contrast_pal = lightness[2:3]) {
-  out <- rep(contrast_pal[1], length(fill))
-  light <- farver::get_channel(fill, "l", space = "hcl")
-  out[light < 50] <- contrast_pal[2]
+get_contrast <- function(fill, dark = "black", light = "white") {
+  out <- rep(dark, length(fill))
+  channel <- farver::get_channel(fill, "l", space = "hcl")
+  out[channel < 50] <- light
   out
 }
 
-#' A colour aesthetic that automatically contrasts with fill.
+#' An auto-contrast colour aesthetic
 #'
 #' @description A colour aesthetic for annotation that automatically contrasts with fill. Can be spliced into [ggplot2::aes] with [rlang::!!!].
 #'
-#' @param contrast_pal A vector of a dark colour and then a light colour (e.g. `greyness[2:3]` or `darkness[1:2]`). Defaults to `lightness[2:3]`.
+#' @param mode_family The mode family to optimise light and dark colours for. Options are "light", "grey" or "dark".
+#' @param dark A dark colour. If NULL, uses `mode_family` optimised colour.
+#' @param light A light colour. If NULL, uses `mode_family` optimised colour.
 #'
 #' @return An aesthetic
 #' @export
@@ -38,12 +41,14 @@ get_contrast <- function(fill, contrast_pal = lightness[2:3]) {
 #'     x = sex,
 #'     y = n,
 #'     col = species,
+#'     label = n,
 #'     position = position_dodge2(preserve = "single"),
 #'     width = 0.75,
 #'     x_labels = \(x) str_to_sentence(x),
 #'   ) +
 #'   geom_text(
-#'     mapping = aes(label = n, !!!aes_contrast()),
+#'     mapping = aes_contrast(),
+#'     # mapping = aes(!!!aes_contrast()),
 #'     position = position_dodge2(width = 0.75, preserve = "single"),
 #'     vjust = 1.33,
 #'     show.legend = FALSE,
@@ -52,25 +57,40 @@ get_contrast <- function(fill, contrast_pal = lightness[2:3]) {
 #' penguins |>
 #'   count(species, sex) |>
 #'   gg_col(
-#'     x = n,
-#'     y = sex,
+#'     x = sex,
+#'     y = n,
 #'     col = species,
+#'     label = n,
 #'     position = position_dodge2(preserve = "single"),
 #'     width = 0.75,
-#'     y_labels = \(x) str_to_sentence(x),
+#'     x_labels = \(x) str_to_sentence(x),
 #'     mode = dark_mode_r(),
 #'   ) +
 #'   geom_text(
-#'     mapping = aes(label = n, !!!aes_contrast(darkness[1:2])),
+#'     mapping = aes_contrast("dark"),
+#'     #' mapping = aes(!!!aes_contrast("dark")),
 #'     position = position_dodge2(width = 0.75, preserve = "single"),
-#'     hjust = 1.25,
+#'     vjust = 1.33,
 #'     show.legend = FALSE,
 #'   )
-aes_contrast <- function(contrast_pal = lightness[2:3]) {
+aes_contrast <- function(mode_family = "light", dark = NULL, light = NULL) {
+
+  if (mode_family == "light") {
+    if (rlang::is_null(dark)) dark <- "#121b24ff"
+    if (rlang::is_null(light)) light <- "#ffffffff"
+  }
+  else if (mode_family == "grey") {
+    if (rlang::is_null(dark)) dark <- "#121b24ff"
+    if (rlang::is_null(light)) light <- "#f6f8faff"
+  }
+  else if (mode_family == "dark") {
+    if (rlang::is_null(dark)) dark <- "#050d1bff"
+    if (rlang::is_null(light)) light <- "#c8d7dfff"
+  }
 
   ggplot2::aes(
     colour = ggplot2::after_scale(
-      get_contrast(.data$fill, contrast_pal = contrast_pal[1:2])
-      )
+      get_contrast(.data$fill, dark = dark, light = light)
     )
+  )
 }

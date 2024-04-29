@@ -15,6 +15,7 @@
 #' set_blanket()
 #'
 #' penguins |>
+#'   tidyr::drop_na(sex) |>
 #'   mutate(across(sex, \(x) stringr::str_to_sentence(x))) |>
 #'   gg_bar(
 #'     y = species,
@@ -40,7 +41,6 @@ gg_bar <- function(
     yend = NULL,
     z = NULL,
     col = NULL,
-    # alpha = NULL,
     facet = NULL,
     facet2 = NULL,
     group = NULL,
@@ -75,8 +75,8 @@ gg_bar <- function(
     col_legend_rev = FALSE,
     col_limits = NULL,
     col_oob = scales::oob_keep,
-    col_pal = NULL,
-    col_pal_na = "darkgrey",
+    col_palette = NULL,
+    col_palette_na = NULL,
     col_rescale = scales::rescale(),
     col_steps = FALSE,
     col_title = NULL,
@@ -84,8 +84,6 @@ gg_bar <- function(
     facet_axes = NULL,
     facet_axis_labels = "margins",
     facet_labels = NULL,
-    facet_labels_position = "top",
-    facet_labels_switch = NULL,
     facet_layout = NULL,
     facet_ncol = NULL,
     facet_nrow = NULL,
@@ -114,7 +112,6 @@ gg_bar <- function(
     yend = {{ yend }},
     z = {{ z }},
     col = {{ col }},
-    # alpha = {{ alpha }},
     facet = {{ facet }},
     facet2 = {{ facet2 }},
     group = {{ group }},
@@ -149,8 +146,8 @@ gg_bar <- function(
     col_legend_rev = col_legend_rev,
     col_limits = col_limits,
     col_oob = col_oob,
-    col_pal = col_pal,
-    col_pal_na = col_pal_na,
+    col_palette = col_palette,
+    col_palette_na = col_palette_na,
     col_rescale = col_rescale,
     col_steps = col_steps,
     col_title = col_title,
@@ -158,8 +155,6 @@ gg_bar <- function(
     facet_axes = facet_axes,
     facet_axis_labels = facet_axis_labels,
     facet_labels = facet_labels,
-    facet_labels_position = facet_labels_position,
-    facet_labels_switch = facet_labels_switch,
     facet_layout = facet_layout,
     facet_ncol = facet_ncol,
     facet_nrow = facet_nrow,

@@ -161,6 +161,7 @@ test_that(test_name, {
       x = waiting,
       y = eruptions,
       bins = 8,
+      contour = TRUE,
     )
 
   vdiffr::expect_doppelganger(test_name, p)
@@ -177,6 +178,7 @@ test_that(test_name, {
       x = waiting,
       y = eruptions,
       bins = 8,
+      contour = TRUE,
     )
 
   vdiffr::expect_doppelganger(test_name, p)
@@ -303,7 +305,7 @@ test_that(test_name, {
       size = 3.53,
       y_expand_limits = 0,
       y_title = "Miles per gallon",
-      col_pal = c(orange, "white", teal),
+      col_palette = c(orange, "white", teal),
     )
 
   vdiffr::expect_doppelganger(test_name, p)
@@ -486,7 +488,7 @@ test_that(test_name, {
   p <- data.frame(
     x = rep(c(2, 5, 7, 9, 12), 2),
     y = rep(c(1, 2), each = 5),
-    z = factor(c(rep(1:3, each = 3), 4)),
+    z = factor(c(rep(1:4, each = 2), 5, NA)),
     w = rep(diff(c(0, 4, 6, 8, 10, 14)), 2)) |>
     dplyr::mutate(
       xmin = x - w / 2,
@@ -618,7 +620,7 @@ test_that(test_name, {
       size = 3.53,
       y_expand_limits = 0,
       y_title = "Miles per gallon",
-      col_pal = c(orange, "white", teal),
+      col_palette = c(orange, "white", teal),
     )
 
   vdiffr::expect_doppelganger(test_name, p)
@@ -663,7 +665,7 @@ test_that(test_name, {
 test_name <- "gg_blanket"
 
 test_that(test_name, {
-  p <- p <- palmerpenguins::penguins |>
+  p <- palmerpenguins::penguins |>
     tidyr::drop_na(sex) |>
     dplyr::mutate(dplyr::across(sex, \(x) stringr::str_to_sentence(x))) |>
     gg_blanket(
@@ -677,3 +679,5 @@ test_that(test_name, {
 
   vdiffr::expect_doppelganger(test_name, p)
 })
+
+set_blanket()

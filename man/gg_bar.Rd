@@ -55,8 +55,8 @@ gg_bar(
   col_legend_rev = FALSE,
   col_limits = NULL,
   col_oob = scales::oob_keep,
-  col_pal = NULL,
-  col_pal_na = "darkgrey",
+  col_palette = NULL,
+  col_palette_na = NULL,
   col_rescale = scales::rescale(),
   col_steps = FALSE,
   col_title = NULL,
@@ -64,8 +64,6 @@ gg_bar(
   facet_axes = NULL,
   facet_axis_labels = "margins",
   facet_labels = NULL,
-  facet_labels_position = "top",
-  facet_labels_switch = NULL,
   facet_layout = NULL,
   facet_ncol = NULL,
   facet_nrow = NULL,
@@ -116,21 +114,17 @@ gg_bar(
 
 \item{col_legend_rev}{\code{TRUE} or \code{FALSE} of whether to reverse the elements of a legend guide. Defaults to \code{FALSE}.}
 
-\item{col_pal}{Colours to use. A character vector of hex codes (or names).}
+\item{col_palette}{Colour palette to use. A character vector of hex codes (or names).}
 
-\item{col_pal_na}{Colour to use for \code{NA} values. A character vector of a hex code (or name).}
+\item{col_palette_na}{Colour palette to use for \code{NA} values. A character value of a hex code (or name).}
 
 \item{col_rescale}{For a continuous variable, a \code{scales::rescale()} function.}
 
 \item{col_steps}{For a continuous variable, \code{TRUE} or \code{FALSE} of whether to colour in steps. Defaults to \code{FALSE}.}
 
-\item{facet_axes}{Whether to add interior axes and ticks with \code{"margins"}, \code{"all"}, \code{"all_x"}, or \code{"all_y"}.}
+\item{facet_axes}{Whether to add interior axes and ticks with \code{"margins"}, \code{"all"}, \code{"all_x"}, or \code{"all_y"}. Sometimes \verb{+ *_mode_*()} may be needed.}
 
 \item{facet_axis_labels}{Whether to add interior axis labels with \code{"margins"}, \code{"all"}, \code{"all_x"}, or \code{"all_y"}.}
-
-\item{facet_labels_position}{When the facet layout is \code{"wrap"}, the position of the facet labels. Either \code{"top"}, \code{"right"}, \code{"bottom"} or \code{"left"}.}
-
-\item{facet_labels_switch}{When the facet layout is \code{"grid"}, whether to switch the facet labels to the opposite side of the plot. Either \code{"x"}, \code{"y"} or \code{"both"}.}
 
 \item{facet_layout}{Whether the layout is to be \code{"wrap"} or \code{"grid"}. If \code{NULL} and a single \code{facet} (or \code{facet2}) argument is provided, then defaults to \code{"wrap"}. If \code{NULL} and both facet and facet2 arguments are provided, defaults to \code{"grid"}.}
 
@@ -146,7 +140,7 @@ gg_bar(
 
 \item{caption}{Caption title string.}
 
-\item{titles_to_case}{A function to format unspecified titles_to_case. Defaults to \code{snakecase::to_sentence_case}.}
+\item{titles_to_case}{A function to format unspecified titles. Defaults to \code{snakecase::to_sentence_case}.}
 }
 \value{
 A ggplot object.
@@ -162,6 +156,7 @@ library(palmerpenguins)
 set_blanket()
 
 penguins |>
+  tidyr::drop_na(sex) |>
   mutate(across(sex, \(x) stringr::str_to_sentence(x))) |>
   gg_bar(
     y = species,

@@ -3,6 +3,7 @@ testthat::skip_on_os(c("mac", "linux"))
 
 library(palmerpenguins)
 library(ggplot2)
+
 set_blanket()
 
 test_name <- "light_mode_r"
@@ -120,4 +121,6 @@ test_that(test_name, {
 
   vdiffr::expect_doppelganger(test_name, p)
 })
+
+set_blanket()
 

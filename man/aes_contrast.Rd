@@ -2,12 +2,16 @@
 % Please edit documentation in R/aes_contrast.R
 \name{aes_contrast}
 \alias{aes_contrast}
-\title{A colour aesthetic that automatically contrasts with fill.}
+\title{An auto-contrast colour aesthetic}
 \usage{
-aes_contrast(contrast_pal = lightness[2:3])
+aes_contrast(mode_family = "light", dark = NULL, light = NULL)
 }
 \arguments{
-\item{contrast_pal}{A vector of a dark colour and then a light colour (e.g. \code{greyness[2:3]} or \code{darkness[1:2]}). Defaults to \code{lightness[2:3]}.}
+\item{mode_family}{The mode family to optimise light and dark colours for. Options are "light", "grey" or "dark".}
+
+\item{dark}{A dark colour. If NULL, uses \code{mode_family} optimised colour.}
+
+\item{light}{A light colour. If NULL, uses \code{mode_family} optimised colour.}
 }
 \value{
 An aesthetic
@@ -29,12 +33,14 @@ penguins |>
     x = sex,
     y = n,
     col = species,
+    label = n,
     position = position_dodge2(preserve = "single"),
     width = 0.75,
     x_labels = \(x) str_to_sentence(x),
   ) +
   geom_text(
-    mapping = aes(label = n, !!!aes_contrast()),
+    mapping = aes_contrast(),
+    # mapping = aes(!!!aes_contrast()),
     position = position_dodge2(width = 0.75, preserve = "single"),
     vjust = 1.33,
     show.legend = FALSE,
@@ -43,18 +49,20 @@ penguins |>
 penguins |>
   count(species, sex) |>
   gg_col(
-    x = n,
-    y = sex,
+    x = sex,
+    y = n,
     col = species,
+    label = n,
     position = position_dodge2(preserve = "single"),
     width = 0.75,
-    y_labels = \(x) str_to_sentence(x),
+    x_labels = \(x) str_to_sentence(x),
     mode = dark_mode_r(),
   ) +
   geom_text(
-    mapping = aes(label = n, !!!aes_contrast(darkness[1:2])),
+    mapping = aes_contrast("dark"),
+    #' mapping = aes(!!!aes_contrast("dark")),
     position = position_dodge2(width = 0.75, preserve = "single"),
-    hjust = 1.25,
+    vjust = 1.33,
     show.legend = FALSE,
   )
 }

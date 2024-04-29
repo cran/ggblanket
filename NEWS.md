@@ -1,3 +1,21 @@
+# ggblanket 8.0.0
+
+* Breaking: renamed `col_pal` to `col_palette`.
+* Breaking: removed ability to use `col_palette` when `col = NULL`.
+* Breaking: in `set_blanket` and `weave_*`, renamed arguments.
+* Updated `set_blanket()` and `weave_col_palette_*()` to set the default `col_palette`.
+* Updated `set_blanket()` and `weave_*()` to set ggplot2 as well as ggblanket.
+* Added `jumble` discrete colour palette.
+* Added `red`, `pink` and `purple`.
+* Changed the `col_palette_na` default to `"seashell3"`. 
+* Added `orientation` argument to `*_mode_*` functions for use with ggplot2.
+* Breaking: in `aes_contrast`, added arguments to optimise for modes, and renamed arguments.
+* Breaking: removed `facet_labels_position` and `facet_labels_switch`.
+* Breaking: adjusted `*ness` helper palettes.
+* Added arguments to `*_mode_*` for more control of colours/linewidths etc.
+* Minor `*_mode_*` updates. 
+* Made compatible with extension geoms with no x or y variables in `layer_data`.
+
 # ggblanket 7.0.0
 
 * Added `set_blanket` function, which is now required to set the style.

@@ -19,33 +19,6 @@ na_if_inf <- function(x) {
   x
 }
 
-#' Default colours used to colour a discrete variable
-#'
-#' @description Default colours used to colour a discrete variable. Uses a colour blind safe palette for 3 or less colours. For 4 or more colours, uses scales::pal_hue.
-#'
-#' @return A character vector.
-#'
-#' @noRd
-col_pal_discrete <- function(n = 3) {
-  if (n == 1) blue
-  else if (n == 2) c(teal, orange)[1:n]
-  else if (n == 3) c(teal, orange, navy)[1:n]
-  else scales::pal_hue()(n)
-}
-
-#' Default colours used to colour a continuous variable
-#'
-#' @description Default colours used to colour a continuous variable.
-#'
-#' @param n The number of colours.
-#'
-#' @noRd
-#'
-#' @references The mako colour palette from viridisLite reversed
-col_pal_continuous <- function(n = 20) {
-  viridisLite::mako(n = n, direction = -1)
-}
-
 #' Continuous colour and fill scales
 #'
 #' @description A vector of continuous colour and fill scales.

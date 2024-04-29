@@ -42,12 +42,12 @@ Computational speed has been traded-off to achieve these objectives.
 4.  A `facet2` argument to facet by a 2nd variable
 5.  Prefixed arguments to customise x, y, col and facet properties 
 6.  Unspecified titles converted to `snakecase::sentence_case`
-7. Access to other `geom_*` arguments via `...`
-8. A symmetrical continuous scale with easy opt-out
-9. Ability to add multiple `geom_*` layers
+7.  Access to other `geom_*` arguments via `...`
+8.  A symmetrical continuous scale with easy opt-out
+9.  Ability to add multiple `geom_*` layers
 10. Access other aesthetics via `mapping`
-11.  A `mode` argument designed for provided `*_mode_*` themes
-12.  Families of `*_mode_*` themes that differ by legend placement 
+11. A `mode` argument designed for `*_mode_*` themes
+12. Families of `*_mode_*` themes that differ by legend placement 
 13. Set the mode and geom defaults with `set_blanket`
 14. A `gg_blanket()` function with `geom` flexibility
 
@@ -85,6 +85,8 @@ The colour and fill aesthetics of ggplot2 are merged into a single concept repre
 
 This combined aesthetic means that everything should be coloured according to it, i.e. all coloured outlines and filled interiors. 
 
+Use `colour = NA` or `fill = NA` if you need to turn one of these off.
+
 ```{r}
 penguins |>
   gg_point(
@@ -110,7 +112,7 @@ penguins |>
 
 Faceting is treated as if it were an aesthetic. Users just provide an unquoted variable to facet by. 
 
-Whenever a `facet` variable is provided (and a `facet2` variable _not_ provided), the `facet_layout` will default to `"wrap"`. 
+When `facet` variable is _not_ NULL (and `facet2 = NULL`), the `facet_layout` will default to `"wrap"`. 
 
 ```{r}
 penguins |>
@@ -128,7 +130,7 @@ A `facet2` argument is also provided for extra functionality and flexibility.
 
 This enables users to facet easily in a `"grid"` layout of the `facet` variable horizontally by the `facet2` variable vertically. 
 
-Whenever a `facet2` variable is provided, the `facet_layout` will default to `"grid"`. 
+Whenever a `facet2` does _not_ equal NULL, the `facet_layout` will default to `"grid"`. 
 
 ```{r, fig.asp=0.75}
 penguins |>
@@ -142,11 +144,11 @@ penguins |>
 
 ### 5.  Prefixed arguments to customise x, y, col and facet properties
 
-ggblanket offers numerous arguments to customise that are prefixed by whether they relate to `x`, `y`, `col`, `facet` or `alpha`. 
+ggblanket offers numerous arguments to customise that are prefixed by whether they relate to `x`, `y`, `col` or `facet`. 
 
 These prefixed arguments work nicely with the Rstudio auto-complete, if users ensure their settings support the use of tab for auto-completions and multi-line auto-completions (i.e. Tools - Global Options - Code - Completion).
 
-Everything prefixed `col_` relates to _both_ the colour and fill scale as applicable. Everything prefixed `facet_` relates to both `facet` and `facet2` as applicable.
+Everything prefixed `col_` relates to _both_ the colour and fill scale as applicable. Likewise, everything prefixed `facet_` relates to _both_ `facet` and `facet2` as applicable.
 
 ```{r}
 penguins |>
@@ -164,7 +166,7 @@ penguins |>
     y_title = "Body mass (g)",
     col_steps = TRUE,
     col_breaks = \(x) quantile(x, seq(0, 1, 0.25)),
-    col_pal = viridisLite::rocket(n = 9, direction = -1),
+    col_palette = viridis::magma(n = 9, direction = -1),
     facet_labels = str_to_sentence,
   )
 ```
@@ -178,6 +180,7 @@ knitr::include_graphics("autocomplete_y.png", dpi = 300)
 Unspecified `x`, `y`, `col` and `alpha` titles are converted to sentence case with `snakecase::to_sentence`. 
 
 However, each title can be manually changed using the applicable `*_title` argument. 
+
 The default `snakecase::to_sentence` conversion can be turned off using `titles_to_case = \(x) x` or changed (e.g. `snakecase::to_title_case`). 
 
 ```{r, fig.asp=0.6}
@@ -192,7 +195,7 @@ diamonds |>
 
 ### 7. Access to other `geom_*` arguments via `...`
 
-The `...` argument provides access to all other arguments in the `geom_*()` function. Typical arguments to add include colour, fill, alpha, linewidth, size and  width.
+The `...` argument provides access to all other arguments in the `geom_*()` function. Typical arguments to add include `colour`, `fill`, `alpha`, `linewidth`, `linetype`,  `size` and  `width`.
 
 Subsequently, for geoms that have _both_ coloured outlines and interiors, you can turn off  _either_ of these using `colour = NA`/`fill = NA` - and/ fix one to a single colour with `colour = "black"`/`fill = "lightgrey"` etc.
 
@@ -206,7 +209,7 @@ penguins |>
     x = flipper_length_mm,
     y = body_mass_g,
     col = sex, 
-    col_pal = c("#003f5c", "#ffa600"),
+    col_palette = c("#003f5c", "#ffa600"),
     colour = "#bc5090", 
     linewidth = 1, 
     linetype = "dashed",
@@ -280,7 +283,7 @@ p2 <- d |>
 
 p3 <- d |>
   gg_col(
-    position = "dodge",
+    position = "dodge2",
     x = trt,
     y = upper,
     col = group,
@@ -297,15 +300,11 @@ p1 + p2 + p3
 
 ### 9. Ability to add multiple `geom_*` layers
 
-Users can make plots with multiple layers with ggblanket by adding on `ggplot2::geom_*` layers. 
+Users can make plots with multiple layers by `+`-ing on `ggplot2::geom_*` layers. 
 
-The `gg_*` function puts the aesthetic variables (i.e. `x`, `y`, `col`) within the wrapped `ggplot` function. Therefore, these aesthetics will inherit to any subsequent layers added. 
+The `gg_*` function puts the aesthetic variables within the wrapped `ggplot` function. Therefore, these aesthetics will inherit to any subsequent layers added. Generally, it works well to add all aesthetics required for the plot to the `gg_*` function, including the `col` argument. 
 
-Generally, it works bets to add all aesthetics required for the plot to the `gg_*` function, including the `col` argument. 
-
-The `gg_*()` function _should_ be appropriate to be the bottom layer of the plot, as geoms are drawn in order. 
-
-This may mean that you need to use `gg_blanket()` as your `gg_*` function, as it defaults to a `blank` geom.
+The `gg_*()` function _should_ be appropriate to be the bottom layer of the plot, as geoms are drawn in order. You may sometimes need to use `gg_blanket()` as your `gg_*` function, as it defaults to a `blank` geom.
 
 ```{r, fig.asp = 0.4}
 penguins |>
@@ -370,10 +369,10 @@ penguins |>
     y = species, 
     x = flipper_length_mm, 
     col = species,
-    mapping = aes(alpha = species, shape = species),
+    mapping = aes(shape = species),
   ) +
-  scale_alpha_manual(values = c(0.33, 1, 0.33)) +
-  guides(alpha = guide_legend(reverse = TRUE))
+  guides(shape = guide_legend(reverse = TRUE)) +
+  scale_shape_manual(values = rev(scales::shape_pal()(3)))
 ```
 
 ### 11.  A `mode` argument designed for provided `*_mode_*` themes
@@ -383,11 +382,11 @@ A `mode` argument has been designed for use with the `*_mode_*` themes.
 With this function, the `gg_*` function will:
 
 * add the `*_mode_*` theme
-* guess the direction of the plot
-* for vertical plots, remove vertical gridlines, and the x axis-line/ticks 
-* for horizontal plots, remove horizontal gridlines, and the y axis-line/ticks. 
+* guess the orientation of the plot
+* for "x" orientation plots, remove vertical gridlines, and the x axis-line/ticks 
+* for "y" orientation plots, remove horizontal gridlines, and the y axis-line/ticks. 
 
-To avoid these side-effects, `+` the theme on to the output of `gg_*`.
+To avoid these side-effects, `+` the theme on to the output of `gg_*`. Note there is an `orientation` argument within the `*_mode_*` functions that can be useful when used in this way.
 
 ```{r, echo=FALSE}
 d <- data.frame(
@@ -429,11 +428,11 @@ p1 + p2
 
 ### 12.  Families of `*_mode_*` themes that differ by legend placement 
 
-Three mode families of themes are provided: `light_mode_*`, `grey_mode_*` and `dark_mode_*`.
+Three mode families of complete themes are provided: `light_mode_*`, `grey_mode_*` and `dark_mode_*`.
 
 Each mode family provides 4 variants that differ based on legend placement, which is represented by the suffix of the mode name of `r` (right), `b` (bottom), `t` (top) and `n` (none). 
 
-The default is `light_mode_r`.
+The default is `light_mode_r()`.
 
 These are intended for use with the `mode` argument.
 
@@ -441,6 +440,8 @@ Note:
 * if you want to use a quick non-bold title, use `subtitle = "\n..."`
 * a title can be removed using `+ labs(... = NULL)` 
 * for removing the legend title, you will often need `+ labs(colour = NULL, fill = NULL)`. 
+
+A further `flexi_mode_*` family is provided where users can select the colours and linewidths.
 
 ```{r, fig.asp=0.7}
 penguins |>
@@ -483,17 +484,20 @@ penguins |>
 
 The `set_blanket` function is used to set the default style for ggblanket plots. 
 
-This function sets the default mode by 
-* setting the default mode via `weave_mode()`
-* updating a series of geom defaults via `weave_geom_defaults()` 
-* updating a series of geom defaults commonly used for annotation (i.e. `*_vline`, `*_hline`, `*_abline`, `*_curve`, `*_text` and `*_label`) via `weave_annotate_defaults`.
+This function: 
+* sets the default mode 
+* updates a series of geom defaults often used for annotation (i.e. `*_vline`, `*_hline`, `*_abline`, `*_curve`, `*_text` and `*_label`)
+* updates all other geom defaults.
 
-Within the `set_blanket` function, the user can select the mode, and the default geom and annotate colour.
+Within the `set_blanket` function, the user can select the `mode`, the `colour` and `annotate` colour with the fill inheriting from these.
 
-The `ggplot2::update_geom_defaults()` function can be used to further fine-tune geom defaults. 
+Elements can be `+`-ed on to modes just as normal themes. The `ggplot2::update_geom_defaults()` function can be used to further fine-tune geom defaults. 
 
 ```{r}
-set_blanket(grey_mode_r(), "#ffa600")
+set_blanket(
+  mode = grey_mode_r(), 
+  geom_colour = "#ffa600",
+)
 
 p1 <- penguins |>
   gg_point(
@@ -515,7 +519,11 @@ p2 <- penguins |>
 p1 + p2
 ```
 ```{r}
-set_blanket(dark_mode_r(), "#bc5090", darkness[2])
+set_blanket(
+  mode = dark_mode_r(), 
+  geom_colour = "#bc5090",
+  annotate_colour = "#c8d7df",
+)
 
 p1 <- penguins |>
   gg_point(
@@ -535,10 +543,7 @@ p2 <- penguins |>
   annotate("text", x = I(0.75), y = I(0.75), label = "Here")
 
 p1 + p2
-
-set_blanket()
 ```
-
 
 ### 14. A `gg_blanket()` function with `geom` flexibility
 
@@ -549,6 +554,10 @@ All other functions wrap this function with a locked-in geom, and their own defa
 You can print a `geom_*` function to identify the applicable `stat` and `position` arguments etc. 
 
 ```{r}
+set_blanket(
+  light_mode_t() + theme(legend.title = element_blank())
+)
+
 geom_violin()
 
 penguins |>
@@ -577,6 +586,8 @@ penguins |>
 ```
 
 ```{r}
+set_blanket()
+
 geom_spoke()
 
 expand.grid(x = 1:10, y = 1:10) |>

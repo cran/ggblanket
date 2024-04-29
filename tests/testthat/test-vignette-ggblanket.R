@@ -95,7 +95,7 @@ test_that(test_name, {
     gg_jitter(
       x = species,
       y = body_mass_g,
-      col_pal = "#7FCDBB",
+      colour = "#7FCDBB",
     )
 
   vdiffr::expect_doppelganger(test_name, p)
@@ -110,7 +110,7 @@ test_that(test_name, {
 #   p <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE) |>
 #     gg_sf(
 #       col = AREA,
-#       col_pal = viridisLite::rocket(n = 9)
+#       col_palette = viridisLite::rocket(n = 9)
 #     )
 #
 #   vdiffr::expect_doppelganger(test_name, p)
@@ -493,5 +493,7 @@ test_that(test_name, {
 
   vdiffr::expect_doppelganger(test_name, p)
 })
+
+set_blanket()
 
 
