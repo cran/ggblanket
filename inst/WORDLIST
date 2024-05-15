@@ -9,11 +9,9 @@ Pointrange
 Qq
 RStudio
 Rect
-Rstudio
 Stat
 Teun
 beeswarm
-colourbars
 coord
 datetime
 demphasise
@@ -40,8 +38,8 @@ ggridges
 ggtext
 gridline
 gridlines
-ing
 linerange
+linetype
 linewidth
 linewidths
 magrittr
@@ -53,6 +51,7 @@ rect
 ridgeline
 showtext
 snakecase
+stat
 tibble
 tidyverse
 vjust

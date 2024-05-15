@@ -1,24 +1,3 @@
-#' Convert Infinite values to NA
-#'
-#' @param x A vector
-#'
-#' @noRd
-na_if_inf <- function(x) {
-  if (is.object(x)) {
-    return(x)
-  }
-
-  if (is.integer(x)) {
-    x <- as.double(x)
-  }
-
-  if (is.numeric(x)) {
-    x <- dplyr::na_if(x, Inf)
-  }
-
-  x
-}
-
 #' Continuous colour and fill scales
 #'
 #' @description A vector of continuous colour and fill scales.
@@ -68,11 +47,20 @@ continuous_scales_col <- c(
 discrete_scales_col <- c(
   "scale_colour_discrete",
   "scale_colour_manual",
+
+  "scale_fill_discrete",
+  "scale_fill_manual"
+)
+
+#' Ordinal colour and fill scales
+#'
+#' @description A vector of ordinal colour and fill scales.
+#'
+#' @noRd
+ordinal_scales_col <- c(
   "scale_colour_ordinal",
   "scale_colour_viridis_d",
 
-  "scale_fill_discrete",
-  "scale_fill_manual",
   "scale_fill_ordinal",
   "scale_fill_viridis_d"
 )

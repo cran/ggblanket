@@ -2,51 +2,51 @@
 % Please edit documentation in R/set_blanket.R
 \name{set_blanket}
 \alias{set_blanket}
-\title{Set a default style}
+\title{Set a style}
 \usage{
 set_blanket(
   mode = light_mode_r(),
   geom_colour = "#357ba2",
-  geom_linewidth = 0.66,
-  geom_size = 1.5,
   annotate_colour = "#121b24",
   annotate_linewidth = 0.33,
-  annotate_size = 3.88,
   annotate_family = "",
+  annotate_size = 3.88,
   col_palette_d = jumble,
   col_palette_na_d = "#cdc5bfff",
   col_palette_c = viridisLite::mako(n = 9, direction = -1),
-  col_palette_na_c = "#cdc5bfff",
+  col_palette_na_c = "#988f88ff",
+  col_palette_o = scales::pal_viridis(option = "G", direction = -1),
+  col_palette_na_o = "#988f88ff",
   theme = light_mode_r(orientation = "x"),
   ...
 )
 }
 \arguments{
-\item{mode}{A default \verb{*_mode_*}. E.g. \code{\link[=light_mode_t]{light_mode_t()}}, \code{\link[=grey_mode_r]{grey_mode_r()}}, or \code{\link[=dark_mode_r]{dark_mode_r()}}.}
+\item{mode}{A \verb{*_mode_*}. E.g. \code{\link[=light_mode_t]{light_mode_t()}}, \code{\link[=grey_mode_r]{grey_mode_r()}}, or \code{\link[=dark_mode_r]{dark_mode_r()}}.}
 
-\item{geom_colour}{A default hex colour (and fill) for geoms. Fill inherits from this colour. Defaults to \code{blue}.}
+\item{geom_colour}{A hex colour (and fill) for most geoms. Fill inherits from this colour. Defaults to \code{blue}.}
 
-\item{geom_linewidth}{A default linewidth for geoms. Fill inherits from this colour. Defaults to 0.66.}
+\item{annotate_colour}{A hex colour (and fill) for other geoms commonly used for annotation (i.e. \verb{*_hline}/\verb{*_vline}/\verb{*_abline} and \verb{*_curve}). Defaults to "#121b24" (i.e. \code{lightness[1]}).}
 
-\item{geom_size}{A default point size for \verb{*_point}. \verb{*_pointrange} multiplies this by 0.25. Defaults to 1.5. .}
+\item{annotate_linewidth}{A linewidth for \verb{*_hline}/\verb{*_vline}/\verb{*_abline} and \verb{*_curve}. Defaults to 0.33.}
 
-\item{annotate_colour}{A default hex colour (and fill) for geoms commonly used for annotation (i.e. \verb{*_vline}, \verb{*_hline}, \verb{*_abline}, \verb{*_curve}, \verb{*_text} and \verb{*_label}). Defaults to "#121b24" (i.e. \code{"#121b24"}).}
+\item{annotate_family}{A family for \verb{*_text} and \verb{*_label}. Defaults to ""}
 
-\item{annotate_linewidth}{A default linewidth for geoms commonly used for annotation (i.e. \verb{*_vline}, \verb{*_hline}, \verb{*_abline}, \verb{*_curve}, \verb{*_text} and \verb{*_label}). Defaults to 0.33 (i.e. \code{0.33}).}
+\item{annotate_size}{A size for \verb{*_text} and \verb{*_label}. Defaults to 3.88.}
 
-\item{annotate_size}{A default size for \verb{*_text} and \verb{*_label}. Defaults to 3.88.}
+\item{col_palette_d}{For a discrete scale, a character vector of hex codes (or names) for the \code{col_palette}.}
 
-\item{annotate_family}{A default family for \verb{*_text} and \verb{*_label}. Defaults to ""}
+\item{col_palette_na_d}{For a discrete scale, a hex code or name for the \code{col_palette_na}.}
 
-\item{col_palette_d}{A default col_palette to use in the discrete scale. A character vector of hex codes (or names).}
+\item{col_palette_c}{For a continuous scale, a character vector of hex codes (or names) for the \code{col_palette}.}
 
-\item{col_palette_na_d}{A default colour for NA on a discrete scale. A hex code or name.}
+\item{col_palette_na_c}{For a continuous scale, a hex code or name for the \code{col_palette_na}.}
 
-\item{col_palette_c}{A default col_palette to use in the continuous scale. A character vector of hex codes (or names).}
+\item{col_palette_o}{For an ordinal scale, a \verb{scales::pal_*()} function for the \code{col_palette}.}
 
-\item{col_palette_na_c}{A default colour for NA on a continuous scale. A hex code or name.}
+\item{col_palette_na_o}{For an ordinal scale, a hex code or name for the \code{col_palette_na}.}
 
-\item{theme}{A default ggplot2 theme to be \code{+}-ed on unmodified to \verb{gg_*} functions. Note, \code{mode} takes precedence, unless \code{mode = NULL}.}
+\item{theme}{A ggplot2 theme to be \code{+}-ed on unmodified to \verb{gg_*} functions. Note, \code{mode} takes precedence, unless \code{mode = NULL}.}
 
 \item{...}{Provided to support trailing commas only.}
 }
@@ -54,7 +54,7 @@ set_blanket(
 A globally set style.
 }
 \description{
-Set a default style by setting a default mode, a series of geom and annotate aesthetic defaults, and a default col_palette for discrete and continuous scales.
+Set a style by setting a mode, a series of geom and annotate aesthetic defaults, and a col_palette for discrete and continuous scales.
 }
 \examples{
 library(ggplot2)
@@ -64,7 +64,7 @@ library(palmerpenguins)
 set_blanket(
   mode = dark_mode_r(),
   geom_colour = orange,
-  annotate_colour = "#c8d7df",
+  annotate_colour = darkness[1],
 )
 
 penguins |>

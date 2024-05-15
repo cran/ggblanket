@@ -10,54 +10,51 @@ knitr::opts_chunk$set(
   dpi = 300)
 
 ## ----setup--------------------------------------------------------------------
-library(ggblanket)
-library(ggplot2)
 library(dplyr)
 library(stringr)
-library(tidyr)
+library(ggplot2)
+library(scales)
+library(ggblanket)
 library(palmerpenguins)
 library(patchwork)
 
+penguins2 <- penguins |> 
+  labelled::set_variable_labels(
+    bill_length_mm = "Bill length (mm)",
+    bill_depth_mm = "Bill depth (mm)",
+    flipper_length_mm = "Flipper length (mm)",
+    body_mass_g = "Body mass (g)",
+  ) |> 
+  mutate(sex = factor(sex, labels = c("Female", "Male"))) |> 
+  tidyr::drop_na(sex) 
+
+## -----------------------------------------------------------------------------
 set_blanket()
 
 ## -----------------------------------------------------------------------------
-penguins |>
+penguins2 |>
   gg_point(
     x = flipper_length_mm,
     y = body_mass_g,
   )
 
-## -----------------------------------------------------------------------------
-penguins |>
-  gg_point(
-    x = flipper_length_mm,
-    y = body_mass_g, 
-    col = species,
-  )
-
 ## ----fig.asp=0.45-------------------------------------------------------------
-penguins |>
-  drop_na(sex) |>
-  mutate(across(sex, str_to_sentence)) |>
-  gg_bar(
-    position = "dodge",
-    y = species, 
-    col = sex,
-    width = 0.75,
+penguins2 |>
+  gg_boxplot(
+    x = flipper_length_mm,
+    y = island,
+    col = sex, 
   )
 
 ## -----------------------------------------------------------------------------
-penguins |>
-  drop_na(sex) |> 
-  mutate(across(sex, str_to_sentence)) |> 
+penguins2 |>
   gg_histogram(
     x = flipper_length_mm,
     facet = species,
   )
 
 ## ----fig.asp=0.75-------------------------------------------------------------
-penguins |>
-  mutate(across(sex, str_to_sentence)) |> 
+penguins2 |>
   gg_histogram(
     x = flipper_length_mm,
     facet = species,
@@ -65,41 +62,40 @@ penguins |>
   )
 
 ## -----------------------------------------------------------------------------
-penguins |>
-  drop_na(sex) |>  
+penguins2 |> 
   gg_jitter(
-    x = species,
+    x = species, 
+    y = flipper_length_mm, 
+    col = island,
+    mapping = aes(shape = island),
+  ) 
+
+## -----------------------------------------------------------------------------
+penguins2 |>
+  gg_jitter(
+    x = flipper_length_mm,
     y = body_mass_g,
     col = flipper_length_mm,
-    facet = sex,
-    x_labels = \(x) str_sub(x, 1, 1),
-    y_breaks = scales::breaks_width(1000),
-    y_expand_limits = 2000,
-    y_labels = scales::label_number(big.mark = " "), 
+    x_breaks = scales::breaks_extended(n = 4, only.loose = TRUE),
+    x_labels = \(x) stringr::str_sub(x, 1, 1),
+    y_expand_limits = 1000,
+    y_labels = label_number(big.mark = " "), 
     y_transform = "log10",
-    y_title = "Body mass (g)",
+    col_label = "Flipper\nlength (mm)",
     col_steps = TRUE,
     col_breaks = \(x) quantile(x, seq(0, 1, 0.25)),
-    col_palette = viridis::magma(n = 9, direction = -1),
-    facet_labels = str_to_sentence,
+    col_palette = viridis::rocket(n = 9, direction = -1),
   )
 
-## ----echo = FALSE,   fig.width = 3, fig.asp = 2-------------------------------
-knitr::include_graphics("autocomplete_y.png", dpi = 300)
-
 ## ----fig.asp=0.6--------------------------------------------------------------
-diamonds |>
-  gg_hex(
-    coord = coord_cartesian(clip = "on"), 
-    x = carat,
-    y = price,
-    y_limits = c(0, 20000),
+penguins2 |>
+  gg_freqpoly(
+    x = flipper_length_mm,
+    col = species,
   )
 
 ## -----------------------------------------------------------------------------
-penguins |>
-  mutate(across(sex, str_to_sentence)) |> 
-  drop_na(sex) |> 
+penguins2 |>
   gg_smooth(
     x = flipper_length_mm,
     y = body_mass_g,
@@ -113,284 +109,118 @@ penguins |>
     level = 0.999, 
   ) 
 
-## ----fig.asp=0.5--------------------------------------------------------------
-penguins |> 
-  gg_boxplot(
-    y = island, 
-    x = flipper_length_mm, 
-    col = species,
-    fill = NA,
-    position = position_dodge2(preserve = "single")
-  ) 
-
 ## ----echo=FALSE---------------------------------------------------------------
-d <- data.frame(
-  trt = factor(c(1, 1, 2, 2)),
-  resp = c(1, 5, 3, 4),
-  group = factor(c(1, 2, 1, 2)),
-  upper = c(1.1, 5.3, 3.3, 4.2),
-  lower = c(0.8, 4.6, 2.4, 3.6)
-)
+p1 <- penguins2 |>
+  gg_pointrange(
+    x = sex,
+    y = flipper_length_mm,
+    stat = "summary",
+    position = position_dodge(),
+    x_labels = \(x) str_sub(x, 1, 1),
+    subtitle = "\ny_limits = NULL",
+    mode = grey_mode_r()
+  ) +
+  labs(y = NULL)
 
-p1 <- d |>
-  gg_errorbar(
-    x = trt,
-    ymin = lower,
-    ymax = upper,
-    col = group,
-    width = 0.1,
-    x_title = "Treatment",
-    y_title = "Response",
-    subtitle = "\nDefault y scale",
-    mode = light_mode_n(),
-  ) 
-
-p2 <- d |>
-  gg_errorbar(
-    x = trt,
-    ymin = lower,
-    ymax = upper,
-    col = group,
-    width = 0.1,
-    x_title = "Treatment",
-    y_title = "Response",
+p2 <- penguins2 |>
+  gg_pointrange(
+    x = sex,
+    y = flipper_length_mm,
+    stat = "summary",
+    position = position_dodge(),
+    x_labels = \(x) str_sub(x, 1, 1),
     y_limits = c(NA, NA),
     subtitle = "\ny_limits = c(NA, NA),",
-    mode = light_mode_n(),
-  ) 
+    mode = grey_mode_r()
+  ) +
+  labs(y = NULL)
 
-p3 <- d |>
+p3 <- penguins2 |>
   gg_col(
-    position = "dodge2",
-    x = trt,
-    y = upper,
-    col = group,
+    x = sex,
+    y = flipper_length_mm,
+    stat = "summary",
+    position = position_dodge(),
     width = 0.5,
-    x_title = "Treatment upper",
-    y_title = "Response",
+    x_labels = \(x) str_sub(x, 1, 1),
     y_limits = c(0, NA),
     subtitle = "\ny_limits = c(0, NA),",
-    mode = light_mode_n(),
-  ) 
+    mode = grey_mode_r()
+  ) +
+  labs(y = NULL)
 
 p1 + p2 + p3
 
-## ----fig.asp = 0.4------------------------------------------------------------
-penguins |>
-  group_by(species) |>
-  summarise(body_mass_g = mean(body_mass_g, na.rm = TRUE)) |>
-  mutate(lower = body_mass_g * 0.95) |> 
-  mutate(upper = body_mass_g * 1.2) %>%
+## ----fig.asp = 0.5------------------------------------------------------------
+penguins2 |>
+  group_by(species, sex) |>
+  summarise(
+    lower = quantile(flipper_length_mm, probs = 0.05),
+    upper = quantile(flipper_length_mm, probs = 0.95),
+    flipper_length_mm = mean(flipper_length_mm, na.rm = TRUE),
+  ) |>
+  labelled::copy_labels_from(penguins2) |>
+  ungroup() |> 
   gg_col(
-    x = body_mass_g,
+    x = flipper_length_mm,
     xmin = lower, 
     xmax = upper,
     y = species,
-    col = species,
-    width = 0.75,
-    x_expand_limits = c(0, max(.$upper)),
-    x_labels = \(x) x / 1000, 
-    x_title = "Body mass kg", 
-  ) +
-  geom_errorbar(
-    colour = "black", 
-    width = 0.1, 
-  ) 
-
-## ----fig.asp = 0.4------------------------------------------------------------
-penguins |>
-  group_by(species) |>
-  summarise(body_mass_g = mean(body_mass_g, na.rm = TRUE)) |>
-  mutate(lower = body_mass_g * 0.95) |> 
-  mutate(upper = body_mass_g * 1.2) |> 
-  gg_blanket( 
-    x = body_mass_g,
-    y = species,
-    col = species,
-    xmin = lower, 
-    xmax = upper,
+    col = sex,
+    position = position_dodge(),
     width = 0.75,
     x_expand_limits = 0,
-    x_labels = \(x) x / 1000, 
-    x_title = "Body mass kg",
-  ) +
-  geom_col(
-    colour = "#d3d3d3",
-    fill = "#d3d3d3",
-    alpha = 0.9,
-    width = 0.75,
   ) +
   geom_errorbar(
     width = 0.1, 
-  )
-
-## -----------------------------------------------------------------------------
-penguins |> 
-  gg_jitter(
-    y = species, 
-    x = flipper_length_mm, 
-    col = species,
-    mapping = aes(shape = species),
-  ) +
-  guides(shape = guide_legend(reverse = TRUE)) +
-  scale_shape_manual(values = rev(scales::shape_pal()(3)))
-
-## ----echo=FALSE---------------------------------------------------------------
-d <- data.frame(
-  trt = factor(c(1, 1, 2, 2)),
-  resp = c(1, 5, 3, 4),
-  group = factor(c(1, 2, 1, 2)),
-  upper = c(1.1, 5.3, 3.3, 4.2),
-  lower = c(0.8, 4.6, 2.4, 3.6)
-)
-
-p1 <- d |>
-  gg_errorbar(
-    x = trt,
-    ymin = lower,
-    ymax = upper,
-    col = group,
-    width = 0.1,
-    x_title = "Treatment",
-    y_title = "Response",
-    subtitle = "\nmode = light_mode_n(),",
-    mode = light_mode_n(),
-  ) 
-
-p2 <- d |>
-  gg_errorbar(
-    x = trt,
-    ymin = lower,
-    ymax = upper,
-    col = group,
-    width = 0.1,
-    x_title = "Treatment",
-    y_title = "Response",
-    subtitle = "\n+ light_mode_n()"
-  ) +
-  light_mode_n() 
-
-p1 + p2 
-
-## ----fig.asp=0.7--------------------------------------------------------------
-penguins |>
-  gg_histogram(
-    x = flipper_length_mm,
-    col = species,
-    title = "Penguin flipper length by species",
-    subtitle = "Palmer Archipelago, Antarctica",
-    caption = "Source: Gorman, 2020", 
-    mode = light_mode_t(),
-  ) +
-  labs(colour = NULL, fill = NULL)
-
-## ----fig.asp=0.75-------------------------------------------------------------
-penguins |>
-  gg_histogram(
-    x = flipper_length_mm,
-    col = species,
-    title = "Penguin flipper length by species",
-    subtitle = "Palmer Archipelago, Antarctica",
-    caption = "Source: Gorman, 2020", 
-    mode = grey_mode_b(),
-  ) 
+    position = position_dodge(width = 0.75),
+    colour = lightness[1],
+  )  
 
 ## ----fig.asp=0.65-------------------------------------------------------------
-penguins |>
+penguins2 |>
   gg_histogram(
     x = flipper_length_mm,
     col = species,
     title = "Penguin flipper length by species",
     subtitle = "Palmer Archipelago, Antarctica",
     caption = "Source: Gorman, 2020", 
-    mode = dark_mode_r(),
-  ) 
-
-## -----------------------------------------------------------------------------
-set_blanket(
-  mode = grey_mode_r(), 
-  geom_colour = "#ffa600",
-)
-
-p1 <- penguins |>
-  gg_point(
-    x = flipper_length_mm, 
-    y = body_mass_g,
-    x_breaks = scales::breaks_pretty(3),
+    mode = grey_mode_t(),
   ) +
-  geom_vline(xintercept = 200) +
-  annotate("text", x = I(0.25), y = I(0.75), label = "Here")
-
-p2 <- penguins |> 
-  gg_histogram(
-    x = flipper_length_mm,
-    x_breaks = scales::breaks_pretty(3),
-  ) +
-  geom_vline(xintercept = 200) +
-  annotate("text", x = I(0.75), y = I(0.75), label = "Here")
-
-p1 + p2
+  theme(legend.title = element_blank())
 
 ## -----------------------------------------------------------------------------
 set_blanket(
   mode = dark_mode_r(), 
-  geom_colour = "#bc5090",
-  annotate_colour = "#c8d7df",
+  geom_colour = "#e7298a",
+  annotate_colour = darkness[1],
+  col_palette_d = c("#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e", 
+                    "#e6ab02", "#a6761d", "#666666"), #RColorBrewer Dark2 
 )
 
-p1 <- penguins |>
+p1 <- penguins2 |>
   gg_point(
     x = flipper_length_mm, 
     y = body_mass_g,
-    x_breaks = scales::breaks_pretty(3),
+    x_breaks = breaks_extended(n = 4, only.loose = TRUE),
   ) +
   geom_vline(xintercept = 200) +
   annotate("text", x = I(0.25), y = I(0.75), label = "Here")
 
-p2 <- penguins |> 
+p2 <- penguins2 |> 
   gg_histogram(
     x = flipper_length_mm,
-    x_breaks = scales::breaks_pretty(3),
+    col = species,
+    x_breaks = breaks_extended(n = 4, only.loose = TRUE),
   ) +
   geom_vline(xintercept = 200) +
   annotate("text", x = I(0.75), y = I(0.75), label = "Here")
 
 p1 + p2
 
-## -----------------------------------------------------------------------------
-set_blanket(
-  light_mode_t() + theme(legend.title = element_blank())
-)
-
-geom_violin()
-
-penguins |>
-  drop_na(sex) |>
-  mutate(across(sex, str_to_sentence)) |>
-  gg_blanket(
-    geom = "violin",
-    stat = "ydensity",
-    position = "dodge",
-    x = sex,
-    y = body_mass_g,
-    col = species,
-  )
-
-## -----------------------------------------------------------------------------
-geom_histogram()
-
-penguins |>
-  gg_blanket(
-    geom = "bar",
-    stat = "bin",
-    position = "stack",
-    x = flipper_length_mm, 
-    col = species,
-  ) 
-
-## -----------------------------------------------------------------------------
 set_blanket()
 
+## -----------------------------------------------------------------------------
 geom_spoke()
 
 expand.grid(x = 1:10, y = 1:10) |>

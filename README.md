@@ -27,10 +27,10 @@ The primary objective is to **simplify ggplot2 visualisation**.
 Secondary objectives relate to:
 
 - Design: produce well-designed visualisation
-- Alignment: use conventions aligned with ggplot2
+- Alignment: align with ggplot2 and tidyverse
 - Scope: cover much of what ggplot2 does.
 
-Computational speed has been traded-off to achieve these objectives.
+Computational speed has been traded-off.
 
 ## Installation
 
@@ -63,6 +63,6 @@ to start learning how ggblanket works.
 
 ## Thank you
 
-Thanks to all authors of ggplot2, tidyverse, and the wider R ecosystem.
+Thanks to the developers of ggplot2, tidyverse and the R ecosystem.
 
-This R package is dedicated to my Dad (Peter Hodge, 1953–2023).
+For Dad, always missed (Peter Hodge, 1953-2023).

@@ -11,19 +11,20 @@
 #' @param mode A `*_mode_*` theme (e.g. [light_mode_t()], [grey_mode_r()], or [dark_mode_r()]). This argument adds the theme with side-effects, as the `gg_*` function will removes selected gridlines/axis-line/ticks. To avoid these side-effects, `+` the theme on to the output of `gg_*`.
 #' @param x,xmin,xmax,xend,y,ymin,ymax,yend,z,col,facet,facet2,group,subgroup,label,text,sample An unquoted aesthetic variable.
 #' @param mapping A set of additional aesthetic mappings in [ggplot2::aes()]. Intended primarily for non-supported aesthetics (e.g. `shape`, `linetype`, `linewidth`, or `size`), but can also be used for delayed evaluation etc.
-#' @param x_breaks,y_breaks,col_breaks A `scales::breaks_*` function (e.g. [scales::breaks_pretty()]), or a vector of breaks.
+#' @param x_breaks,y_breaks,col_breaks A `scales::breaks_*` function (e.g. `scales::breaks_*()`), or a vector of breaks.
 #' @param x_expand,y_expand Padding to the limits with the [ggplot2::expansion()] function, or a vector of length 2 (e.g. `c(0, 0)`).
 #' @param x_expand_limits,y_expand_limits,col_expand_limits For a continuous variable, any values that the limits should encompass (e.g. `0`). For a discrete scale, manipulate the data instead with `forcats::fct_expand`.
-#' @param x_labels,y_labels,col_labels,facet_labels A function that takes the breaks as inputs (e.g. `\(x) stringr::str_to_sentence(x)` or [scales::label_comma()]), or a vector of labels (Note this must be named for `facet_labels`).
+#' @param x_label,y_label,col_label Label for the axis or legend title. Use `+ ggplot2::labs(... = NULL)` for no title.
+#' @param x_labels,y_labels,col_labels,facet_labels A function that takes the breaks as inputs (e.g. `\(x) stringr::str_to_sentence(x)` or `scales::label_*()`), or a vector of labels. (Note this must be named for `facet_labels`).
 #' @param x_limits,y_limits,col_limits For a continuous scale, a vector of length 2 to determine the limits of the scale. For a discrete scale, manipulate the data instead with `factor`, `forcats::fct_expand` or `forcats::fct_drop`.
 #' @param x_oob,y_oob,col_oob For a continuous scale, a `scales::oob_*` function of how to handle values outside of limits. Defaults to `scales::oob_keep`.
 #' @param x_position,y_position The position of the axis (i.e. `"left"`, `"right"`, `"bottom"` or `"top"`).If using `y_position = "top"` with a `*_mode_*` theme, add `caption = ""` or `caption = "\n"`.
-#' @param x_title,y_title,col_title Axis title string. Use `+ ggplot2::labs(... = NULL)` for no title.
 #' @param x_transform,y_transform,col_transform For a continuous scale, a transformation object (e.g. [scales::transform_log10()]) or character string of this minus the `transform_` prefix (e.g. `"log10"`).
+#' @param col_drop,facet_drop For a discrete variable, FALSE or TRUE of whether to drop unused levels.
 #' @param col_legend_ncol,col_legend_nrow The number of columns and rows in a legend guide.
 #' @param col_legend_rev `TRUE` or `FALSE` of whether to reverse the elements of a legend guide. Defaults to `FALSE`.
-#' @param col_palette Colour palette to use. A character vector of hex codes (or names).
-#' @param col_palette_na Colour palette to use for `NA` values. A character value of a hex code (or name).
+#' @param col_palette A character vector of hex codes (or names) if not ordinal. Or otherwise a `scales::pal_*()` function.
+#' @param col_palette_na A hex code (or name) for the colour of `NA` values.
 #' @param col_rescale For a continuous variable, a `scales::rescale()` function.
 #' @param col_steps For a continuous variable, `TRUE` or `FALSE` of whether to colour in steps. Defaults to `FALSE`.
 #' @param facet_axes Whether to add interior axes and ticks with `"margins"`, `"all"`, `"all_x"`, or `"all_y"`. Sometimes `+ *_mode_*()` may be needed.
@@ -35,7 +36,7 @@
 #' @param title Title string.
 #' @param subtitle Subtitle string.
 #' @param caption Caption title string.
-#' @param titles_to_case A function to format unspecified titles. Defaults to `snakecase::to_sentence_case`.
+#' @param label_to_case A function to format the default `x_label`, `y_label` and `col_label` of unlabelled variables. Defaults to `snakecase::to_sentence_case`.
 #'
 #' @return A ggplot object.
 #' @export
@@ -60,77 +61,77 @@
 #'     mode = grey_mode_b(),
 #'   )
 #'
-gg_blanket <- function(
-    data = NULL,
-    ...,
-    geom = "blank",
-    stat = "identity",
-    position = "identity",
-    coord = NULL,
-    mode = NULL,
-    x = NULL,
-    xmin = NULL,
-    xmax = NULL,
-    xend = NULL,
-    y = NULL,
-    ymin = NULL,
-    ymax = NULL,
-    yend = NULL,
-    z = NULL,
-    col = NULL,
-    facet = NULL,
-    facet2 = NULL,
-    group = NULL,
-    subgroup = NULL,
-    label = NULL,
-    text = NULL,
-    sample = NULL,
-    mapping = NULL,
-    x_breaks = NULL,
-    x_expand = NULL,
-    x_expand_limits = NULL,
-    x_labels = NULL,
-    x_limits = NULL,
-    x_oob = scales::oob_keep,
-    x_position = "bottom",
-    x_title = NULL,
-    x_transform = NULL,
-    y_breaks = NULL,
-    y_expand = NULL,
-    y_expand_limits = NULL,
-    y_labels = NULL,
-    y_limits = NULL,
-    y_oob = scales::oob_keep,
-    y_position = "left",
-    y_title = NULL,
-    y_transform = NULL,
-    col_breaks = NULL,
-    col_expand_limits = NULL,
-    col_labels = NULL,
-    col_legend_ncol = NULL,
-    col_legend_nrow = NULL,
-    col_legend_rev = FALSE,
-    col_limits = NULL,
-    col_oob = scales::oob_keep,
-    col_palette = NULL,
-    col_palette_na = NULL,
-    col_rescale = scales::rescale(),
-    col_steps = FALSE,
-    col_title = NULL,
-    col_transform = NULL,
-    facet_axes = NULL,
-    facet_axis_labels = "margins",
-    facet_labels = NULL,
-    facet_layout = NULL,
-    facet_ncol = NULL,
-    facet_nrow = NULL,
-    facet_scales = "fixed",
-    facet_space = "fixed",
-    title = NULL,
-    subtitle = NULL,
-    caption = NULL,
-    titles_to_case = snakecase::to_sentence_case
-) {
+gg_blanket <- function(data = NULL,
+                       ...,
+                       geom = "blank",
+                       stat = "identity",
+                       position = "identity",
+                       coord = NULL,
+                       mode = NULL,
+                       x = NULL,
+                       xmin = NULL,
+                       xmax = NULL,
+                       xend = NULL,
+                       y = NULL,
+                       ymin = NULL,
+                       ymax = NULL,
+                       yend = NULL,
+                       z = NULL,
+                       col = NULL,
+                       facet = NULL,
+                       facet2 = NULL,
+                       group = NULL,
+                       subgroup = NULL,
+                       label = NULL,
+                       text = NULL,
+                       sample = NULL,
+                       mapping = NULL,
+                       x_breaks = NULL,
+                       x_expand = NULL,
+                       x_expand_limits = NULL,
+                       x_labels = NULL,
+                       x_limits = NULL,
+                       x_oob = scales::oob_keep,
+                       x_position = "bottom",
+                       x_label = NULL,
+                       x_transform = NULL,
+                       y_breaks = NULL,
+                       y_expand = NULL,
+                       y_expand_limits = NULL,
+                       y_labels = NULL,
+                       y_limits = NULL,
+                       y_oob = scales::oob_keep,
+                       y_position = "left",
+                       y_label = NULL,
+                       y_transform = NULL,
+                       col_breaks = NULL,
+                       col_drop = FALSE,
+                       col_expand_limits = NULL,
+                       col_labels = NULL,
+                       col_legend_ncol = NULL,
+                       col_legend_nrow = NULL,
+                       col_legend_rev = FALSE,
+                       col_limits = NULL,
+                       col_oob = scales::oob_keep,
+                       col_palette = NULL,
+                       col_palette_na = NULL,
+                       col_rescale = scales::rescale(),
+                       col_steps = FALSE,
+                       col_label = NULL,
+                       col_transform = NULL,
+                       facet_axes = NULL,
+                       facet_axis_labels = "margins",
+                       facet_drop = FALSE,
+                       facet_labels = NULL,
+                       facet_layout = NULL,
+                       facet_ncol = NULL,
+                       facet_nrow = NULL,
+                       facet_scales = "fixed",
+                       facet_space = "fixed",
+                       title = NULL,
+                       subtitle = NULL,
+                       caption = NULL,
+                       label_to_case = snakecase::to_sentence_case) {
 
   ##############################################################################
   #quote
@@ -428,25 +429,12 @@ gg_blanket <- function(
   data <- data %>%
     #ungroup the data
     dplyr::ungroup() %>%
-    #make infinite values NA
-    dplyr::mutate(dplyr::across(
-      c(!!x, !!xmin, !!xmax, !!xend,
-        !!y, !!ymin, !!ymax, !!yend,
-        !!col, !!facet, !!facet2,
-        !!group, !!subgroup, !!label, !!sample),
-      na_if_inf)) %>%
-    #convert logicals to factors
+    #convert to factors class that can handle labels
     dplyr::mutate(dplyr::across(c(!!x, !!xmin, !!xmax, !!xend,
                                   !!y, !!ymin, !!ymax, !!yend,
                                   !!col, !!facet, !!facet2) &
-                                  tidyselect::where(is.logical), function(x)
-                                    factor(x, levels = c(TRUE, FALSE)))) %>%
-    #convert characters to factors
-    dplyr::mutate(dplyr::across(c(!!x, !!xmin, !!xmax, !!xend,
-                                  !!y, !!ymin, !!ymax, !!yend,
-                                  !!col, !!facet, !!facet2) &
-                                  tidyselect::where(is.character), function(x)
-                                    factor(x))) %>%
+                                  (tidyselect::where(is.character) | tidyselect::where(is.factor) | tidyselect::where(is.logical)),
+                                function(x) labelled::to_factor(x))) %>%
     #reverse y*, so that reads top low-levels to bottom high-levels
     dplyr::mutate(dplyr::across(c(!!y, !!ymin, !!ymax, !!yend) &
                                   tidyselect::where(is.factor),
@@ -675,7 +663,7 @@ gg_blanket <- function(
           ggplot2::facet_wrap(
             facets = ggplot2::vars(forcats::fct_rev(!!facet)),
             scales = facet_scales,
-            drop = FALSE,
+            drop = facet_drop,
             axes = facet_axes,
             axis.labels = facet_axis_labels,
             nrow = facet_nrow,
@@ -688,7 +676,7 @@ gg_blanket <- function(
           ggplot2::facet_wrap(
             facets = ggplot2::vars(!!facet2),
             scales = facet_scales,
-            drop = FALSE,
+            drop = facet_drop,
             axes = facet_axes,
             axis.labels = facet_axis_labels,
             nrow = facet_nrow,
@@ -701,7 +689,7 @@ gg_blanket <- function(
           ggplot2::facet_wrap(
             facets = ggplot2::vars(!!facet, !!facet2),
             scales = facet_scales,
-            drop = FALSE,
+            drop = facet_drop,
             axes = facet_axes,
             axis.labels = facet_axis_labels,
             nrow = facet_nrow,
@@ -717,7 +705,7 @@ gg_blanket <- function(
                               cols = ggplot2::vars(forcats::fct_rev(!!facet)),
                               scales = facet_scales,
                               space = facet_space,
-                              drop = FALSE,
+                              drop = facet_drop,
                               axes = facet_axes,
                               axis.labels = facet_axis_labels,
                               labeller = ggplot2::as_labeller(facet_labels)
@@ -728,7 +716,7 @@ gg_blanket <- function(
           ggplot2::facet_grid(cols = ggplot2::vars(forcats::fct_rev(!!facet)),
                               scales = facet_scales,
                               space = facet_space,
-                              drop = FALSE,
+                              drop = facet_drop,
                               axes = facet_axes,
                               axis.labels = facet_axis_labels,
                               labeller = ggplot2::as_labeller(facet_labels)
@@ -739,7 +727,7 @@ gg_blanket <- function(
           ggplot2::facet_grid(rows = ggplot2::vars(!!facet2),
                               scales = facet_scales,
                               space = facet_space,
-                              drop = FALSE,
+                              drop = facet_drop,
                               axes = facet_axes,
                               axis.labels = facet_axis_labels,
                               labeller = ggplot2::as_labeller(facet_labels)
@@ -754,7 +742,7 @@ gg_blanket <- function(
           ggplot2::facet_wrap(
             facets = ggplot2::vars(!!facet),
             scales = facet_scales,
-            drop = FALSE,
+            drop = facet_drop,
             axes = facet_axes,
             axis.labels = facet_axis_labels,
             nrow = facet_nrow,
@@ -767,7 +755,7 @@ gg_blanket <- function(
           ggplot2::facet_wrap(
             facets = ggplot2::vars(!!facet2),
             scales = facet_scales,
-            drop = FALSE,
+            drop = facet_drop,
             axes = facet_axes,
             axis.labels = facet_axis_labels,
             nrow = facet_nrow,
@@ -780,7 +768,7 @@ gg_blanket <- function(
           ggplot2::facet_wrap(
             facets = ggplot2::vars(!!facet, !!facet2),
             scales = facet_scales,
-            drop = FALSE,
+            drop = facet_drop,
             axes = facet_axes,
             axis.labels = facet_axis_labels,
             nrow = facet_nrow,
@@ -796,7 +784,7 @@ gg_blanket <- function(
                               cols = ggplot2::vars(!!facet),
                               scales = facet_scales,
                               space = facet_space,
-                              drop = FALSE,
+                              drop = facet_drop,
                               axes = facet_axes,
                               axis.labels = facet_axis_labels,
                               labeller = ggplot2::as_labeller(facet_labels)
@@ -807,7 +795,7 @@ gg_blanket <- function(
           ggplot2::facet_grid(cols = ggplot2::vars(!!facet),
                               scales = facet_scales,
                               space = facet_space,
-                              drop = FALSE,
+                              drop = facet_drop,
                               axes = facet_axes,
                               axis.labels = facet_axis_labels,
                               labeller = ggplot2::as_labeller(facet_labels)
@@ -818,7 +806,7 @@ gg_blanket <- function(
           ggplot2::facet_grid(rows = ggplot2::vars(!!facet2),
                               scales = facet_scales,
                               space = facet_space,
-                              drop = FALSE,
+                              drop = facet_drop,
                               axes = facet_axes,
                               axis.labels = facet_axis_labels,
                               labeller = ggplot2::as_labeller(facet_labels)
@@ -914,42 +902,29 @@ gg_blanket <- function(
   # Detect whether the plot has a col scale
   ##############################################################################
 
-  #sf seems to document scales differently, and this fixes
-  if (stringr::str_detect(stat_name, "sf")) {
-    if (class(rlang::eval_tidy(col, data)) %in%
-        c("numeric", "double", "integer","Date", "POSIXct","hms")) {
-      is_col_continuous <- TRUE
-    }
-    else if (class(rlang::eval_tidy(col, data)) %in%
-             c("character", "logical", "factor")) {
-      is_col_continuous <- FALSE
-    }
-    else is_col_continuous <- NA
-  }
-  #support where col is null, but there is a colour scale
-  else {
-    scales <- purrr::map_chr(plot_build$plot$scales$scales, function(x) {
-      ifelse(rlang::is_null(rlang::call_name(x[["call"]])), NA,
-             rlang::call_name(x[["call"]]))
-    })
+  scales <- purrr::map_chr(plot_build$plot$scales$scales, function(x) {
+    ifelse(rlang::is_null(rlang::call_name(x[["call"]])), NA,
+           rlang::call_name(x[["call"]]))
+  })
 
-    if (any(scales %in% continuous_scales_col)) is_col_continuous <- TRUE
-    else if (any(scales %in% discrete_scales_col)) is_col_continuous <- FALSE
-    else is_col_continuous <- NA
-  }
+  if (any(scales %in% continuous_scales_col)) col_scale_type <- "continuous"
+  else if (any(scales %in% discrete_scales_col)) col_scale_type <- "discrete"
+  else if (any(scales %in% ordinal_scales_col)) col_scale_type <- "ordinal"
+  else col_scale_type <- NA
 
   ##############################################################################
   # Make colour scale where there is a colour scale identified
   ##############################################################################
 
-  if (!is.na(is_col_continuous)) {
-    if (is_col_continuous) {
+  if (!is.na(col_scale_type)) {
+    if (col_scale_type == "continuous") {
+
       if (rlang::is_null(col_palette)) {
         col_palette <- get_col_palette_c()
         if (rlang::is_null(col_palette)) {
           col_palette <- scales::pal_seq_gradient(low = "#132B43", high = "#56B1F7")(seq(0, 1, length.out = 20))
         }
-      }
+      } else if (rlang::is_function(col_palette)) col_palette <- col_palette(20)
 
       if (rlang::is_null(col_palette_na)) {
         col_palette_na <- get_col_palette_na_c()
@@ -982,7 +957,7 @@ gg_blanket <- function(
           col_breaks <- scales::breaks_log(n = 5)
         }
         else if (!any(col_transform_name %in% c("identity", "reverse"))) col_breaks <- ggplot2::waiver()
-        else col_breaks <- scales::breaks_pretty(n = 5)
+        else col_breaks <- scales::breaks_extended(n = 5, only.loose = TRUE)
       }
 
       if (rlang::is_null(col_labels)) {
@@ -998,16 +973,6 @@ gg_blanket <- function(
 
       if (isFALSE(col_steps)) {
         plot <- plot +
-          ggplot2::scale_fill_gradientn(
-            colours = col_palette,
-            values = col_rescale,
-            limits = col_limits,
-            breaks = col_breaks,
-            labels = col_labels,
-            transform = col_transform,
-            oob = col_oob,
-            na.value = col_palette_na,
-          ) +
           ggplot2::scale_colour_gradientn(
             colours = col_palette,
             values = col_rescale,
@@ -1017,6 +982,7 @@ gg_blanket <- function(
             transform = col_transform,
             oob = col_oob,
             na.value = col_palette_na,
+            aesthetics = c("colour", "fill")
           ) +
           ggplot2::guides(
             colour = ggplot2::guide_colourbar(reverse = col_legend_rev),
@@ -1025,16 +991,6 @@ gg_blanket <- function(
       }
       else if (isTRUE(col_steps)) {
         plot <- plot +
-          ggplot2::scale_fill_stepsn(
-            colours = col_palette,
-            values = col_rescale,
-            limits = col_limits,
-            breaks = col_breaks,
-            labels = col_labels,
-            transform = col_transform,
-            oob = col_oob,
-            na.value = col_palette_na,
-          ) +
           ggplot2::scale_colour_stepsn(
             colours = col_palette,
             values = col_rescale,
@@ -1044,6 +1000,7 @@ gg_blanket <- function(
             transform = col_transform,
             oob = col_oob,
             na.value = col_palette_na,
+            aesthetics = c("colour", "fill")
           ) +
           ggplot2::guides(
             colour = ggplot2::guide_coloursteps(
@@ -1055,63 +1012,24 @@ gg_blanket <- function(
           )
       }
     }
-    else if (!is_col_continuous) {
-      if (!rlang::quo_is_null(col)) {
-        col_n <- data %>%
-          dplyr::pull(!!col) %>%
-          levels() %>%
-          length()
+    else if (col_scale_type %in% c("discrete", "ordinal")) {
+      if (col_scale_type == "discrete") {
+        if (!rlang::quo_is_null(col)) {
+          col_n <- data %>%
+            dplyr::pull(!!col) %>%
+            levels() %>%
+            length()
+        } else col_n <- NULL
+      } else col_n <- NULL
 
-        if (rlang::is_null(col_palette)) {
-          col_palette <- get_col_palette_d()
-          if (rlang::is_null(col_palette)) col_palette <- scales::pal_hue()(n = col_n)
-          else if (col_n > length(col_palette)) {
-            rlang::inform("Insufficient colours in set col_palette")
-            col_palette <- scales::pal_hue()(n = col_n)
-          }
-          else col_palette <- col_palette[1:col_n]
-        }
-        else if (!rlang::is_named(col_palette)) col_palette <- col_palette[1:col_n]
-
-        if (rlang::is_null(col_palette_na)) {
-          col_palette_na <- get_col_palette_na_d()
-          if (rlang::is_null(col_palette_na)) col_palette_na <- "grey50"
-        }
+      if (rlang::is_null(col_palette)) {
+        if (col_scale_type == "discrete") col_palette <- get_col_palette_d()
+        else if (col_scale_type == "ordinal") col_palette <- get_col_palette_o()
       }
-      else { #guess anything that's ordered represents col,
-        #as there is a discrete col scale and no col variable supplied
-        plot_data_ordered <- plot_data %>%
-          dplyr::summarise(dplyr::across(tidyselect::where(is.ordered), function(x) length(levels(x))))
 
-        if (ncol(plot_data_ordered) == 0) {
-          if (rlang::is_null(col_palette)) {
-            col_palette <- get_col_palette_d()
-            if (rlang::is_null(col_palette_na)) col_palette_na <- jumble #should be ggplot2 default instead
-          }
-          if (rlang::is_null(col_palette_na)) {
-            col_palette_na <- get_col_palette_na_d()
-            if (rlang::is_null(col_palette_na)) col_palette_na <- "grey50"
-          }
-        }
-        else {
-          col_n <- plot_data_ordered %>%
-            tidyr::pivot_longer(cols = tidyselect::everything()) %>%
-            dplyr::summarise(max(.data$value)) %>%
-            dplyr::pull()
-
-          if (rlang::is_null(col_palette)) {
-            col_palette <- get_col_palette_c()[1:col_n]
-            if (rlang::is_null(col_palette)) col_palette <- scales::pal_seq_gradient(low = "#132B43", high = "#56B1F7")(seq(0, 1, length.out = 20))
-          }
-          else if (!rlang::is_named(col_palette)) col_palette <- col_palette[1:col_n]
-
-          if (rlang::is_null(col_palette_na)) {
-            col_palette_na <- get_col_palette_na_c()
-            if (rlang::is_null(col_palette_na)) col_palette_na <- "grey50"
-          }
-
-          col_legend_rev <- !col_legend_rev
-        }
+      if (col_scale_type == "discrete" & !rlang::is_null(col_n))  {
+        if (rlang::is_function(col_palette)) col_palette <- col_palette(col_n)
+        else if (!rlang::is_named(col_palette)) col_palette <- col_palette[1:col_n]
       }
 
       if (flipped) {
@@ -1119,50 +1037,253 @@ gg_blanket <- function(
         col_palette <- rev(col_palette)
       }
 
+      if (col_scale_type == "ordinal") col_legend_rev <- !col_legend_rev
+
+      if (rlang::is_null(col_palette_na)) {
+        if (col_scale_type == "discrete") col_palette_na <- get_col_palette_na_d()
+        else if (col_scale_type == "ordinal") col_palette_na <- get_col_palette_na_o()
+      }
+
       if (rlang::is_null(col_labels)) col_labels <- ggplot2::waiver()
 
       if (rlang::is_null(col_breaks)) col_breaks <- ggplot2::waiver()
 
-      plot <- plot +
-        ggplot2::scale_fill_manual(
-          values = col_palette,
-          limits = col_limits,
-          breaks = col_breaks,
-          labels = col_labels,
-          na.value = col_palette_na,
-          drop = FALSE, #consider add argument
-        ) +
-        ggplot2::scale_colour_manual(
-          values = col_palette,
-          limits = col_limits,
-          breaks = col_breaks,
-          labels = col_labels,
-          na.value = col_palette_na,
-          drop = FALSE, #consider add argument
-        ) +
-        ggplot2::guides(
-          colour = ggplot2::guide_legend(
-            reverse = col_legend_rev,
-            ncol = col_legend_ncol,
-            nrow = col_legend_nrow
-          ),
-          fill = ggplot2::guide_legend(
-            reverse = col_legend_rev,
-            ncol = col_legend_ncol,
-            nrow = col_legend_nrow
-          ),
+      if (!rlang::is_null(col_palette)) {
+        if (col_scale_type == "discrete") {
 
-          shape = ggplot2::guide_legend(
-            reverse = col_legend_rev,
-            ncol = col_legend_ncol,
-            nrow = col_legend_nrow
-          ),
-          linetype = ggplot2::guide_legend(
-            reverse = col_legend_rev,
-            ncol = col_legend_ncol,
-            nrow = col_legend_nrow
-          )
-        )
+          plot <- plot +
+            ggplot2::scale_colour_manual(
+              values = col_palette,
+              limits = col_limits,
+              breaks = col_breaks,
+              labels = col_labels,
+              na.value = col_palette_na,
+              drop = col_drop,
+              aesthetics = c("colour", "fill")
+            ) +
+            ggplot2::guides(
+              colour = ggplot2::guide_legend(
+                reverse = col_legend_rev,
+                ncol = col_legend_ncol,
+                nrow = col_legend_nrow
+              ),
+              fill = ggplot2::guide_legend(
+                reverse = col_legend_rev,
+                ncol = col_legend_ncol,
+                nrow = col_legend_nrow
+              )
+            )
+        }
+        else if (col_scale_type == "ordinal") {
+          plot <- plot +
+            ggplot2::discrete_scale(
+              palette = col_palette,
+              limits = col_limits,
+              breaks = col_breaks,
+              labels = col_labels,
+              na.value = col_palette_na,
+              drop = col_drop,
+              aesthetics = c("colour", "fill")
+            ) +
+            ggplot2::guides(
+              colour = ggplot2::guide_legend(
+                reverse = col_legend_rev,
+                ncol = col_legend_ncol,
+                nrow = col_legend_nrow
+              ),
+              fill = ggplot2::guide_legend(
+                reverse = col_legend_rev,
+                ncol = col_legend_ncol,
+                nrow = col_legend_nrow
+              )
+            )
+        }
+      }
+      else {
+        if (rlang::is_null(col_palette_na)) col_palette_na <- "grey50"
+
+        if (col_scale_type == "discrete") {
+          plot <- plot +
+            ggplot2::scale_colour_hue(
+              limits = col_limits,
+              breaks = col_breaks,
+              labels = col_labels,
+              na.value = col_palette_na,
+              drop = col_drop,
+              aesthetics = c("colour", "fill")
+            ) +
+            ggplot2::guides(
+              colour = ggplot2::guide_legend(
+                reverse = col_legend_rev,
+                ncol = col_legend_ncol,
+                nrow = col_legend_nrow
+              ),
+              fill = ggplot2::guide_legend(
+                reverse = col_legend_rev,
+                ncol = col_legend_ncol,
+                nrow = col_legend_nrow
+              )
+            )
+        }
+        else if (col_scale_type == "ordinal") {
+          plot <- plot +
+            ggplot2::scale_colour_viridis_d(
+              limits = col_limits,
+              breaks = col_breaks,
+              labels = col_labels,
+              na.value = col_palette_na,
+              drop = col_drop,
+              aesthetics = c("colour", "fill")
+            ) +
+            ggplot2::guides(
+              colour = ggplot2::guide_legend(
+                reverse = col_legend_rev,
+                ncol = col_legend_ncol,
+                nrow = col_legend_nrow
+              ),
+              fill = ggplot2::guide_legend(
+                reverse = col_legend_rev,
+                ncol = col_legend_ncol,
+                nrow = col_legend_nrow
+              )
+            )
+        }
+      }
+
+      if (!rlang::is_null(plot_build$plot$labels$alpha)) {
+        if (!rlang::is_null(plot_build$plot$labels$colour[1])) {
+          if (rlang::as_name(plot_build$plot$labels$colour[1]) == rlang::as_name(plot_build$plot$labels$alpha[1])) {
+            plot <- plot +
+              ggplot2::guides(
+                alpha = ggplot2::guide_legend(
+                  reverse = col_legend_rev,
+                  ncol = col_legend_ncol,
+                  nrow = col_legend_nrow
+                )
+              )
+          }
+        }
+        else if (!rlang::is_null(plot_build$plot$labels$fill[1])) {
+          if (rlang::as_name(plot_build$plot$labels$fill[1]) == rlang::as_name(plot_build$plot$labels$alpha[1])) {
+            plot <- plot +
+              ggplot2::guides(
+                alpha = ggplot2::guide_legend(
+                  reverse = col_legend_rev,
+                  ncol = col_legend_ncol,
+                  nrow = col_legend_nrow
+                )
+              )
+          }
+        }
+      }
+
+      if (!rlang::is_null(plot_build$plot$labels$shape)) {
+        if (!rlang::is_null(plot_build$plot$labels$colour[1])) {
+          if (rlang::as_name(plot_build$plot$labels$colour[1]) == rlang::as_name(plot_build$plot$labels$shape[1])) {
+            plot <- plot +
+              ggplot2::guides(
+                shape = ggplot2::guide_legend(
+                  reverse = col_legend_rev,
+                  ncol = col_legend_ncol,
+                  nrow = col_legend_nrow
+                )
+              )
+          }
+        }
+        else if (!rlang::is_null(plot_build$plot$labels$fill[1])) {
+          if (rlang::as_name(plot_build$plot$labels$fill[1]) == rlang::as_name(plot_build$plot$labels$shape[1])) {
+            plot <- plot +
+              ggplot2::guides(
+                shape = ggplot2::guide_legend(
+                  reverse = col_legend_rev,
+                  ncol = col_legend_ncol,
+                  nrow = col_legend_nrow
+                )
+              )
+          }
+        }
+      }
+
+      if (!rlang::is_null(plot_build$plot$labels$size)) {
+        if (!rlang::is_null(plot_build$plot$labels$colour[1])) {
+          if (rlang::as_name(plot_build$plot$labels$colour[1]) == rlang::as_name(plot_build$plot$labels$size[1])) {
+            plot <- plot +
+              ggplot2::guides(
+                size = ggplot2::guide_legend(
+                  reverse = col_legend_rev,
+                  ncol = col_legend_ncol,
+                  nrow = col_legend_nrow
+                )
+              )
+          }
+        }
+        else if (!rlang::is_null(plot_build$plot$labels$fill[1])) {
+          if (rlang::as_name(plot_build$plot$labels$fill[1]) == rlang::as_name(plot_build$plot$labels$size[1])) {
+            plot <- plot +
+              ggplot2::guides(
+                size = ggplot2::guide_legend(
+                  reverse = col_legend_rev,
+                  ncol = col_legend_ncol,
+                  nrow = col_legend_nrow
+                )
+              )
+          }
+        }
+      }
+
+      if (!rlang::is_null(plot_build$plot$labels$linewidth)) {
+        if (!rlang::is_null(plot_build$plot$labels$colour[1])) {
+          if (rlang::as_name(plot_build$plot$labels$colour[1]) == rlang::as_name(plot_build$plot$labels$linewidth[1])) {
+            plot <- plot +
+              ggplot2::guides(
+                linewidth = ggplot2::guide_legend(
+                  reverse = col_legend_rev,
+                  ncol = col_legend_ncol,
+                  nrow = col_legend_nrow
+                )
+              )
+          }
+        }
+        else if (!rlang::is_null(plot_build$plot$labels$fill[1])) {
+          if (rlang::as_name(plot_build$plot$labels$fill[1]) == rlang::as_name(plot_build$plot$labels$linewidth[1])) {
+            plot <- plot +
+              ggplot2::guides(
+                linewidth = ggplot2::guide_legend(
+                  reverse = col_legend_rev,
+                  ncol = col_legend_ncol,
+                  nrow = col_legend_nrow
+                )
+              )
+          }
+        }
+      }
+
+      if (!rlang::is_null(plot_build$plot$labels$linetype)) {
+        if (!rlang::is_null(plot_build$plot$labels$colour[1])) {
+          if (rlang::as_name(plot_build$plot$labels$colour[1]) == rlang::as_name(plot_build$plot$labels$linetype[1])) {
+            plot <- plot +
+              ggplot2::guides(
+                linetype = ggplot2::guide_legend(
+                  reverse = col_legend_rev,
+                  ncol = col_legend_ncol,
+                  nrow = col_legend_nrow
+                )
+              )
+          }
+        }
+        else if (!rlang::is_null(plot_build$plot$labels$fill[1])) {
+          if (rlang::as_name(plot_build$plot$labels$fill[1]) == rlang::as_name(plot_build$plot$labels$linetype[1])) {
+            plot <- plot +
+              ggplot2::guides(
+                linetype = ggplot2::guide_legend(
+                  reverse = col_legend_rev,
+                  ncol = col_legend_ncol,
+                  nrow = col_legend_nrow
+                )
+              )
+          }
+        }
+      }
     }
 
     #expand limits if necessary
@@ -1223,20 +1344,20 @@ gg_blanket <- function(
       else x_labels <- scales::label_comma(drop0trailing = TRUE)
     }
 
-    #get x_breaks_n if x_breaks is NULL
-    if (rlang::is_null(x_breaks)) {
-      if (facet_ncols == 1) x_breaks_n <- 6
-      else if (facet_ncols == 2) x_breaks_n <- 4
-      else if (facet_ncols == 3) x_breaks_n <- 3
-      else x_breaks_n <- 2
-    }
+    #get x_breaks_n
+    if (facet_ncols == 1) x_breaks_n <- 6
+    else if (facet_ncols == 2) x_breaks_n <- 5
+    else if (facet_ncols == 3) x_breaks_n <- 4
+    else x_breaks_n <- 3
 
-    #get x_expand and x_breaks for non-pretty scales situation
+    #get x_expand and x_breaks for non-'symmetric' scales situation
     if (!flipped |
         facet_scales %in% c("free", "free_x") |
         length(x_transform_name) > 1 |
         !any(x_transform_name %in% c("identity", "reverse", "date", "time", "hms")) |
         !rlang::is_null(x_expand)) {
+
+      # x_breaks_n <- x_breaks_n + 1
 
       if (rlang::is_null(x_expand)) {
         if (any(colnames(plot_data) %in% "xmin")) {
@@ -1248,21 +1369,29 @@ gg_blanket <- function(
 
       if (rlang::is_null(x_breaks)) {
         if (any(stringr::str_detect(x_transform_name, "log-")) |
-            any(x_transform_name %in% c("log", "log2", "log10"))
-        ) {
+            any(x_transform_name %in% c("log", "log2", "log10"))) {
           x_breaks <- scales::breaks_log(n = x_breaks_n)
-        } else {
+        }
+        else if (any(x_transform_name %in% c("date", "time", "hms"))) {
           x_breaks <- scales::breaks_pretty(n = x_breaks_n)
         }
+        else {
+          x_breaks <- scales::breaks_extended(n = x_breaks_n, only.loose = FALSE)
+          }
       }
     }
-    #get x_limits and x_breaks for complex situation
+    #get x_limits and x_breaks for 'symmetric'
     else {
       if (!rlang::is_null(x_limits)) {
-        if (rlang::is_null(x_breaks)) x_breaks <- scales::breaks_pretty(n = x_breaks_n)
+        if (any(x_transform_name %in% c("date", "time", "hms"))) {
+          x_breaks <- scales::breaks_pretty(n = x_breaks_n)
+        }
+        else {
+          x_breaks <- scales::breaks_extended(n = x_breaks_n, only.loose = TRUE)
+        }
       }
       else {
-        x_vars_str <- "^x(?!id)" #starts with x & not xid (which is used in geom_boxplot etc)
+        x_vars_str <- "^(?!xid|xbin)x.*" #starts with x & not xid & not xbin
 
         x_vctr <- plot_data %>%
           dplyr::select(tidyselect::matches(stringr::regex(x_vars_str)))
@@ -1296,7 +1425,13 @@ gg_blanket <- function(
           if (rlang::is_null(x_breaks)) x_breaks <- ggplot2::waiver()
         }
         else if (rlang::is_null(x_breaks)) {
-          x_breaks <- scales::breaks_pretty(n = x_breaks_n)(x_range)
+          if (any(x_transform_name %in% c("date", "time", "hms"))) {
+            x_breaks <- scales::breaks_pretty(n = x_breaks_n)(x_range)
+          }
+          else {
+            x_breaks <- scales::breaks_extended(n = x_breaks_n, only.loose = TRUE)(x_range)
+          }
+
           if (rlang::is_null(x_limits)) x_limits <- sort(range(x_breaks))
         }
         else {
@@ -1396,20 +1531,20 @@ gg_blanket <- function(
       else y_labels <- scales::label_comma(drop0trailing = TRUE)
     }
 
-    #get y_breaks_n if y_breaks is NULL
-    if (rlang::is_null(y_breaks)) {
-      if (facet_nrows == 1) y_breaks_n <- 6
-      else if (facet_nrows == 2) y_breaks_n <- 5
-      else if (facet_nrows == 3) y_breaks_n <- 4
-      else y_breaks_n <- 3
-    }
+    #get y_breaks_n
+    if (facet_nrows == 1) y_breaks_n <- 6
+    else if (facet_nrows == 2) y_breaks_n <- 5
+    else if (facet_nrows == 3) y_breaks_n <- 4
+    else y_breaks_n <- 3
 
-    #get y_expand and y_breaks for non-pretty scales situation
+    #get y_expand and y_breaks for non-'symmetric' scales situation
     if (flipped |
         facet_scales %in% c("free", "free_y") |
         length(y_transform_name) > 1 |
         !any(y_transform_name %in% c("identity", "reverse", "date", "time", "hms")) |
         !rlang::is_null(y_expand)) {
+
+      # y_breaks_n <- y_breaks_n + 1
 
       if (rlang::is_null(y_expand)) {
         if (any(colnames(plot_data) %in% "ymin")) {
@@ -1421,21 +1556,29 @@ gg_blanket <- function(
 
       if (rlang::is_null(y_breaks)) {
         if (any(stringr::str_detect(y_transform_name, "log-")) |
-            any(y_transform_name %in% c("log", "log2", "log10"))
-        ) {
+            any(y_transform_name %in% c("log", "log2", "log10"))) {
           y_breaks <- scales::breaks_log(n = y_breaks_n)
-        } else {
+        }
+        else if (any(y_transform_name %in% c("date", "time", "hms"))) {
           y_breaks <- scales::breaks_pretty(n = y_breaks_n)
+        }
+        else {
+          y_breaks <- scales::breaks_extended(n = y_breaks_n, only.loose = FALSE)
         }
       }
     }
-    #get y_limits and y_breaks for complex situation
+    #get y_limits and y_breaks for 'symmetric'
     else {
       if (!rlang::is_null(y_limits)) {
-        if (rlang::is_null(y_breaks)) y_breaks <- scales::breaks_pretty(n = y_breaks_n)
+        if (any(y_transform_name %in% c("date", "time", "hms"))) {
+          y_breaks <- scales::breaks_pretty(n = y_breaks_n)
+        }
+        else {
+          y_breaks <- scales::breaks_extended(n = y_breaks_n, only.loose = TRUE)
+        }
       }
       else {
-        y_vars_str <- "^y(?!id)" #starts with y & not yid (which is used in geom_boxplot etc)
+        y_vars_str <- "^(?!yid|ybin)y.*" #starts with y & not yid & not ybin
 
         y_vctr <- plot_data %>%
           dplyr::select(tidyselect::matches(stringr::regex(y_vars_str)))
@@ -1469,7 +1612,13 @@ gg_blanket <- function(
           if (rlang::is_null(y_breaks)) y_breaks <- ggplot2::waiver()
         }
         else if (rlang::is_null(y_breaks)) {
-          y_breaks <- scales::breaks_pretty(n = y_breaks_n)(y_range)
+          if (any(y_transform_name %in% c("date", "time", "hms"))) {
+            y_breaks <- scales::breaks_pretty(n = y_breaks_n)(y_range)
+          }
+          else {
+            y_breaks <- scales::breaks_extended(n = y_breaks_n, only.loose = TRUE)(y_range)
+          }
+
           if (rlang::is_null(y_limits)) y_limits <- sort(range(y_breaks))
         }
         else {
@@ -1534,100 +1683,186 @@ gg_blanket <- function(
   }
 
   #############################################################################
-  # titles_to_case
+  # label_to_case
   #############################################################################
-  if (rlang::is_null(x_title)) {
-    if (stringr::str_detect(stat_name, "sf")) {
-      x_title <- ""
+
+  if (rlang::is_null(x_label)) {
+    if ((!rlang::quo_is_null(x))) {
+      if (!rlang::is_null(attr(dplyr::pull(data, !!x), "label"))) {
+        x_label <- attr(dplyr::pull(data, !!x), "label")
+      }
+      else {
+        if (stringr::str_detect(stat_name, "sf")) {
+          x_label <- ""
+        }
+        else if (!rlang::is_null(plot_build$plot$labels$x)) {
+          x_label <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$x[1]), label_to_case)
+        }
+      }
     }
-    else if (!rlang::is_null(plot_build$plot$labels$x)) {
-      x_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$x[1]), titles_to_case)
-    }
-  }
-  if (rlang::is_null(y_title)) {
-    if (stringr::str_detect(stat_name, "sf")) {
-      y_title <- ""
-    }
-    else if (!rlang::is_null(plot_build$plot$labels$y)) {
-      y_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$y[1]), titles_to_case)
+    else {
+      if (stringr::str_detect(stat_name, "sf")) {
+        x_label <- ""
+      }
+      else if (!rlang::is_null(plot_build$plot$labels$x)) {
+        x_label <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$x[1]), label_to_case)
+      }
     }
   }
 
-  if (rlang::is_null(col_title)) {
-    if (!rlang::is_null(plot_build$plot$labels$fill)) {
-      col_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$fill[1]), titles_to_case)
+  if (rlang::is_null(y_label)) {
+    if ((!rlang::quo_is_null(y))) {
+      if (!rlang::is_null(attr(dplyr::pull(data, !!y), "label"))) {
+        y_label <- attr(dplyr::pull(data, !!y), "label")
+      }
+      else {
+        if (stringr::str_detect(stat_name, "sf")) {
+          y_label <- ""
+        }
+        else if (!rlang::is_null(plot_build$plot$labels$y)) {
+          y_label <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$y[1]), label_to_case)
+        }
+      }
     }
-    else if (!rlang::is_null(plot_build$plot$labels$colour)) {
-      col_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$colour[1]), titles_to_case)
+    else {
+      if (stringr::str_detect(stat_name, "sf")) {
+        y_label <- ""
+      }
+      else if (!rlang::is_null(plot_build$plot$labels$y)) {
+        y_label <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$y[1]), label_to_case)
+      }
+    }
+  }
+
+  if (rlang::is_null(col_label)) {
+    if ((!rlang::quo_is_null(col))) {
+      if (!rlang::is_null(attr(dplyr::pull(data, !!col), "label"))) {
+        col_label <- attr(dplyr::pull(data, !!col), "label")
+      }
+      else {
+        if (!rlang::is_null(plot_build$plot$labels$fill)) {
+          col_label <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$fill[1]), label_to_case)
+        }
+        else if (!rlang::is_null(plot_build$plot$labels$colour)) {
+          col_label <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$colour[1]), label_to_case)
+        }
+      }
+    }
+    else {
+      if (!rlang::is_null(plot_build$plot$labels$fill)) {
+        col_label <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$fill[1]), label_to_case)
+      }
+      else if (!rlang::is_null(plot_build$plot$labels$colour)) {
+        col_label <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$colour[1]), label_to_case)
+      }
     }
   }
 
   if (!rlang::is_null(plot_build$plot$labels$alpha)) {
-    alpha_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$alpha[1]), titles_to_case)
+    if (!rlang::is_null(plot_build$plot$labels$colour[1])) {
+      if (rlang::as_name(plot_build$plot$labels$colour[1]) == rlang::as_name(plot_build$plot$labels$alpha[1])) {
+        alpha_title <- col_label
+      }
+      else alpha_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$alpha[1]), label_to_case)
+    }
+    else if (!rlang::is_null(plot_build$plot$labels$fill[1])) {
+      if (rlang::as_name(plot_build$plot$labels$fill[1]) == rlang::as_name(plot_build$plot$labels$alpha[1])) {
+        alpha_title <- col_label
+      }
+      else alpha_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$alpha[1]), label_to_case)
+    }
+    else {
+      alpha_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$alpha[1]), label_to_case)
+    }
   } else alpha_title <- NULL
 
   if (!rlang::is_null(plot_build$plot$labels$shape)) {
-    shape_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$shape[1]), titles_to_case)
+    if (!rlang::is_null(plot_build$plot$labels$colour[1])) {
+      if (rlang::as_name(plot_build$plot$labels$colour[1]) == rlang::as_name(plot_build$plot$labels$shape[1])) {
+        shape_title <- col_label
+      }
+      else shape_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$shape[1]), label_to_case)
+    }
+    else if (!rlang::is_null(plot_build$plot$labels$fill[1])) {
+      if (rlang::as_name(plot_build$plot$labels$fill[1]) == rlang::as_name(plot_build$plot$labels$shape[1])) {
+        shape_title <- col_label
+      }
+      else shape_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$shape[1]), label_to_case)
+    }
+    else {
+      shape_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$shape[1]), label_to_case)
+    }
   } else shape_title <- NULL
 
-  if (!rlang::is_null(plot_build$plot$labels$linetype)) {
-    linetype_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$linetype[1]), titles_to_case)
-  } else linetype_title <- NULL
-
   if (!rlang::is_null(plot_build$plot$labels$size)) {
-    size_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$size[1]), titles_to_case)
+    if (!rlang::is_null(plot_build$plot$labels$colour[1])) {
+      if (rlang::as_name(plot_build$plot$labels$colour[1]) == rlang::as_name(plot_build$plot$labels$size[1])) {
+        size_title <- col_label
+      }
+      else size_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$size[1]), label_to_case)
+    }
+    else if (!rlang::is_null(plot_build$plot$labels$fill[1])) {
+      if (rlang::as_name(plot_build$plot$labels$fill[1]) == rlang::as_name(plot_build$plot$labels$size[1])) {
+        size_title <- col_label
+      }
+      else size_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$size[1]), label_to_case)
+    }
+    else {
+      size_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$size[1]), label_to_case)
+    }
   } else size_title <- NULL
 
   if (!rlang::is_null(plot_build$plot$labels$linewidth)) {
-    linewidth_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$linewidth[1]), titles_to_case)
+    if (!rlang::is_null(plot_build$plot$labels$colour[1])) {
+      if (rlang::as_name(plot_build$plot$labels$colour[1]) == rlang::as_name(plot_build$plot$labels$linewidth[1])) {
+        linewidth_title <- col_label
+      }
+      else linewidth_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$linewidth[1]), label_to_case)
+    }
+    else if (!rlang::is_null(plot_build$plot$labels$fill[1])) {
+      if (rlang::as_name(plot_build$plot$labels$fill[1]) == rlang::as_name(plot_build$plot$labels$linewidth[1])) {
+        linewidth_title <- col_label
+      }
+      else linewidth_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$linewidth[1]), label_to_case)
+    }
+    else {
+      linewidth_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$linewidth[1]), label_to_case)
+    }
   } else linewidth_title <- NULL
+
+  if (!rlang::is_null(plot_build$plot$labels$linetype)) {
+    if (!rlang::is_null(plot_build$plot$labels$colour[1])) {
+      if (rlang::as_name(plot_build$plot$labels$colour[1]) == rlang::as_name(plot_build$plot$labels$linetype[1])) {
+        linetype_title <- col_label
+      }
+      else linetype_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$linetype[1]), label_to_case)
+    }
+    else if (!rlang::is_null(plot_build$plot$labels$fill[1])) {
+      if (rlang::as_name(plot_build$plot$labels$fill[1]) == rlang::as_name(plot_build$plot$labels$linetype[1])) {
+        linetype_title <- col_label
+      }
+      else linetype_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$linetype[1]), label_to_case)
+    }
+    else {
+      linetype_title <- purrr::map_chr(rlang::as_name(plot_build$plot$labels$linetype[1]), label_to_case)
+    }
+  } else linetype_title <- NULL
 
   plot <- plot +
     ggplot2::labs(
       title = title,
       subtitle = subtitle,
       caption = caption,
-      x = x_title,
-      y = y_title
+      x = x_label,
+      y = y_label,
+      colour = col_label,
+      fill = col_label,
+      alpha = alpha_title,
+      shape = shape_title,
+      size = size_title,
+      linewidth = linewidth_title,
+      linetype = linetype_title
     )
-
-  if (!rlang::is_null(col_title)) {
-    plot <- plot +
-      ggplot2::labs(
-        colour = col_title,
-        fill = col_title
-      )
-  }
-  if (!rlang::is_null(alpha_title)) {
-    plot <- plot +
-      ggplot2::labs(
-        alpha = alpha_title
-      )
-  }
-  if (!rlang::is_null(shape_title)) {
-    plot <- plot +
-      ggplot2::labs(
-        shape = shape_title
-      )
-  }
-  if (!rlang::is_null(linetype_title)) {
-    plot <- plot +
-      ggplot2::labs(
-        linetype = linetype_title
-      )
-  }
-  if (!rlang::is_null(size_title)) {
-    plot <- plot +
-      ggplot2::labs(
-        size = size_title
-      )
-  }
-  if (!rlang::is_null(linewidth_title)) {
-    plot <- plot +
-      ggplot2::labs(
-        linewidth = linewidth_title
-      )
-  }
 
   ##############################################################################
   # auto panel.grid, line & ticks removal

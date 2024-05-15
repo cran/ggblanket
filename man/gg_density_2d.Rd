@@ -36,7 +36,7 @@ gg_density_2d(
   x_limits = NULL,
   x_oob = scales::oob_keep,
   x_position = "bottom",
-  x_title = NULL,
+  x_label = NULL,
   x_transform = NULL,
   y_breaks = NULL,
   y_expand = NULL,
@@ -45,9 +45,10 @@ gg_density_2d(
   y_limits = NULL,
   y_oob = scales::oob_keep,
   y_position = "left",
-  y_title = NULL,
+  y_label = NULL,
   y_transform = NULL,
   col_breaks = NULL,
+  col_drop = FALSE,
   col_expand_limits = NULL,
   col_labels = NULL,
   col_legend_ncol = NULL,
@@ -59,10 +60,11 @@ gg_density_2d(
   col_palette_na = NULL,
   col_rescale = scales::rescale(),
   col_steps = FALSE,
-  col_title = NULL,
+  col_label = NULL,
   col_transform = NULL,
   facet_axes = NULL,
   facet_axis_labels = "margins",
+  facet_drop = FALSE,
   facet_labels = NULL,
   facet_layout = NULL,
   facet_ncol = NULL,
@@ -72,7 +74,7 @@ gg_density_2d(
   title = NULL,
   subtitle = NULL,
   caption = NULL,
-  titles_to_case = snakecase::to_sentence_case
+  label_to_case = snakecase::to_sentence_case
 )
 }
 \arguments{
@@ -92,13 +94,13 @@ gg_density_2d(
 
 \item{mapping}{A set of additional aesthetic mappings in \code{\link[ggplot2:aes]{ggplot2::aes()}}. Intended primarily for non-supported aesthetics (e.g. \code{shape}, \code{linetype}, \code{linewidth}, or \code{size}), but can also be used for delayed evaluation etc.}
 
-\item{x_breaks, y_breaks, col_breaks}{A \verb{scales::breaks_*} function (e.g. \code{\link[scales:breaks_pretty]{scales::breaks_pretty()}}), or a vector of breaks.}
+\item{x_breaks, y_breaks, col_breaks}{A \verb{scales::breaks_*} function (e.g. \verb{scales::breaks_*()}), or a vector of breaks.}
 
 \item{x_expand, y_expand}{Padding to the limits with the \code{\link[ggplot2:expansion]{ggplot2::expansion()}} function, or a vector of length 2 (e.g. \code{c(0, 0)}).}
 
 \item{x_expand_limits, y_expand_limits, col_expand_limits}{For a continuous variable, any values that the limits should encompass (e.g. \code{0}). For a discrete scale, manipulate the data instead with \code{forcats::fct_expand}.}
 
-\item{x_labels, y_labels, col_labels, facet_labels}{A function that takes the breaks as inputs (e.g. \verb{\\(x) stringr::str_to_sentence(x)} or \code{\link[scales:label_number]{scales::label_comma()}}), or a vector of labels (Note this must be named for \code{facet_labels}).}
+\item{x_labels, y_labels, col_labels, facet_labels}{A function that takes the breaks as inputs (e.g. \verb{\\(x) stringr::str_to_sentence(x)} or \verb{scales::label_*()}), or a vector of labels. (Note this must be named for \code{facet_labels}).}
 
 \item{x_limits, y_limits, col_limits}{For a continuous scale, a vector of length 2 to determine the limits of the scale. For a discrete scale, manipulate the data instead with \code{factor}, \code{forcats::fct_expand} or \code{forcats::fct_drop}.}
 
@@ -106,17 +108,19 @@ gg_density_2d(
 
 \item{x_position, y_position}{The position of the axis (i.e. \code{"left"}, \code{"right"}, \code{"bottom"} or \code{"top"}).If using \code{y_position = "top"} with a \verb{*_mode_*} theme, add \code{caption = ""} or \code{caption = "\\n"}.}
 
-\item{x_title, y_title, col_title}{Axis title string. Use \code{+ ggplot2::labs(... = NULL)} for no title.}
+\item{x_label, y_label, col_label}{Label for the axis or legend title. Use \code{+ ggplot2::labs(... = NULL)} for no title.}
 
 \item{x_transform, y_transform, col_transform}{For a continuous scale, a transformation object (e.g. \code{\link[scales:transform_log]{scales::transform_log10()}}) or character string of this minus the \code{transform_} prefix (e.g. \code{"log10"}).}
+
+\item{col_drop, facet_drop}{For a discrete variable, FALSE or TRUE of whether to drop unused levels.}
 
 \item{col_legend_ncol, col_legend_nrow}{The number of columns and rows in a legend guide.}
 
 \item{col_legend_rev}{\code{TRUE} or \code{FALSE} of whether to reverse the elements of a legend guide. Defaults to \code{FALSE}.}
 
-\item{col_palette}{Colour palette to use. A character vector of hex codes (or names).}
+\item{col_palette}{A character vector of hex codes (or names) if not ordinal. Or otherwise a \verb{scales::pal_*()} function.}
 
-\item{col_palette_na}{Colour palette to use for \code{NA} values. A character value of a hex code (or name).}
+\item{col_palette_na}{A hex code (or name) for the colour of \code{NA} values.}
 
 \item{col_rescale}{For a continuous variable, a \code{scales::rescale()} function.}
 
@@ -140,7 +144,7 @@ gg_density_2d(
 
 \item{caption}{Caption title string.}
 
-\item{titles_to_case}{A function to format unspecified titles. Defaults to \code{snakecase::to_sentence_case}.}
+\item{label_to_case}{A function to format the default \code{x_label}, \code{y_label} and \code{col_label} of unlabelled variables. Defaults to \code{snakecase::to_sentence_case}.}
 }
 \value{
 A ggplot object.
