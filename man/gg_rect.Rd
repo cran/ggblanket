@@ -35,6 +35,7 @@ gg_rect(
   x_labels = NULL,
   x_limits = NULL,
   x_oob = scales::oob_keep,
+  x_orientation = NULL,
   x_position = "bottom",
   x_label = NULL,
   x_transform = NULL,
@@ -44,6 +45,7 @@ gg_rect(
   y_labels = NULL,
   y_limits = NULL,
   y_oob = scales::oob_keep,
+  y_orientation = NULL,
   y_position = "left",
   y_label = NULL,
   y_transform = NULL,
@@ -88,7 +90,7 @@ gg_rect(
 
 \item{coord}{A coordinate system. A \verb{coord_*()} function that outputs a constructed ggproto Coord subclass object (e.g. \code{\link[ggplot2:coord_cartesian]{ggplot2::coord_cartesian()}}).}
 
-\item{mode}{A \verb{*_mode_*} theme (e.g. \code{\link[=light_mode_t]{light_mode_t()}}, \code{\link[=grey_mode_r]{grey_mode_r()}}, or \code{\link[=dark_mode_r]{dark_mode_r()}}). This argument adds the theme with side-effects, as the \verb{gg_*} function will removes selected gridlines/axis-line/ticks. To avoid these side-effects, \code{+} the theme on to the output of \verb{gg_*}.}
+\item{mode}{A ggplot2 theme (e.g. \code{\link[=light_mode_t]{light_mode_t()}}, \code{\link[=grey_mode_r]{grey_mode_r()}}, or \code{\link[=dark_mode_r]{dark_mode_r()}}). This argument adds the theme with side-effects of removing relevant axis line/ticks and gridlines per the orientation. To avoid these side-effects, \code{+} the theme on to the output of \verb{gg_*}.}
 
 \item{x, xmin, xmax, xend, y, ymin, ymax, yend, z, col, facet, facet2, group, subgroup, label, text, sample}{An unquoted aesthetic variable.}
 
@@ -106,6 +108,8 @@ gg_rect(
 
 \item{x_oob, y_oob, col_oob}{For a continuous scale, a \verb{scales::oob_*} function of how to handle values outside of limits. Defaults to \code{scales::oob_keep}.}
 
+\item{x_orientation, y_orientation}{\code{TRUE} or \code{FALSE} of whether the mode and scales orientation should be to x or y. Note, these arguments do not affect the orientation of the layer itself.}
+
 \item{x_position, y_position}{The position of the axis (i.e. \code{"left"}, \code{"right"}, \code{"bottom"} or \code{"top"}).If using \code{y_position = "top"} with a \verb{*_mode_*} theme, add \code{caption = ""} or \code{caption = "\\n"}.}
 
 \item{x_label, y_label, col_label}{Label for the axis or legend title. Use \code{+ ggplot2::labs(... = NULL)} for no title.}
@@ -118,7 +122,7 @@ gg_rect(
 
 \item{col_legend_rev}{\code{TRUE} or \code{FALSE} of whether to reverse the elements of a legend guide. Defaults to \code{FALSE}.}
 
-\item{col_palette}{A character vector of hex codes (or names) if not ordinal. Or otherwise a \verb{scales::pal_*()} function.}
+\item{col_palette}{A character vector of hex codes (or names) or a \verb{scales::pal_*()} function.}
 
 \item{col_palette_na}{A hex code (or name) for the colour of \code{NA} values.}
 

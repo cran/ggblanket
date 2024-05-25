@@ -109,47 +109,33 @@ penguins2 |>
     level = 0.999, 
   ) 
 
-## ----echo=FALSE---------------------------------------------------------------
+## ----fig.asp=0.65-------------------------------------------------------------
+penguins2 |>
+  gg_histogram(
+    x = flipper_length_mm,
+    col = species,
+    title = "Penguin flipper length by species",
+    subtitle = "Palmer Archipelago, Antarctica",
+    caption = "Source: Gorman, 2020", 
+    mode = grey_mode_t() + theme(legend.title = element_blank()),
+  ) 
+
+## -----------------------------------------------------------------------------
 p1 <- penguins2 |>
-  gg_pointrange(
+  gg_jitter(
     x = sex,
-    y = flipper_length_mm,
-    stat = "summary",
-    position = position_dodge(),
-    x_labels = \(x) str_sub(x, 1, 1),
-    subtitle = "\ny_limits = NULL",
-    mode = grey_mode_r()
-  ) +
-  labs(y = NULL)
+    y = bill_depth_mm,
+    subtitle = "\nx_orientation = TRUE",
+  )
 
 p2 <- penguins2 |>
-  gg_pointrange(
-    x = sex,
-    y = flipper_length_mm,
-    stat = "summary",
-    position = position_dodge(),
-    x_labels = \(x) str_sub(x, 1, 1),
-    y_limits = c(NA, NA),
-    subtitle = "\ny_limits = c(NA, NA),",
-    mode = grey_mode_r()
-  ) +
-  labs(y = NULL)
+  gg_jitter(
+    x = bill_depth_mm,
+    y = sex,
+    subtitle = "\ny_orientation = TRUE",
+  ) 
 
-p3 <- penguins2 |>
-  gg_col(
-    x = sex,
-    y = flipper_length_mm,
-    stat = "summary",
-    position = position_dodge(),
-    width = 0.5,
-    x_labels = \(x) str_sub(x, 1, 1),
-    y_limits = c(0, NA),
-    subtitle = "\ny_limits = c(0, NA),",
-    mode = grey_mode_r()
-  ) +
-  labs(y = NULL)
-
-p1 + p2 + p3
+p1 + p2
 
 ## ----fig.asp = 0.5------------------------------------------------------------
 penguins2 |>
@@ -160,7 +146,6 @@ penguins2 |>
     flipper_length_mm = mean(flipper_length_mm, na.rm = TRUE),
   ) |>
   labelled::copy_labels_from(penguins2) |>
-  ungroup() |> 
   gg_col(
     x = flipper_length_mm,
     xmin = lower, 
@@ -169,25 +154,12 @@ penguins2 |>
     col = sex,
     position = position_dodge(),
     width = 0.75,
-    x_expand_limits = 0,
   ) +
   geom_errorbar(
     width = 0.1, 
     position = position_dodge(width = 0.75),
     colour = lightness[1],
   )  
-
-## ----fig.asp=0.65-------------------------------------------------------------
-penguins2 |>
-  gg_histogram(
-    x = flipper_length_mm,
-    col = species,
-    title = "Penguin flipper length by species",
-    subtitle = "Palmer Archipelago, Antarctica",
-    caption = "Source: Gorman, 2020", 
-    mode = grey_mode_t(),
-  ) +
-  theme(legend.title = element_blank())
 
 ## -----------------------------------------------------------------------------
 set_blanket(

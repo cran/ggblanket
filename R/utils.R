@@ -1,66 +1,232 @@
-#' Continuous colour and fill scales
+#' Get the base of the plot
 #'
-#' @description A vector of continuous colour and fill scales.
-#'
-#' @noRd
-continuous_scales_col <- c(
-  "scale_colour_continuous",
-  "scale_colour_binned",
-  "scale_colour_brewer",
-  "scale_colour_date",
-  "scale_colour_datetime",
-  "scale_colour_distiller",
-  "scale_colour_fermenter",
-  "scale_colour_gradient",
-  "scale_colour_gradient2",
-  "scale_colour_gradientn",
-  "scale_colour_grey",
-  "scale_colour_steps",
-  "scale_colour_steps2",
-  "scale_colour_stepsn",
-  "scale_colour_viridis_b",
-  "scale_colour_viridis_c",
-
-  "scale_fill_continuous",
-  "scale_fill_binned",
-  "scale_fill_brewer",
-  "scale_fill_date",
-  "scale_fill_datetime",
-  "scale_fill_distiller",
-  "scale_fill_fermenter",
-  "scale_fill_gradient",
-  "scale_fill_gradient2",
-  "scale_fill_gradientn",
-  "scale_fill_grey",
-  "scale_fill_steps",
-  "scale_fill_steps2",
-  "scale_fill_stepsn",
-  "scale_fill_viridis_b",
-  "scale_fill_viridis_c"
-)
-
-#' Discrete colour and fill scales
-#'
-#' @description A vector of discrete colour and fill scales.
+#' @param data A data frame or tibble.
+#' @param x,xmin,xmax,xend,y,ymin,ymax,yend,z,col,group,subgroup,label,text,sample An unquoted aesthetic variable.
 #'
 #' @noRd
-discrete_scales_col <- c(
-  "scale_colour_discrete",
-  "scale_colour_manual",
+get_base <- function(
+    data,
+    x = NULL,
+    xmin = NULL,
+    xmax = NULL,
+    xend = NULL,
+    y = NULL,
+    ymin = NULL,
+    ymax = NULL,
+    yend = NULL,
+    z = NULL,
+    col = NULL,
+    facet = NULL,
+    facet2 = NULL,
+    group = NULL,
+    subgroup = NULL,
+    sample = NULL,
+    label = NULL,
+    text = NULL) {
 
-  "scale_fill_discrete",
-  "scale_fill_manual"
-)
+  x <- rlang::enquo(x)
+  y <- rlang::enquo(y)
+  col <- rlang::enquo(col)
+  facet <- rlang::enquo(facet)
+  facet2 <- rlang::enquo(facet2)
+  xmin <- rlang::enquo(xmin)
+  xmax <- rlang::enquo(xmax)
+  xend <- rlang::enquo(xend)
+  ymin <- rlang::enquo(ymin)
+  ymax <- rlang::enquo(ymax)
+  yend <- rlang::enquo(yend)
+  z <- rlang::enquo(z)
+  group <- rlang::enquo(group)
+  subgroup <- rlang::enquo(subgroup)
+  sample <- rlang::enquo(sample)
 
-#' Ordinal colour and fill scales
-#'
-#' @description A vector of ordinal colour and fill scales.
-#'
-#' @noRd
-ordinal_scales_col <- c(
-  "scale_colour_ordinal",
-  "scale_colour_viridis_d",
+  label <- rlang::enquo(label)
+  text <- rlang::enquo(text)
 
-  "scale_fill_ordinal",
-  "scale_fill_viridis_d"
-)
+  if (rlang::quo_is_null(x) & !rlang::quo_is_null(y)) {
+    if (rlang::quo_is_null(col)) {
+      plot <- data %>%
+        ggplot2::ggplot(mapping = ggplot2::aes(
+          # x = !!x,
+          y = !!y,
+          # col = !!col,
+          # fill = !!col,
+          xmin = !!xmin,
+          xmax = !!xmax,
+          xend = !!xend,
+          ymin = !!ymin,
+          ymax = !!ymax,
+          yend = !!yend,
+          z = !!z,
+          group = !!group,
+          subgroup = !!subgroup,
+          sample = !!sample,
+          label = !!label,
+          text = !!text,
+          # !!!mapping
+        )) #+
+    }
+    else if (!rlang::quo_is_null(col)) {
+      plot <- data %>%
+        ggplot2::ggplot(mapping = ggplot2::aes(
+          # x = !!x,
+          y = !!y,
+          col = !!col,
+          fill = !!col,
+          xmin = !!xmin,
+          xmax = !!xmax,
+          xend = !!xend,
+          ymin = !!ymin,
+          ymax = !!ymax,
+          yend = !!yend,
+          z = !!z,
+          group = !!group,
+          subgroup = !!subgroup,
+          sample = !!sample,
+          label = !!label,
+          text = !!text,
+          # !!!mapping
+        )) #+
+    }
+  }
+  else if (!rlang::quo_is_null(x) & rlang::quo_is_null(y)) {
+    if (rlang::quo_is_null(col)) {
+      plot <- data %>%
+        ggplot2::ggplot(mapping = ggplot2::aes(
+          x = !!x,
+          # y = !!y,
+          # col = !!col,
+          # fill = !!col,
+          xmin = !!xmin,
+          xmax = !!xmax,
+          xend = !!xend,
+          ymin = !!ymin,
+          ymax = !!ymax,
+          yend = !!yend,
+          z = !!z,
+          group = !!group,
+          subgroup = !!subgroup,
+          sample = !!sample,
+          label = !!label,
+          text = !!text,
+          # !!!mapping
+        )) #+
+    }
+    else if (!rlang::quo_is_null(col)) {
+      plot <- data %>%
+        ggplot2::ggplot(mapping = ggplot2::aes(
+          x = !!x,
+          # y = !!y,
+          col = !!col,
+          fill = !!col,
+          xmin = !!xmin,
+          xmax = !!xmax,
+          xend = !!xend,
+          ymin = !!ymin,
+          ymax = !!ymax,
+          yend = !!yend,
+          z = !!z,
+          group = !!group,
+          subgroup = !!subgroup,
+          sample = !!sample,
+          label = !!label,
+          text = !!text,
+          # !!!mapping
+        )) #+
+    }
+  }
+  else if (!rlang::quo_is_null(x) & !rlang::quo_is_null(y)) {
+    if (rlang::quo_is_null(col)) {
+      plot <- data %>%
+        ggplot2::ggplot(mapping = ggplot2::aes(
+          x = !!x,
+          y = !!y,
+          # col = !!col,
+          # fill = !!col,
+          xmin = !!xmin,
+          xmax = !!xmax,
+          xend = !!xend,
+          ymin = !!ymin,
+          ymax = !!ymax,
+          yend = !!yend,
+          z = !!z,
+          group = !!group,
+          subgroup = !!subgroup,
+          sample = !!sample,
+          label = !!label,
+          text = !!text,
+          # !!!mapping
+        )) #+
+    }
+    else if (!rlang::quo_is_null(col)) {
+      plot <- data %>%
+        ggplot2::ggplot(mapping = ggplot2::aes(
+          x = !!x,
+          y = !!y,
+          col = !!col,
+          fill = !!col,
+          xmin = !!xmin,
+          xmax = !!xmax,
+          xend = !!xend,
+          ymin = !!ymin,
+          ymax = !!ymax,
+          yend = !!yend,
+          z = !!z,
+          group = !!group,
+          subgroup = !!subgroup,
+          sample = !!sample,
+          label = !!label,
+          text = !!text,
+          # !!!mapping
+        )) #+
+    }
+  }
+  else if (rlang::quo_is_null(x) & rlang::quo_is_null(y)) {
+    if (rlang::quo_is_null(col)) {
+      plot <- data %>%
+        ggplot2::ggplot(mapping = ggplot2::aes(
+          # x = !!x,
+          # y = !!y,
+          # col = !!col,
+          # fill = !!col,
+          xmin = !!xmin,
+          xmax = !!xmax,
+          xend = !!xend,
+          ymin = !!ymin,
+          ymax = !!ymax,
+          yend = !!yend,
+          z = !!z,
+          group = !!group,
+          subgroup = !!subgroup,
+          sample = !!sample,
+          label = !!label,
+          text = !!text,
+          # !!!mapping
+        )) #+
+    }
+    else if (!rlang::quo_is_null(col)) {
+      plot <- data %>%
+        ggplot2::ggplot(mapping = ggplot2::aes(
+          # x = !!x,
+          # y = !!y,
+          col = !!col,
+          fill = !!col,
+          xmin = !!xmin,
+          xmax = !!xmax,
+          xend = !!xend,
+          ymin = !!ymin,
+          ymax = !!ymax,
+          yend = !!yend,
+          z = !!z,
+          group = !!group,
+          subgroup = !!subgroup,
+          sample = !!sample,
+          label = !!label,
+          text = !!text,
+          # !!!mapping
+        )) #+
+    }
+  }
+
+  return(plot)
+}
