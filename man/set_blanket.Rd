@@ -5,32 +5,34 @@
 \title{Set a style}
 \usage{
 set_blanket(
+  ...,
   mode = light_mode_r(),
-  geom_colour = "#357ba2",
-  annotate_colour = "#121b24",
+  geom_colour = "#357BA2FF",
+  annotate_colour = "#121B24FF",
   annotate_linewidth = 0.33,
   annotate_family = "",
   annotate_size = 3.88,
   col_palette_d = jumble,
-  col_palette_na_d = "#cdc5bfff",
+  col_palette_na_d = "#CDC5BFFF",
   col_palette_c = viridisLite::mako(n = 9, direction = -1),
-  col_palette_na_c = "#988f88ff",
+  col_palette_na_c = "#988F88FF",
   col_palette_o = scales::pal_viridis(option = "G", direction = -1),
-  col_palette_na_o = "#988f88ff",
-  theme = light_mode_r(orientation = "x"),
-  ...
+  col_palette_na_o = "#988F88FF",
+  theme = light_mode_r(orientation = "x")
 )
 }
 \arguments{
+\item{...}{Provided to force user argument naming etc.}
+
 \item{mode}{A \verb{*_mode_*}. E.g. \code{\link[=light_mode_t]{light_mode_t()}}, \code{\link[=grey_mode_r]{grey_mode_r()}}, or \code{\link[=dark_mode_r]{dark_mode_r()}}.}
 
-\item{geom_colour}{A hex colour (and fill) for most geoms. Fill inherits from this colour. Defaults to \code{blue}.}
+\item{geom_colour}{A hex colour (and fill) for most geoms. Fill inherits from this colour. Defaults to \code{blue} (i.e. \verb{#357BA2FF}).}
 
 \item{annotate_colour}{A hex colour (and fill) for other geoms commonly used for annotation (i.e. \verb{*_hline}/\verb{*_vline}/\verb{*_abline} and \verb{*_curve}). Defaults to "#121b24" (i.e. \code{lightness[1]}).}
 
 \item{annotate_linewidth}{A linewidth for \verb{*_hline}/\verb{*_vline}/\verb{*_abline} and \verb{*_curve}. Defaults to 0.33.}
 
-\item{annotate_family}{A family for \verb{*_text} and \verb{*_label}. Defaults to ""}
+\item{annotate_family}{A family for \verb{*_text} and \verb{*_label}. Defaults to "".}
 
 \item{annotate_size}{A size for \verb{*_text} and \verb{*_label}. Defaults to 3.88.}
 
@@ -47,8 +49,6 @@ set_blanket(
 \item{col_palette_na_o}{For an ordinal scale, a hex code or name for the \code{col_palette_na}.}
 
 \item{theme}{A ggplot2 theme to be \code{+}-ed on unmodified to \verb{gg_*} functions. Note, \code{mode} takes precedence, unless \code{mode = NULL}.}
-
-\item{...}{Provided to support trailing commas only.}
 }
 \value{
 A globally set style.

@@ -192,7 +192,7 @@ gg_blanket <- function(data = NULL,
   else if (is.character(position)) position_name <- position
 
   ##############################################################################
-  #build plot for classes
+  # determine scale types using a plot build with raw data
   ##############################################################################
 
   plot <- get_base(
@@ -212,13 +212,7 @@ gg_blanket <- function(data = NULL,
     sample = !!sample,
     label = !!label,
     text = !!text,
-  ) +
-    mode
-
-
-  ##############################################################################
-  # Add layer
-  ##############################################################################
+  )
 
   if (geom_name == "blank") show_legend <- FALSE
   else show_legend <- TRUE
@@ -262,10 +256,6 @@ gg_blanket <- function(data = NULL,
       ggplot2::expand_limits(y = y_expand_limits)
   }
 
-  ##############################################################################
-  # Get plot build and data
-  ##############################################################################
-
   suppressMessages({
     suppressWarnings({
       plot_build <- ggplot2::ggplot_build(plot)
@@ -275,10 +265,6 @@ gg_blanket <- function(data = NULL,
       facet_ncols <- length(unique(plot_build$layout$layout$COL))
     })
   })
-
-  ##############################################################################
-  # Detect scale types
-  ##############################################################################
 
   plot_scales <- purrr::map_chr(plot_build$plot$scales$scales, function(x) {
     ifelse(rlang::is_null(rlang::call_name(x[["call"]])), NA,
@@ -314,7 +300,7 @@ gg_blanket <- function(data = NULL,
   }
 
   ##############################################################################
-  #determine if flipped
+  # determine flipped or not
   ##############################################################################
 
   if (!rlang::is_null(x_orientation)) {
@@ -334,92 +320,33 @@ gg_blanket <- function(data = NULL,
   }
 
   ##############################################################################
-  #build plot for classes
+  # process the data
   ##############################################################################
 
-  plot <- get_base(
-    data = data,
-    x = !!x,
-    y = !!y,
-    col = !!col,
-    xmin = !!xmin,
-    xmax = !!xmax,
-    xend = !!xend,
-    ymin = !!ymin,
-    ymax = !!ymax,
-    yend = !!yend,
-    z = !!z,
-    group = !!group,
-    subgroup = !!subgroup,
-    sample = !!sample,
-    label = !!label,
-    text = !!text,
-  ) +
-    mode
+  data <- data %>%
+    #ungroup the data
+    dplyr::ungroup() %>%
+    #convert to factors class that can handle labels
+    dplyr::mutate(dplyr::across(c(!!x, !!xmin, !!xmax, !!xend,
+                                  !!y, !!ymin, !!ymax, !!yend,
+                                  !!col, !!facet, !!facet2) &
+                                  (tidyselect::where(is.character) | tidyselect::where(is.factor) | tidyselect::where(is.logical)),
+                                function(x) labelled::to_factor(x))) %>%
+    #reverse y*, so that reads top low-levels to bottom high-levels
+    dplyr::mutate(dplyr::across(c(!!y, !!ymin, !!ymax, !!yend) &
+                                  tidyselect::where(is.factor),
+                                function(x) forcats::fct_rev(x)))
 
-
-  ##############################################################################
-  # Add layer
-  ##############################################################################
-
-  if (geom_name == "blank") show_legend <- FALSE
-  else show_legend <- TRUE
-
-  if (stringr::str_detect(stat_name, "sf")) {
-    if (rlang::is_null(coord)) coord <- ggplot2::coord_sf(clip = "off")
-
-    plot <- plot +
-      ggplot2::layer_sf(
-        geom = geom,
-        stat = stat,
-        position = position,
-        mapping = ggplot2::aes(!!!mapping),
-        params = rlang::list2(...),
-        show.legend = show_legend,
-      ) +
-      coord
-  }
-  else {
-    if (rlang::is_null(coord)) coord <- ggplot2::coord_cartesian(clip = "off")
-
-    plot <- plot +
-      ggplot2::layer(
-        geom = geom,
-        stat = stat,
-        position = position,
-        mapping = ggplot2::aes(!!!mapping),
-        params = rlang::list2(...),
-        show.legend = show_legend,
-      ) +
-      coord
-  }
-
-  if (!rlang::is_null(x_expand_limits)) {
-    plot <- plot +
-      ggplot2::expand_limits(x = x_expand_limits)
-  }
-
-  if (!rlang::is_null(y_expand_limits)) {
-    plot <- plot +
-      ggplot2::expand_limits(y = y_expand_limits)
+  #if flipped, order col correctly
+  if ((!identical(rlang::eval_tidy(y, data), rlang::eval_tidy(col, data))) &
+      flipped) {
+    data <- data %>%
+      dplyr::mutate(dplyr::across(!!col & tidyselect::where(is.factor),
+                                  function(x) forcats::fct_rev(x)))
   }
 
   ##############################################################################
-  # Get plot build and data
-  ##############################################################################
-
-  suppressMessages({
-    suppressWarnings({
-      plot_build <- ggplot2::ggplot_build(plot)
-      plot_data <- plot_build$data[[1]]
-
-      facet_nrows <- length(unique(plot_build$layout$layout$ROW))
-      facet_ncols <- length(unique(plot_build$layout$layout$COL))
-    })
-  })
-
-  ##############################################################################
-  #get positional transform defaults - and strings
+  # get more defaults
   ##############################################################################
 
   #get x_transform if NULL
@@ -460,47 +387,35 @@ gg_blanket <- function(data = NULL,
       unlist()
   }
 
-  ##############################################################################
-  #process the data
-  ##############################################################################
-
-  data <- data %>%
-    #ungroup the data
-    dplyr::ungroup() %>%
-    #convert to factors class that can handle labels
-    dplyr::mutate(dplyr::across(c(!!x, !!xmin, !!xmax, !!xend,
-                                  !!y, !!ymin, !!ymax, !!yend,
-                                  !!col, !!facet, !!facet2) &
-                                  (tidyselect::where(is.character) | tidyselect::where(is.factor) | tidyselect::where(is.logical)),
-                                function(x) labelled::to_factor(x))) %>%
-    #reverse y*, so that reads top low-levels to bottom high-levels
-    dplyr::mutate(dplyr::across(c(!!y, !!ymin, !!ymax, !!yend) &
-                                  tidyselect::where(is.factor),
-                                function(x) forcats::fct_rev(x)))
-
-  #if flipped, order col correctly
-  if ((!identical(rlang::eval_tidy(y, data), rlang::eval_tidy(col, data))) &
-      flipped) {
-    data <- data %>%
-      dplyr::mutate(dplyr::across(!!col & tidyselect::where(is.factor),
-                                  function(x) forcats::fct_rev(x)))
-  }
-
-  ##############################################################################
-  #get more defaults
-  ##############################################################################
-
   #make drop appropriate to facet scales
   x_drop <- ifelse(facet_scales %in% c("free_x", "free"), TRUE, FALSE)
   y_drop <- ifelse(facet_scales %in% c("free_y", "free"), TRUE, FALSE)
 
-  #get mode
+  #get mode if NULL
   if (rlang::is_null(mode)) {
     mode <- get_mode()
   }
 
   ##############################################################################
-  # add ggplot() with aesthetics
+  #stop, warn and inform
+  ##############################################################################
+
+  if (!flipped & stat_name != "sf" & (!rlang::is_null(y_limits) | !rlang::is_null(y_expand))) {
+    rlang::inform("y 'symmetric' scale cannot be constructed unless `y_limits = NULL` & `y_expand = NULL`")
+  }
+  if (!any(y_transform_name %in% c("identity", "reverse", "date", "time", "hms")) & !flipped) {
+    rlang::inform("y 'symmetric' scale cannot be constructed with non-linear y_transform`")
+  }
+
+  if (flipped & stat_name != "sf" & (!rlang::is_null(x_limits) | !rlang::is_null(x_expand))) {
+    rlang::inform("x 'symmetric' scale cannot be constructed unless `x_limits = NULL` & `x_expand = NULL`")
+  }
+  if (!any(x_transform_name %in% c("identity", "reverse", "date", "time", "hms")) & flipped) {
+    rlang::inform("x 'symmetric' scale cannot be constructed with non-linear x_transform`")
+  }
+
+  ##############################################################################
+  # get the base plot using processed data
   ##############################################################################
 
   plot <- get_base(
@@ -524,7 +439,7 @@ gg_blanket <- function(data = NULL,
   mode
 
   ##############################################################################
-  # add faceting
+  # Add facet layer
   ##############################################################################
 
   #get layout if NULL
@@ -701,7 +616,7 @@ gg_blanket <- function(data = NULL,
   }
 
   ##############################################################################
-  # Add positional scales pre getting plot data
+  # Add positional scales
   ##############################################################################
 
   suppressMessages({
@@ -711,22 +626,57 @@ gg_blanket <- function(data = NULL,
         if (any(x_transform_name %in% "reverse")) x_limits1 <- rev(x_limits)
         else x_limits1 <- x_limits
 
-        plot <- plot +
-          ggplot2::scale_x_continuous(limits = x_limits1)
-      }
+        if (any(plot_scales %in% "scale_x_discrete")) x_scale_type <- "discrete"
+        else if (any(plot_scales %in% "scale_x_date")) x_scale_type <- "date"
+        else if (any(plot_scales %in% "scale_x_datetime")) x_scale_type <- "datetime"
+        else if (any(plot_scales %in% "scale_x_time")) x_scale_type <- "time"
+        else if (any(plot_scales %in% "scale_x_continuous")) x_scale_type <- "numeric"
+        else x_scale_type <- "numeric"
+
+        if (x_scale_type == "discrete") {
+          plot <- plot +
+            ggplot2::scale_x_discrete(limits = x_limits1)
+        }
+        else if (x_scale_type == "date") {
+          plot <- plot +
+            ggplot2::scale_x_date(limits = x_limits1)
+        }
+        else if (x_scale_type %in% c("datetime", "time")) {
+          plot <- plot +
+            ggplot2::scale_x_datetime(limits = x_limits1)
+        }
+        else {
+          plot <- plot +
+            ggplot2::scale_x_continuous(limits = x_limits1)
+        }
+    }
 
       if (!rlang::is_null(y_limits)) {
         if (any(y_transform_name %in% "reverse")) y_limits1 <- rev(y_limits)
         else y_limits1 <- y_limits
 
-        plot <- plot +
-          ggplot2::scale_y_continuous(limits = y_limits1)
+        if (y_scale_type == "discrete") {
+          plot <- plot +
+            ggplot2::scale_y_discrete(limits = y_limits1)
+        }
+        else if (y_scale_type == "date") {
+          plot <- plot +
+            ggplot2::scale_y_date(limits = y_limits1)
+        }
+        else if (y_scale_type %in% c("datetime", "time")) {
+          plot <- plot +
+            ggplot2::scale_y_datetime(limits = y_limits1)
+        }
+        else {
+          plot <- plot +
+            ggplot2::scale_y_continuous(limits = y_limits1)
+        }
       }
     })
   })
 
   ##############################################################################
-  # Add layer
+  # Add geom layer
   ##############################################################################
 
   if (geom_name == "blank") show_legend <- FALSE
@@ -772,7 +722,7 @@ gg_blanket <- function(data = NULL,
   }
 
   ##############################################################################
-  # Get plot build and data
+  # get the plot build and data
   ##############################################################################
 
   suppressMessages({
@@ -786,7 +736,7 @@ gg_blanket <- function(data = NULL,
   })
 
   ##############################################################################
-  # Make colour scale where there is a colour scale identified
+  # make colour scale
   ##############################################################################
 
   if (!is.na(col_scale_type)) {
@@ -902,7 +852,7 @@ gg_blanket <- function(data = NULL,
 
       if (!rlang::is_null(col_n))  {
         if (rlang::is_function(col_palette)) col_palette <- col_palette(col_n)
-        else if (!rlang::is_named(col_palette)) col_palette <- col_palette[1:col_n]
+        else if (!any(rlang::have_name(col_palette))) col_palette <- col_palette[1:col_n]
       }
 
       if (flipped) {
@@ -1196,7 +1146,7 @@ gg_blanket <- function(data = NULL,
   }
 
   ##############################################################################
-  # Positional scales
+  # add positional scales
   ##############################################################################
 
   #Make x scale based on plot_data
@@ -1285,11 +1235,13 @@ gg_blanket <- function(data = NULL,
     #get x_limits and x_breaks for 'symmetric'
     else {
       if (!rlang::is_null(x_limits)) {
-        if (any(x_transform_name %in% c("date", "time", "hms"))) {
-          x_breaks <- scales::breaks_pretty(n = x_breaks_n)
-        }
-        else {
-          x_breaks <- scales::breaks_extended(n = x_breaks_n, only.loose = TRUE)
+        if (rlang::is_null(x_breaks)) {
+          if (any(x_transform_name %in% c("date", "time", "hms"))) {
+            x_breaks <- scales::breaks_pretty(n = x_breaks_n)
+          }
+          else {
+            x_breaks <- scales::breaks_extended(n = x_breaks_n, only.loose = TRUE)
+          }
         }
       }
       else {
@@ -1473,11 +1425,13 @@ gg_blanket <- function(data = NULL,
     #get y_limits and y_breaks for 'symmetric'
     else {
       if (!rlang::is_null(y_limits)) {
-        if (any(y_transform_name %in% c("date", "time", "hms"))) {
-          y_breaks <- scales::breaks_pretty(n = y_breaks_n)
-        }
-        else {
-          y_breaks <- scales::breaks_extended(n = y_breaks_n, only.loose = TRUE)
+        if (rlang::is_null(y_breaks)) {
+          if (any(y_transform_name %in% c("date", "time", "hms"))) {
+            y_breaks <- scales::breaks_pretty(n = y_breaks_n)
+          }
+          else {
+            y_breaks <- scales::breaks_extended(n = y_breaks_n, only.loose = TRUE)
+          }
         }
       }
       else {
@@ -1562,7 +1516,6 @@ gg_blanket <- function(data = NULL,
       }
     }
 
-    #make the y_scale
     plot <- plot +
       ggplot2::scale_y_continuous(
         limits = y_limits,
@@ -1586,7 +1539,7 @@ gg_blanket <- function(data = NULL,
   }
 
   #############################################################################
-  # label_to_case
+  # get x_label, y_label and col_label, if NULL
   #############################################################################
 
   if (rlang::is_null(x_label)) {
@@ -1785,22 +1738,17 @@ gg_blanket <- function(data = NULL,
       size = size_label,
       linewidth = linewidth_label,
       linetype = linetype_label,
-
       pattern = pattern_label
-    )
+    ) +
+    mode
 
   ##############################################################################
-  # auto panel.grid, line & ticks removal
+  # mode removal of theme components
   ##############################################################################
 
   if (stringr::str_detect(stat_name, "sf")) {
     plot <- plot +
       ggplot2::theme(
-        panel.grid.major = ggplot2::element_blank(),
-        panel.grid.minor = ggplot2::element_blank(),
-
-        # panel.grid.major.x = ggplot2::element_blank(),
-        # panel.grid.minor.x = ggplot2::element_blank(),
         axis.line.x.top = ggplot2::element_blank(),
         axis.line.x.bottom = ggplot2::element_blank(),
         axis.ticks.x.top = ggplot2::element_blank(),
@@ -1810,8 +1758,6 @@ gg_blanket <- function(data = NULL,
         axis.text.x.top = ggplot2::element_blank(),
         axis.text.x.bottom = ggplot2::element_blank(),
 
-        # panel.grid.major.y = ggplot2::element_blank(),
-        # panel.grid.minor.y = ggplot2::element_blank(),
         axis.line.y.left = ggplot2::element_blank(),
         axis.line.y.right = ggplot2::element_blank(),
         axis.ticks.y.left = ggplot2::element_blank(),
@@ -1850,7 +1796,7 @@ gg_blanket <- function(data = NULL,
   }
 
   ##############################################################################
-  #add the theme if globally set
+  # add the theme if globally set
   ##############################################################################
 
   if (rlang::is_null(mode) & rlang::is_null(get_mode())) {

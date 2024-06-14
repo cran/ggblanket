@@ -1,3 +1,16 @@
+# ggblanket 9.1.1
+
+* Forced user argument naming for `set_blanket()`, `*_mode_*()` and `aes_contrast()`.
+* Fixed bug in colouring more discrete values than the set `col_palette_d`.
+* Fixed bug in colouring with when `col_palette_d` was set with names not in the data.
+* Removed `mode_family` argument from `aes_contrast()`.
+* Made `*_mode_t()` and `*_mode_b()` have `legend.byrow = TRUE`.
+* Made `*_mode_*()` functions more intuitive to remove/adjust elements.
+* Changed `gg_sf` default to keeping all major gridlines.
+* Updated hex colour strings to caps.
+* Fixed code that was making the base plot an extra time unnecessarily.
+* Fixed bug where `*_breaks` and `*_limits` was not working.
+
 # ggblanket 9.1.0
 
 * Moved `mapping` argument to within layer.

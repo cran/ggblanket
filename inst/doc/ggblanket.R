@@ -7,7 +7,8 @@ knitr::opts_chunk$set(
   fig.width = 6,
   fig.asp = 0.6,
   out.width = "70%",
-  dpi = 300)
+  dpi = 300
+)
 
 ## ----setup--------------------------------------------------------------------
 library(dplyr)
@@ -100,8 +101,8 @@ penguins2 |>
     x = flipper_length_mm,
     y = body_mass_g,
     col = sex, 
-    col_palette = c("#003f5c", "#ffa600"),
-    colour = "#bc5090", 
+    col_palette = c("#003F5CFF", "#FFA600FF"),
+    colour = "#BC5090FF", 
     linewidth = 1, 
     linetype = "dashed",
     alpha = 1, 
@@ -137,37 +138,58 @@ p2 <- penguins2 |>
 
 p1 + p2
 
-## ----fig.asp = 0.5------------------------------------------------------------
+## -----------------------------------------------------------------------------
+penguins2 |> 
+  gg_violin(
+    x = species, 
+    y = bill_depth_mm,
+    outliers = FALSE,
+  ) +
+  geom_boxplot(
+    width = 0.25,
+    colour = lightness[1],
+    fill = lightness[2],
+  ) +
+  geom_jitter(
+    colour = navy,
+  ) 
+
+## -----------------------------------------------------------------------------
 penguins2 |>
   group_by(species, sex) |>
   summarise(
-    lower = quantile(flipper_length_mm, probs = 0.05),
-    upper = quantile(flipper_length_mm, probs = 0.95),
-    flipper_length_mm = mean(flipper_length_mm, na.rm = TRUE),
+    lower = quantile(bill_depth_mm, probs = 0.05),
+    upper = quantile(bill_depth_mm, probs = 0.95),
+    bill_depth_mm = mean(bill_depth_mm, na.rm = TRUE),
   ) |>
   labelled::copy_labels_from(penguins2) |>
-  gg_col(
-    x = flipper_length_mm,
+  gg_blanket(
+    y = species,
+    x = bill_depth_mm,
     xmin = lower, 
     xmax = upper,
-    y = species,
     col = sex,
-    position = position_dodge(),
+    position = position_dodge(width = 0.75),
+    x_expand_limits = 0,
+  ) +
+  geom_col(
     width = 0.75,
+    position = position_dodge(width = 0.75),
+    alpha = 0.9,
   ) +
   geom_errorbar(
     width = 0.1, 
     position = position_dodge(width = 0.75),
     colour = lightness[1],
-  )  
+  ) 
 
 ## -----------------------------------------------------------------------------
 set_blanket(
   mode = dark_mode_r(), 
-  geom_colour = "#e7298a",
+  geom_colour = "#E7298AFF",
   annotate_colour = darkness[1],
-  col_palette_d = c("#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e", 
-                    "#e6ab02", "#a6761d", "#666666"), #RColorBrewer Dark2 
+  col_palette_d = c("#1B9E77FF", "#D95F02FF", "#7570b3FF", "#E7298AFF", "#66A61EFF", 
+                    "#E6AB02FF", "#A6761DFF", "#666666FF"), #RColorBrewer Dark2 
 )
 
 p1 <- penguins2 |>

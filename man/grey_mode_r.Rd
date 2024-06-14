@@ -8,19 +8,20 @@
 \title{Grey mode theme family}
 \usage{
 grey_mode_r(
+  ...,
   base_size = 11,
   base_family = "",
-  base_colour = "#121b24ff",
-  axis_line_colour = "#121b24ff",
+  base_colour = "#121B24FF",
+  axis_line_colour = "#121B24FF",
   axis_line_linewidth = 0.33,
   axis_ticks_colour = axis_line_colour,
   axis_ticks_linewidth = axis_line_linewidth,
   axis_ticks_length_x = grid::unit(base_size/3, "pt"),
   axis_ticks_length_y = grid::unit(base_size/4, "pt"),
-  panel_grid_colour = "#f6f8faff",
+  panel_grid_colour = "#F6F8FAFF",
   panel_grid_linewidth = 1.33,
-  panel_background_fill = "#fcfdfeff",
-  plot_background_fill = "#f6f8faff",
+  panel_background_fill = "#FCFDFEFF",
+  plot_background_fill = "#F6F8FAFF",
   legend_axis_line_colour = plot_background_fill,
   legend_axis_line_linewidth = 0.33,
   legend_background_fill = plot_background_fill,
@@ -28,24 +29,24 @@ grey_mode_r(
   legend_ticks_colour = legend_axis_line_colour,
   legend_ticks_linewidth = legend_axis_line_linewidth,
   legend_ticks_length = ggplot2::rel(c(0.175, 0)),
-  orientation = NULL,
-  ...
+  orientation = NULL
 )
 
 grey_mode_t(
+  ...,
   base_size = 11,
   base_family = "",
-  base_colour = "#121b24ff",
-  axis_line_colour = "#121b24ff",
+  base_colour = "#121B24FF",
+  axis_line_colour = "#121B24FF",
   axis_line_linewidth = 0.33,
   axis_ticks_colour = axis_line_colour,
   axis_ticks_linewidth = axis_line_linewidth,
   axis_ticks_length_x = grid::unit(base_size/3, "pt"),
   axis_ticks_length_y = grid::unit(base_size/4, "pt"),
-  panel_grid_colour = "#f6f8faff",
+  panel_grid_colour = "#F6F8FAFF",
   panel_grid_linewidth = 1.33,
-  panel_background_fill = "#fcfdfeff",
-  plot_background_fill = "#f6f8faff",
+  panel_background_fill = "#FCFDFEFF",
+  plot_background_fill = "#F6F8FAFF",
   legend_axis_line_colour = plot_background_fill,
   legend_axis_line_linewidth = 0.33,
   legend_background_fill = plot_background_fill,
@@ -53,24 +54,24 @@ grey_mode_t(
   legend_ticks_colour = legend_axis_line_colour,
   legend_ticks_linewidth = legend_axis_line_linewidth,
   legend_ticks_length = ggplot2::rel(c(0.175, 0)),
-  orientation = NULL,
-  ...
+  orientation = NULL
 )
 
 grey_mode_b(
+  ...,
   base_size = 11,
   base_family = "",
-  base_colour = "#121b24ff",
-  axis_line_colour = "#121b24ff",
+  base_colour = "#121B24FF",
+  axis_line_colour = "#121B24FF",
   axis_line_linewidth = 0.33,
   axis_ticks_colour = axis_line_colour,
   axis_ticks_linewidth = axis_line_linewidth,
   axis_ticks_length_x = grid::unit(base_size/3, "pt"),
   axis_ticks_length_y = grid::unit(base_size/4, "pt"),
-  panel_grid_colour = "#f6f8faff",
+  panel_grid_colour = "#F6F8FAFF",
   panel_grid_linewidth = 1.33,
-  panel_background_fill = "#fcfdfeff",
-  plot_background_fill = "#f6f8faff",
+  panel_background_fill = "#FCFDFEFF",
+  plot_background_fill = "#F6F8FAFF",
   legend_axis_line_colour = plot_background_fill,
   legend_axis_line_linewidth = 0.33,
   legend_background_fill = plot_background_fill,
@@ -78,24 +79,24 @@ grey_mode_b(
   legend_ticks_colour = legend_axis_line_colour,
   legend_ticks_linewidth = legend_axis_line_linewidth,
   legend_ticks_length = ggplot2::rel(c(0.175, 0)),
-  orientation = NULL,
-  ...
+  orientation = NULL
 )
 
 grey_mode_n(
+  ...,
   base_size = 11,
   base_family = "",
-  base_colour = "#121b24ff",
-  axis_line_colour = "#121b24ff",
+  base_colour = "#121B24FF",
+  axis_line_colour = "#121B24FF",
   axis_line_linewidth = 0.33,
   axis_ticks_colour = axis_line_colour,
   axis_ticks_linewidth = axis_line_linewidth,
   axis_ticks_length_x = grid::unit(base_size/3, "pt"),
   axis_ticks_length_y = grid::unit(base_size/4, "pt"),
-  panel_grid_colour = "#f6f8faff",
+  panel_grid_colour = "#F6F8FAFF",
   panel_grid_linewidth = 1.33,
-  panel_background_fill = "#fcfdfeff",
-  plot_background_fill = "#f6f8faff",
+  panel_background_fill = "#FCFDFEFF",
+  plot_background_fill = "#F6F8FAFF",
   legend_axis_line_colour = plot_background_fill,
   legend_axis_line_linewidth = 0.33,
   legend_background_fill = plot_background_fill,
@@ -103,11 +104,12 @@ grey_mode_n(
   legend_ticks_colour = legend_axis_line_colour,
   legend_ticks_linewidth = legend_axis_line_linewidth,
   legend_ticks_length = ggplot2::rel(c(0.175, 0)),
-  orientation = NULL,
-  ...
+  orientation = NULL
 )
 }
 \arguments{
+\item{...}{Provided to force user argument naming etc.}
+
 \item{base_size}{The base size of the text theme element. Defaults to 11.}
 
 \item{base_family}{The base family of the text theme element. Defaults to "".}
@@ -149,8 +151,6 @@ grey_mode_n(
 \item{legend_ticks_length}{The legend.ticks.length theme element.}
 
 \item{orientation}{The orientation of the plot. Either "x" or "y". Defaults to NULL. Not intended for use with the mode argument of gg_* functions.}
-
-\item{...}{Provided to support trailing commas only.}
 }
 \value{
 A ggplot theme.

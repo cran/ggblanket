@@ -17,7 +17,8 @@ knitr::opts_chunk$set(
   fig.width = 6,
   fig.asp = 0.6,
   out.width = "70%",
-  dpi = 300)
+  dpi = 300
+)
 ```
 
 ## Overview
@@ -221,8 +222,8 @@ penguins2 |>
     x = flipper_length_mm,
     y = body_mass_g,
     col = sex, 
-    col_palette = c("#003f5c", "#ffa600"),
-    colour = "#bc5090", 
+    col_palette = c("#003F5CFF", "#FFA600FF"),
+    colour = "#BC5090FF", 
     linewidth = 1, 
     linetype = "dashed",
     alpha = 1, 
@@ -256,11 +257,14 @@ If not specified, the `gg_*` function will guess the plot orientation (based on 
 Where `x_orientation = TRUE`, it will:
 
 * remove the y axis line/ticks and the x gridlines from the `mode` theme. 
-* make the linear y continuous scale 'symmetric' if possible with (a) `y_limits` the range of `y_breaks` and (b) `y_expand = c(0, 0)`.
+* where `y_limits = NULL` and `y_expand = NULL`, make any _linear_ y continuous scale 'symmetric' if possible with (a) `y_limits` the range of `y_breaks` and (b) `y_expand = c(0, 0)`.
 
-The vice versa will occur for when `y_orientation = TRUE`. 
+The vice versa occurs when `y_orientation = TRUE`. 
 
-Note you can avoid all this by `+`-ing your theme on to the `gg_*` output, and adding a `*_limits = c(NA, NA)` argument (or `*_limits = c(0, NA)` for bars). 
+You can avoid these side-effects by:
+
+* `+`-ing your theme on to the `gg_*` output
+* adding a `*_limits = c(NA, NA)` argument (or `*_limits = c(0, NA)` for bars). 
 
 ```{r}
 p1 <- penguins2 |>
@@ -282,39 +286,60 @@ p1 + p2
 
 ### 12. Ability to add multiple `geom_*` layers
 
-Users can make plots with multiple layers by adding on `ggplot2::geom_*` layers. 
+Users can make plots with multiple `ggplot2::geom_*` layers. 
 
-Aesthetics directly added in the `gg_*` function are globally inherited. Those added via the `mapping` argument are only available locally to the layer associated with the `gg_*` function.  
+The `gg_*()` geom layer will be the bottom geom layer of the plot, and each subsequent `geom_*()` layer is placed on top. 
 
-It works best to add as many of the globally inherited aesthetics as possible to the `gg_*` function. 
+Aesthetics added directly (e.g. `x`, `y` etc.) to the `gg_*()` function will inherit to later `geom_*()` layers, whereas those added to the `mapping` argument will not. 
 
-The `gg_*()` function should also be appropriate to be the bottom layer of the plot. You may sometimes need to use `gg_blanket()` which defaults to a `blank` geom.
+```{r}
+penguins2 |> 
+  gg_violin(
+    x = species, 
+    y = bill_depth_mm,
+    outliers = FALSE,
+  ) +
+  geom_boxplot(
+    width = 0.25,
+    colour = lightness[1],
+    fill = lightness[2],
+  ) +
+  geom_jitter(
+    colour = navy,
+  ) 
+```
 
-```{r, fig.asp = 0.5}
+The scales are built within the `gg_*()` function _without_ knowledge of later layers. The `gg_*()` function builds scales with regard to the `stat`, `position`, and aesthetics (that the geom understands) etc. So, in some situations, users will need to take care. 
+
+```{r}
 penguins2 |>
   group_by(species, sex) |>
   summarise(
-    lower = quantile(flipper_length_mm, probs = 0.05),
-    upper = quantile(flipper_length_mm, probs = 0.95),
-    flipper_length_mm = mean(flipper_length_mm, na.rm = TRUE),
+    lower = quantile(bill_depth_mm, probs = 0.05),
+    upper = quantile(bill_depth_mm, probs = 0.95),
+    bill_depth_mm = mean(bill_depth_mm, na.rm = TRUE),
   ) |>
   labelled::copy_labels_from(penguins2) |>
-  gg_col(
-    x = flipper_length_mm,
+  gg_blanket(
+    y = species,
+    x = bill_depth_mm,
     xmin = lower, 
     xmax = upper,
-    y = species,
     col = sex,
-    position = position_dodge(),
+    position = position_dodge(width = 0.75),
+    x_expand_limits = 0,
+  ) +
+  geom_col(
     width = 0.75,
+    position = position_dodge(width = 0.75),
+    alpha = 0.9,
   ) +
   geom_errorbar(
     width = 0.1, 
     position = position_dodge(width = 0.75),
     colour = lightness[1],
-  )  
+  ) 
 ```
-
 
 ### 13. Arguments to customise setup with `set_blanket()`
 
@@ -334,10 +359,10 @@ The `ggplot2::update_geom_defaults()` function can be used to further fine-tune 
 ```{r}
 set_blanket(
   mode = dark_mode_r(), 
-  geom_colour = "#e7298a",
+  geom_colour = "#E7298AFF",
   annotate_colour = darkness[1],
-  col_palette_d = c("#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e", 
-                    "#e6ab02", "#a6761d", "#666666"), #RColorBrewer Dark2 
+  col_palette_d = c("#1B9E77FF", "#D95F02FF", "#7570b3FF", "#E7298AFF", "#66A61EFF", 
+                    "#E6AB02FF", "#A6761DFF", "#666666FF"), #RColorBrewer Dark2 
 )
 
 p1 <- penguins2 |>
