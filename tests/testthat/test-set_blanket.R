@@ -34,8 +34,8 @@ test_that(test_name, {
 
   set_blanket(
     mode = light_mode_r(),
-    geom_colour = red,
-    annotate_colour = teal,
+    colour = red,
+    colour_text = teal,
   )
 
   p <- penguins |>
@@ -53,13 +53,11 @@ test_that(test_name, {
 ###
 
 set_blanket(
-  mode = grey_mode_r(base_size = 15),
-  geom_colour = red,
-  geom_linewidth = 3,
-  geom_size = 3,
-  annotate_colour = "red",
-  annotate_linewidth = 5,
-  annotate_size = 15 / 2.83505,
+  mode = dark_mode_r(base_size = 15),
+  colour = red,
+  colour_text = "red",
+  linewidth_reference_line = 5,
+  size_text = 15 / 2.83505,
   col_palette_d = c(navy, red, "green"),
   col_palette_c = c(navy, purple, red, orange)
 )

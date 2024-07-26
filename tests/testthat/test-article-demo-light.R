@@ -230,7 +230,7 @@ test_name <- "gg_function"
 test_that(test_name, {
   p <- gg_function(
     fun = \(x) dnorm(x, mean = 0, sd = 5),
-    x_limits = qnorm(p = c(0.005, 0.995), mean = 0, sd = 5),
+    x_expand_limits = qnorm(p = c(0.005, 0.995), mean = 0, sd = 5),
     y_expand_limits = 0,
   )
 
@@ -246,7 +246,6 @@ test_that(test_name, {
       x = carat,
       y = price,
       coord = coord_cartesian(clip = "on"),
-      y_limits = c(0, 20000),
     )
 
   vdiffr::expect_doppelganger(test_name, p)
@@ -591,11 +590,10 @@ test_name <- "gg_step"
 
 test_that(test_name, {
   p <- economics |>
+    filter(date > lubridate::ymd("2010-01-01")) |>
     gg_step(
       x = date,
       y = unemploy,
-      coord = coord_cartesian(clip = "on"),
-      x_limits = c(lubridate::ymd("2010-01-01"), lubridate::NA_Date_),
       y_expand_limits = 0,
       y_label = "Unemployment",
     )

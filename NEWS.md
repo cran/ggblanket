@@ -1,3 +1,26 @@
+# ggblanket 10.0.0
+
+* Breaking: removed `*_limits` and `*_oob` arguments.
+* Breaking: removed `*_mode_n` and `grey_mode_*` functions.
+* Breaking: removed `grey_mode_*` functions.
+* Breaking: removed `greyness` helper.
+* Breaking: in `set_blanket`, removed `annotate_*` arguments.
+* Breaking: removed `*_orientation` arguments from `*_mode_*` functions.
+* Breaking: in `*_mode_*`, removed `ticks_length_*` arguments.
+* Breaking: renamed `aes_contrast` to `aes_colour_contrast`.
+* In `set_blanket`, added hierarchical arguments that set geom defaults.
+* Added `*_breaks_n` arguments.
+* Added `*_sec_axis` arguments.
+* Added `*_symmetric` arguments.
+* Added `mode_orientation` argument. 
+* Added `weave_*` sub-setup functions. 
+* Added `mode_orientation_to_x` and `mode_orientation_to_y` functions.
+* Added `aes_colour_*` and `aes_fill_*` functions inspired by work by (@teunbrand).
+* Made `mode_orientation` convert unneeded components to transparent.
+* For discrete colour scales, improved the determination of the number of colours required. 
+* In `*_mode_*`, changed `lineend` to `"square"`. 
+* Fixed bug in `col_palette_*` by adding `...`.
+
 # ggblanket 9.1.1
 
 * Forced user argument naming for `set_blanket()`, `*_mode_*()` and `aes_contrast()`.
@@ -74,7 +97,7 @@
 
 * Rewrote code completely. 
 * Exported `gg_blanket` function, which allows for a ggproto geom (or character string) to be added.
-* Added `aes_contrast` for a colour aesthetic that automatically contrasts with the fill aesthetic based on work by (@teunbrand, #649)
+* Added `aes_contrast` for a colour aesthetic that automatically contrasts with the fill aesthetic inspired by work by (@teunbrand, #649)
 ** Added `alpha` aesthetic support with new `alpha`, `alpha_pal` and `alpha_*` arguments.
 * Added `stat` support for a ggproto object (or character string).
 * Added `position` support for a ggproto object (or character string).

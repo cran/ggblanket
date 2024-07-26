@@ -23,8 +23,7 @@
 #' @param axis_line_linewidth The linewidth of the axis.line theme element.
 #' @param axis_ticks_colour The colour of the axis.ticks theme element.
 #' @param axis_ticks_linewidth The linewidth of the axis.ticks theme element.
-#' @param axis_ticks_length_x The length of the axis.ticks.length.x theme element.
-#' @param axis_ticks_length_y The length of the axis.ticks.length.y theme element.
+#' @param axis.ticks.length The length of the axis.ticks.length.x theme element.
 #' @param panel_grid_colour The colour of the panel.grid theme element.
 #' @param panel_grid_linewidth The linewidth of the panel.grid theme element.
 #' @param panel_background_fill The fill (and colour) of the panel.background theme element.
@@ -36,7 +35,6 @@
 #' @param legend_ticks_colour The colour of the legend.ticks theme element.
 #' @param legend_ticks_linewidth The linewidth of the legend.ticks theme element.
 #' @param legend_ticks_length The legend.ticks.length theme element.
-#' @param orientation The orientation of the plot. Either "x" or "y". Defaults to NULL. Not intended for use with the mode argument of gg_* functions.
 #'
 #' @return A ggplot theme.
 #' @keywords internal
@@ -63,8 +61,8 @@ flex_mode_base <- function(
     axis_line_linewidth = 0.33,
     axis_ticks_colour = axis_line_colour,
     axis_ticks_linewidth = axis_line_linewidth,
-    axis_ticks_length_x = grid::unit(base_size / 3, "pt"),
-    axis_ticks_length_y = grid::unit(base_size / 4, "pt"),
+    axis.ticks.length = grid::unit(base_size / 3, "pt"),
+
     panel_grid_colour = "#F6F8FAFF",
     panel_grid_linewidth = 1.33,
     panel_background_fill ="#FFFFFFFF",
@@ -75,14 +73,15 @@ flex_mode_base <- function(
     legend_key_fill = plot_background_fill,
     legend_ticks_colour = legend_axis_line_colour,
     legend_ticks_linewidth = legend_axis_line_linewidth,
-    legend_ticks_length = ggplot2::rel(c(0.175, 0)),
-    orientation = NULL
+    legend_ticks_length = ggplot2::rel(c(0.175, 0))
+
+
 ) {
 
   theme <- ggplot2::theme(
     text = ggplot2::element_text(size = base_size, family = base_family, face = "plain", colour = base_colour,
                                  lineheight = 0.9, hjust = 0.5, vjust = 0.5, angle = 0, margin = ggplot2::margin(), debug = FALSE),
-    axis.line = ggplot2::element_line(colour = axis_line_colour, linewidth = axis_line_linewidth),
+    axis.line = ggplot2::element_line(colour = axis_line_colour, linewidth = axis_line_linewidth, lineend = "square"),
     axis.line.x = NULL,
     axis.line.x.bottom = NULL,
     axis.line.x.top = NULL,
@@ -96,18 +95,19 @@ flex_mode_base <- function(
     axis.ticks.y = NULL,
     axis.ticks.y.left = NULL,
     axis.ticks.y.right = NULL,
-    axis.ticks.length.x = grid::unit(axis_ticks_length_x, "pt"),
+    axis.ticks.length = grid::unit(2.5 + (axis_line_linewidth * 2.5), "pt"),
+    axis.ticks.length.x = NULL,
     axis.ticks.length.x.top = NULL,
     axis.ticks.length.x.bottom = NULL,
-    axis.ticks.length.y = grid::unit(axis_ticks_length_y, "pt"),
+    axis.ticks.length.y = NULL,
     axis.ticks.length.y.left = NULL,
     axis.ticks.length.y.right = NULL,
-    axis.title = NULL,
+    axis.title = ggplot2::element_text(size = base_size, colour = base_colour),
     axis.title.x = ggplot2::element_text(margin = ggplot2::margin(t = base_size * -0.33, r = 0, b = base_size * 0.75, l = 0)),
     axis.title.x.top = ggplot2::element_text(margin = ggplot2::margin(t = base_size * -1, r = 0, b = base_size * 1, l = 0)),
     axis.title.y = ggplot2::element_text(margin = ggplot2::margin(t = 0, r = base_size * 1, b = 0, l = 0), angle = 90),
     axis.title.y.right = ggplot2::element_text(margin = ggplot2::margin(t = 0, r = base_size * -0.5, b = 0, l = base_size * 1), angle = -90),
-    axis.text = NULL,
+    axis.text = ggplot2::element_text(size = base_size, colour = base_colour),
     axis.text.y = ggplot2::element_text(margin = ggplot2::margin(r = base_size * 0.25), hjust = 1),
     axis.text.y.right = ggplot2::element_text(margin = ggplot2::margin(l = base_size * 0.25), hjust = 0),
     axis.text.x = ggplot2::element_text(vjust = 1, margin = ggplot2::margin(t = base_size * 0.3, r = 0, b = base_size * 1, l = 0)),
@@ -115,25 +115,26 @@ flex_mode_base <- function(
 
     legend.margin = ggplot2::margin(t = 0, r = base_size * -1, b = base_size * 0.75, l = base_size * 0.75),
     legend.spacing = grid::unit(base_size * 1, "pt"),
+    legend.spacing.y = grid::unit(base_size * 1.5, "pt"),
     legend.spacing.x = NULL,
-    legend.spacing.y = NULL,
     legend.key = ggplot2::element_rect(colour = legend_key_fill, fill = legend_key_fill),
     legend.key.size = grid::unit(base_size * 1.75, "pt"),
     legend.key.height = NULL,
     legend.key.width = NULL,
     legend.key.spacing = NULL,
-    legend.key.spacing.x = grid::unit(11, "pt"),
+    legend.key.spacing.x = grid::unit(base_size, "pt"),
     legend.key.spacing.y = grid::unit(base_size * 0.33, "pt"),
     legend.byrow = FALSE,
     legend.frame = NULL,
-    legend.text = ggplot2::element_text(margin = ggplot2::margin(5.5, 5.5, 5.5, 5.5)),
+    legend.text = ggplot2::element_text(size = base_size, colour = base_colour, margin = ggplot2::margin(5.5, 5.5, 5.5, 5.5)),
     legend.axis.line = ggplot2::element_line(colour = legend_axis_line_colour, linewidth = legend_axis_line_linewidth),
     legend.ticks = ggplot2::element_line(colour = legend_ticks_colour, linewidth = legend_ticks_linewidth),
     legend.ticks.length = legend_ticks_length,
     legend.title.position = "top",
-    legend.box = NULL,
+    legend.box = "vertical",
     legend.box.background = NULL,
     legend.box.spacing = NULL,
+    legend.box.just = "left",
     legend.background = ggplot2::element_rect(colour = legend_background_fill, fill = legend_background_fill),
     panel.background = ggplot2::element_rect(colour = panel_background_fill, fill = panel_background_fill),
     panel.border = ggplot2::element_blank(),
@@ -150,7 +151,7 @@ flex_mode_base <- function(
     panel.ontop = FALSE,
     strip.background = ggplot2::element_rect(fill = NA, colour = NA),
     strip.clip = "off",
-    strip.text = ggplot2::element_text(margin = ggplot2::margin(t = 0, r = 0, b = base_size * 0.66, l = 0)),
+    strip.text = ggplot2::element_text(size = base_size, colour = base_colour, margin = ggplot2::margin(t = 0, r = 0, b = base_size * 0.66, l = 0)),
     strip.text.x = NULL,
     strip.text.x.bottom = ggplot2::element_text(margin = ggplot2::margin(t = base_size * 0.25, r = 0, b = base_size * 1, l = 0)),
     strip.text.y = ggplot2::element_text(margin = ggplot2::margin(t = 0, r = 0, b = 0, l = base_size * 2/3), angle = -90),
@@ -177,39 +178,10 @@ flex_mode_base <- function(
     legend.justification = c(0, 1),
     legend.location = "panel",
     legend.box.margin = ggplot2::margin(t = 0, r = 0, b = 0, l = 0),
-    legend.title = ggplot2::element_text(margin = ggplot2::margin(t = 0, r = 0, b = base_size * 0.5, l = 0)),
+    legend.title = ggplot2::element_text(size = base_size, colour = base_colour, margin = ggplot2::margin(t = 0, r = 0, b = base_size * 0.5, l = 0)),
 
     complete = FALSE
   )
-
-  if (!rlang::is_null(orientation)) {
-    if (orientation == "x") {
-      theme <- theme +
-        ggplot2::theme(
-          panel.grid.major.x = ggplot2::element_blank(),
-          panel.grid.minor.x = ggplot2::element_blank(),
-          axis.line.y.left = ggplot2::element_blank(),
-          axis.line.y.right = ggplot2::element_blank(),
-          axis.ticks.y.left = ggplot2::element_blank(),
-          axis.ticks.y.right = ggplot2::element_blank(),
-          axis.minor.ticks.y.left = ggplot2::element_blank(),
-          axis.minor.ticks.y.right = ggplot2::element_blank()
-        )
-    }
-    if (orientation == "y") {
-      theme <- theme +
-        ggplot2::theme(
-          panel.grid.major.y = ggplot2::element_blank(),
-          panel.grid.minor.y = ggplot2::element_blank(),
-          axis.line.x.top = ggplot2::element_blank(),
-          axis.line.x.bottom = ggplot2::element_blank(),
-          axis.ticks.x.top = ggplot2::element_blank(),
-          axis.ticks.x.bottom = ggplot2::element_blank(),
-          axis.minor.ticks.x.top = ggplot2::element_blank(),
-          axis.minor.ticks.x.bottom = ggplot2::element_blank()
-        )
-    }
-  }
 
   return(theme)
 }
@@ -247,8 +219,8 @@ flex_mode_r <- function (
     axis_line_linewidth = 0.33,
     axis_ticks_colour = axis_line_colour,
     axis_ticks_linewidth = axis_line_linewidth,
-    axis_ticks_length_x = grid::unit(base_size / 3, "pt"),
-    axis_ticks_length_y = grid::unit(base_size / 4, "pt"),
+    axis.ticks.length = grid::unit(base_size / 3, "pt"),
+
     panel_grid_colour = "#F6F8FAFF",
     panel_grid_linewidth = 1.33,
     panel_background_fill ="#FFFFFFFF",
@@ -259,8 +231,9 @@ flex_mode_r <- function (
     legend_key_fill = plot_background_fill,
     legend_ticks_colour = legend_axis_line_colour,
     legend_ticks_linewidth = legend_axis_line_linewidth,
-    legend_ticks_length = ggplot2::rel(c(0.175, 0)),
-    orientation = NULL) {
+    legend_ticks_length = ggplot2::rel(c(0.175, 0))
+
+) {
 
   flex_mode_base(
     base_size = base_size,
@@ -284,8 +257,8 @@ flex_mode_r <- function (
     axis_line_linewidth = axis_line_linewidth,
     axis_ticks_colour = axis_ticks_colour,
     axis_ticks_linewidth = axis_ticks_linewidth,
-    axis_ticks_length_x = axis_ticks_length_x,
-    axis_ticks_length_y = axis_ticks_length_y,
+    axis.ticks.length = axis.ticks.length,
+
     panel_grid_colour = panel_grid_colour,
     panel_grid_linewidth = panel_grid_linewidth,
     panel_background_fill = panel_background_fill,
@@ -296,8 +269,9 @@ flex_mode_r <- function (
     legend_key_fill = legend_key_fill,
     legend_ticks_colour = legend_ticks_colour,
     legend_ticks_linewidth = legend_ticks_linewidth,
-    legend_ticks_length = legend_ticks_length,
-    orientation = orientation
+    legend_ticks_length = legend_ticks_length
+
+
   )
 }
 
@@ -333,8 +307,8 @@ flex_mode_t <- function (
     axis_line_linewidth = 0.33,
     axis_ticks_colour = axis_line_colour,
     axis_ticks_linewidth = axis_line_linewidth,
-    axis_ticks_length_x = grid::unit(base_size / 3, "pt"),
-    axis_ticks_length_y = grid::unit(base_size / 4, "pt"),
+    axis.ticks.length = grid::unit(base_size / 3, "pt"),
+
     panel_grid_colour = "#F6F8FAFF",
     panel_grid_linewidth = 1.33,
     panel_background_fill ="#FFFFFFFF",
@@ -345,8 +319,9 @@ flex_mode_t <- function (
     legend_key_fill = plot_background_fill,
     legend_ticks_colour = legend_axis_line_colour,
     legend_ticks_linewidth = legend_axis_line_linewidth,
-    legend_ticks_length = ggplot2::rel(c(0.175, 0)),
-    orientation = NULL) {
+    legend_ticks_length = ggplot2::rel(c(0.175, 0))
+
+    ) {
 
   flex_mode_base(
     base_size = base_size,
@@ -370,8 +345,8 @@ flex_mode_t <- function (
     axis_line_linewidth = axis_line_linewidth,
     axis_ticks_colour = axis_ticks_colour,
     axis_ticks_linewidth = axis_ticks_linewidth,
-    axis_ticks_length_x = axis_ticks_length_x,
-    axis_ticks_length_y = axis_ticks_length_y,
+    axis.ticks.length = axis.ticks.length,
+
     panel_grid_colour = panel_grid_colour,
     panel_grid_linewidth = panel_grid_linewidth,
     panel_background_fill = panel_background_fill,
@@ -382,8 +357,9 @@ flex_mode_t <- function (
     legend_key_fill = legend_key_fill,
     legend_ticks_colour = legend_ticks_colour,
     legend_ticks_linewidth = legend_ticks_linewidth,
-    legend_ticks_length = legend_ticks_length,
-    orientation = orientation
+    legend_ticks_length = legend_ticks_length
+
+
   ) +
     ggplot2::theme(
       legend.position = "top",
@@ -434,8 +410,8 @@ flex_mode_b <- function (
     axis_line_linewidth = 0.33,
     axis_ticks_colour = axis_line_colour,
     axis_ticks_linewidth = axis_line_linewidth,
-    axis_ticks_length_x = grid::unit(base_size / 3, "pt"),
-    axis_ticks_length_y = grid::unit(base_size / 4, "pt"),
+    axis.ticks.length = grid::unit(base_size / 3, "pt"),
+
     panel_grid_colour = "#F6F8FAFF",
     panel_grid_linewidth = 1.33,
     panel_background_fill ="#FFFFFFFF",
@@ -446,8 +422,9 @@ flex_mode_b <- function (
     legend_key_fill = plot_background_fill,
     legend_ticks_colour = legend_axis_line_colour,
     legend_ticks_linewidth = legend_axis_line_linewidth,
-    legend_ticks_length = ggplot2::rel(c(0.175, 0)),
-    orientation = NULL) {
+    legend_ticks_length = ggplot2::rel(c(0.175, 0))
+
+    ) {
 
   flex_mode_base(
     base_size = base_size,
@@ -471,8 +448,8 @@ flex_mode_b <- function (
     axis_line_linewidth = axis_line_linewidth,
     axis_ticks_colour = axis_ticks_colour,
     axis_ticks_linewidth = axis_ticks_linewidth,
-    axis_ticks_length_x = axis_ticks_length_x,
-    axis_ticks_length_y = axis_ticks_length_y,
+    axis.ticks.length = axis.ticks.length,
+
     panel_grid_colour = panel_grid_colour,
     panel_grid_linewidth = panel_grid_linewidth,
     panel_background_fill = panel_background_fill,
@@ -483,8 +460,9 @@ flex_mode_b <- function (
     legend_key_fill = legend_key_fill,
     legend_ticks_colour = legend_ticks_colour,
     legend_ticks_linewidth = legend_ticks_linewidth,
-    legend_ticks_length = legend_ticks_length,
-    orientation = orientation
+    legend_ticks_length = legend_ticks_length
+
+
   ) +
     ggplot2::theme(
       legend.position = "bottom",
@@ -501,90 +479,4 @@ flex_mode_b <- function (
     )
 }
 
-#' Flexible mode with no legend
-#'
-#' @description Flexible mode with no legend.
-#'
-#' @inheritParams flex_mode_r
-#'
-#' @return A ggplot theme.
-#' @keywords internal
-#'
-flex_mode_n <- function (
-    ...,
-    base_size = 11,
-    base_family = "",
-    base_face = "plain",
-    base_colour = "#121B24FF",
-    plot_title_size = ggplot2::rel(1.1),
-    plot_title_family = base_family,
-    plot_title_face = "bold",
-    plot_title_colour = base_colour,
-    plot_subtitle_size = ggplot2::rel(1),
-    plot_subtitle_family = base_family,
-    plot_subtitle_face = "plain",
-    plot_subtitle_colour = base_colour,
-    plot_caption_size = ggplot2::rel(0.85),
-    plot_caption_family = base_family,
-    plot_caption_face = "plain",
-    plot_caption_colour = colorspace::lighten(base_colour, 0.1),
-    plot_caption_hjust = 0,
-    axis_line_colour = "#121B24FF",
-    axis_line_linewidth = 0.33,
-    axis_ticks_colour = axis_line_colour,
-    axis_ticks_linewidth = axis_line_linewidth,
-    axis_ticks_length_x = grid::unit(base_size / 3, "pt"),
-    axis_ticks_length_y = grid::unit(base_size / 4, "pt"),
-    panel_grid_colour = "#F6F8FAFF",
-    panel_grid_linewidth = 1.33,
-    panel_background_fill ="#FFFFFFFF",
-    plot_background_fill = "#FFFFFFFF",
-    legend_axis_line_colour = plot_background_fill,
-    legend_axis_line_linewidth = 0.33,
-    legend_background_fill = plot_background_fill,
-    legend_key_fill = plot_background_fill,
-    legend_ticks_colour = legend_axis_line_colour,
-    legend_ticks_linewidth = legend_axis_line_linewidth,
-    legend_ticks_length = ggplot2::rel(c(0.175, 0)),
-    orientation = NULL) {
-
-  flex_mode_base(
-    base_size = base_size,
-    base_family = base_family,
-    base_face = "plain",
-    base_colour = base_colour,
-    plot_title_size = plot_title_size,
-    plot_title_family = plot_title_family,
-    plot_title_face = plot_title_face,
-    plot_title_colour = plot_title_colour,
-    plot_subtitle_size = plot_subtitle_size,
-    plot_subtitle_family = plot_subtitle_family,
-    plot_subtitle_face = plot_subtitle_face,
-    plot_subtitle_colour = plot_subtitle_colour,
-    plot_caption_size = plot_caption_size,
-    plot_caption_family = plot_caption_family,
-    plot_caption_face = plot_caption_face,
-    plot_caption_colour = plot_caption_colour,
-    plot_caption_hjust = plot_caption_hjust,
-    axis_line_colour = axis_line_colour,
-    axis_line_linewidth = axis_line_linewidth,
-    axis_ticks_colour = axis_ticks_colour,
-    axis_ticks_linewidth = axis_ticks_linewidth,
-    axis_ticks_length_x = axis_ticks_length_x,
-    axis_ticks_length_y = axis_ticks_length_y,
-    panel_grid_colour = panel_grid_colour,
-    panel_grid_linewidth = panel_grid_linewidth,
-    panel_background_fill = panel_background_fill,
-    plot_background_fill = plot_background_fill,
-    legend_axis_line_colour = legend_axis_line_colour,
-    legend_axis_line_linewidth = legend_axis_line_linewidth,
-    legend_background_fill = legend_background_fill,
-    legend_key_fill = legend_key_fill,
-    legend_ticks_colour = legend_ticks_colour,
-    legend_ticks_linewidth = legend_ticks_linewidth,
-    legend_ticks_length = legend_ticks_length,
-    orientation = orientation
-  ) +
-    ggplot2::theme(legend.position = "none")
-}
 

@@ -134,7 +134,6 @@ test_that(test_name, {
       y_breaks = scales::breaks_width(1500),
       y_labels = scales::label_number(big.mark = " "),
       y_expand = expansion(mult = c(0, 0.05)),
-      y_transform = "sqrt",
       y_label = "Body mass (g)",
       col_steps = TRUE,
       facet_labels = \(x) str_to_sentence(x),
@@ -152,7 +151,6 @@ test_that(test_name, {
       x = carat,
       y = price,
       coord = coord_cartesian(clip = "on"),
-      y_limits = c(0, 20000),
     )
 
   vdiffr::expect_doppelganger(test_name, p)
@@ -179,9 +177,9 @@ test_that(test_name, {
       width = 0.1,
       x_label = "Treatment",
       y_label = "Response",
-      mode = light_mode_n(),
-      subtitle = "\nmode = light_mode_n(),"
-    )
+      subtitle = "\nmode = light_mode_r(),"
+    ) +
+    theme(legend.position = "none")
 
   p2 <- d |>
     gg_errorbar(
@@ -192,9 +190,9 @@ test_that(test_name, {
       width = 0.1,
       x_label = "Treatment",
       y_label = "Response",
-      subtitle = "\n+ light_mode_n()"
+      subtitle = "\n+ light_mode_r()"
     ) +
-    light_mode_n()
+    theme(legend.position = "none")
 
   p <- p1 + p2
 
@@ -220,26 +218,6 @@ test_that(test_name, {
 
   vdiffr::expect_doppelganger(test_name, p)
 })
-
-
-
-## ----fig.asp=0.75-----------------------------------------------------------------------------------
-test_name <- "12"
-
-test_that(test_name, {
-  p <- penguins |>
-    gg_histogram(
-      x = flipper_length_mm,
-      col = species,
-      title = "Penguin flipper length by species",
-      subtitle = "Palmer Archipelago, Antarctica",
-      caption = "Source: Gorman, 2020",
-      mode = grey_mode_b(),
-    )
-
-  vdiffr::expect_doppelganger(test_name, p)
-})
-
 
 
 ## ----fig.asp=0.65-----------------------------------------------------------------------------------
@@ -282,9 +260,9 @@ test_that(test_name, {
       width = 0.1,
       x_label = "Treatment",
       y_label = "Response",
-      mode = light_mode_n(),
       subtitle = "\nDefault y scale"
-    )
+    ) +
+    theme(legend.position = "none")
 
   p2 <- d |>
     gg_errorbar(
@@ -295,10 +273,10 @@ test_that(test_name, {
       width = 0.1,
       x_label = "Treatment",
       y_label = "Response",
-      y_limits = c(NA, NA),
-      mode = light_mode_n(),
+      y_symmetric = TRUE,
       subtitle = "\ny_limits = c(NA, NA),"
-    )
+    ) +
+    theme(legend.position = "none")
 
   p3 <- d |>
     gg_col(
@@ -309,10 +287,10 @@ test_that(test_name, {
       width = 0.5,
       x_label = "Treatment upper",
       y_label = "Response",
-      y_limits = c(0, NA),
-      mode = light_mode_n(),
+      y_symmetric = TRUE,
       subtitle = "\ny_limits = c(0, NA),"
-    )
+    ) +
+    theme(legend.position = "none")
 
   p <- p1 + p2 + p3
 

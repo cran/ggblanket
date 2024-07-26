@@ -68,8 +68,9 @@ penguins2 |>
     x = species, 
     y = flipper_length_mm, 
     col = island,
-    mapping = aes(shape = island),
-  ) 
+    mapping = aes(shape = sex),
+  ) +
+  guides(shape = guide_legend(override.aes = list(colour = grey)))
 
 ## -----------------------------------------------------------------------------
 penguins2 |>
@@ -77,11 +78,11 @@ penguins2 |>
     x = flipper_length_mm,
     y = body_mass_g,
     col = flipper_length_mm,
-    x_breaks = scales::breaks_extended(n = 4, only.loose = TRUE),
+    x_breaks_n = 4,
     x_labels = \(x) stringr::str_sub(x, 1, 1),
     y_expand_limits = 1000,
     y_labels = label_number(big.mark = " "), 
-    y_transform = "log10",
+    y_transform = "sqrt",
     col_label = "Flipper\nlength (mm)",
     col_steps = TRUE,
     col_breaks = \(x) quantile(x, seq(0, 1, 0.25)),
@@ -118,7 +119,7 @@ penguins2 |>
     title = "Penguin flipper length by species",
     subtitle = "Palmer Archipelago, Antarctica",
     caption = "Source: Gorman, 2020", 
-    mode = grey_mode_t() + theme(legend.title = element_blank()),
+    mode = dark_mode_t() + theme(legend.title = element_blank()),
   ) 
 
 ## -----------------------------------------------------------------------------
@@ -126,14 +127,12 @@ p1 <- penguins2 |>
   gg_jitter(
     x = sex,
     y = bill_depth_mm,
-    subtitle = "\nx_orientation = TRUE",
   )
 
 p2 <- penguins2 |>
   gg_jitter(
     x = bill_depth_mm,
     y = sex,
-    subtitle = "\ny_orientation = TRUE",
   ) 
 
 p1 + p2
@@ -186,8 +185,8 @@ penguins2 |>
 ## -----------------------------------------------------------------------------
 set_blanket(
   mode = dark_mode_r(), 
-  geom_colour = "#E7298AFF",
-  annotate_colour = darkness[1],
+  colour = "#E7298AFF",
+  colour_text = darkness[1],
   col_palette_d = c("#1B9E77FF", "#D95F02FF", "#7570b3FF", "#E7298AFF", "#66A61EFF", 
                     "#E6AB02FF", "#A6761DFF", "#666666FF"), #RColorBrewer Dark2 
 )
@@ -196,7 +195,7 @@ p1 <- penguins2 |>
   gg_point(
     x = flipper_length_mm, 
     y = body_mass_g,
-    x_breaks = breaks_extended(n = 4, only.loose = TRUE),
+    x_breaks_n = 4, 
   ) +
   geom_vline(xintercept = 200) +
   annotate("text", x = I(0.25), y = I(0.75), label = "Here")
@@ -205,7 +204,7 @@ p2 <- penguins2 |>
   gg_histogram(
     x = flipper_length_mm,
     col = species,
-    x_breaks = breaks_extended(n = 4, only.loose = TRUE),
+    x_breaks_n = 4, 
   ) +
   geom_vline(xintercept = 200) +
   annotate("text", x = I(0.75), y = I(0.75), label = "Here")

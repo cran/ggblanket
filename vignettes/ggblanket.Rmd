@@ -47,10 +47,11 @@ Computational speed has been traded-off.
 8.  Smart `*_label` defaults for axis and legend titles
 9.  Other `ggplot2::geom_*` arguments via `...`
 10. Families of `*_mode_*` themes with legend variants
-11. Helpful orientation defaults and side-effects 
-12. Ability to add multiple `geom_*` layers
-13. Arguments to customise setup with `set_blanket()`
-14. A `gg_blanket()` function with `geom` flexibility
+11.  Side-effects to the `mode` based on the `mode_orientation`
+12.  One `*_symmetric` continuous scale
+13. Ability to add multiple `geom_*` layers
+14. Arguments to customise setup with `set_blanket()`
+15. A `gg_blanket()` function with `geom` flexibility
 
 ```{r setup}
 library(dplyr)
@@ -152,9 +153,9 @@ Some aesthetics are not available via an argument (e.g. `alpha`, `size`, `shape`
 
 These can be accessed via the `mapping` argument using the `aes()` function. 
 
-To customise associated scales/guides, `+` on the applicable ggplot2 layer. In some situations, you may have to reverse the values in the relevant scale etc.
+To customise associated scales/guides, `+` on the applicable ggplot2 layer. In some situations, you may need to override the colour used in the guide, or reverse the values in the relevant scale etc.
 
-Note you can use `set_blanket(geom_colour = lightness[1], ...)` to make legend symbols black if needed. 
+The `mapping` argument can also be used to add _only_ a `colour` or `fill` aesthetic scale, and _not_ both. 
 
 ```{r}
 penguins2 |> 
@@ -162,8 +163,9 @@ penguins2 |>
     x = species, 
     y = flipper_length_mm, 
     col = island,
-    mapping = aes(shape = island),
-  ) 
+    mapping = aes(shape = sex),
+  ) +
+  guides(shape = guide_legend(override.aes = list(colour = grey)))
 ```
 
 ### 7.  Prefixed arguments to customise x/y/col/facet
@@ -180,11 +182,11 @@ penguins2 |>
     x = flipper_length_mm,
     y = body_mass_g,
     col = flipper_length_mm,
-    x_breaks = scales::breaks_extended(n = 4, only.loose = TRUE),
+    x_breaks_n = 4,
     x_labels = \(x) stringr::str_sub(x, 1, 1),
     y_expand_limits = 1000,
     y_labels = label_number(big.mark = " "), 
-    y_transform = "log10",
+    y_transform = "sqrt",
     col_label = "Flipper\nlength (mm)",
     col_steps = TRUE,
     col_breaks = \(x) quantile(x, seq(0, 1, 0.25)),
@@ -234,9 +236,7 @@ penguins2 |>
 
 ### 10.  Families of `*_mode_*` themes with legend variants 
 
-`light_mode_*`, `grey_mode_*` and `dark_mode_*` theme families are provided with variants that differ based on legend placement with suffix `r` (right), `b` (bottom), `t` (top) and `n` (none). 
-
-These themes were built for use with the `mode` argument.
+`light_mode_*` and `dark_mode_*` theme families are provided with variants that differ based on legend placement with suffix `r` (right), `b` (bottom), and `t` (top). These functions were built for use with the `mode` argument - and have flexibility to adjust colours, linewidths etc. 
 
 ```{r, fig.asp=0.65}
 penguins2 |>
@@ -246,45 +246,58 @@ penguins2 |>
     title = "Penguin flipper length by species",
     subtitle = "Palmer Archipelago, Antarctica",
     caption = "Source: Gorman, 2020", 
-    mode = grey_mode_t() + theme(legend.title = element_blank()),
+    mode = dark_mode_t() + theme(legend.title = element_blank()),
   ) 
 ```
 
-### 11.  Helpful orientation defaults and side-effects 
+### 11.  Side-effects to the `mode` based on the `mode_orientation`
 
-If not specified, the `gg_*` function will guess the plot orientation (based on whether the y axis is discrete).
+The `gg_*` function adds helpful side-effects to the mode. 
 
-Where `x_orientation = TRUE`, it will:
+Where `mode_orientation = "x"`, the `gg_*` function will remove the y axis line/ticks and the x gridlines from the `mode` (by changing their colour to "transparent"). Where it is  `mode_orientation = "y"`, the opposite will occur. If the `gg_*` guesses an incorrect `mode_orientation`, then the user can change this.
 
-* remove the y axis line/ticks and the x gridlines from the `mode` theme. 
-* where `y_limits = NULL` and `y_expand = NULL`, make any _linear_ y continuous scale 'symmetric' if possible with (a) `y_limits` the range of `y_breaks` and (b) `y_expand = c(0, 0)`.
+Additionally, the `gg_*` function will remove ticks from discrete scales.
 
-The vice versa occurs when `y_orientation = TRUE`. 
-
-You can avoid these side-effects by:
-
-* `+`-ing your theme on to the `gg_*` output
-* adding a `*_limits = c(NA, NA)` argument (or `*_limits = c(0, NA)` for bars). 
+Any `mode` used should be designed to anticipate these side-effects. To avoid these side-effects, instead `+` the theme on to the `gg_*` output (or use the `theme` argument in `set_blanket`).
 
 ```{r}
 p1 <- penguins2 |>
   gg_jitter(
     x = sex,
     y = bill_depth_mm,
-    subtitle = "\nx_orientation = TRUE",
   )
 
 p2 <- penguins2 |>
   gg_jitter(
     x = bill_depth_mm,
     y = sex,
-    subtitle = "\ny_orientation = TRUE",
   ) 
 
 p1 + p2
 ```
 
-### 12. Ability to add multiple `geom_*` layers
+### 12.  One `*_symmetric` continuous scale
+
+One `*_symmetric` continuous scale can be made where:
+
+* `*_transform` is linear
+* the `stat` is not "sf"
+* if faceted, the relevant scale is fixed 
+
+By default, the gg_* function will make a `x_symmetric` scale if there is a y discrete axis and a x continuous axis. Otherwise, it will make a `y_symmetric` scale. 
+
+A `y_symmetric` axis makes:
+
+* the limits locked to the range of the `y_breaks`
+* the `y_expand` default to `c(0, 0)`.
+
+The vice versa occurs for an `x_symmetric` axis.
+
+Use `*_symmetric = FALSE` to revert to the normal limits and expand defaults (i.e. the limits of the range of the data including `*_expand_limits` with `*_expand = c(0.05, 0.05)`).
+
+Note all continuous scales ensure _all_ data is kept using `scales::oob_keep` - and, by default, are left unclipped (i.e. `coord_cartesian(clip = "off")`. 
+
+### 13. Ability to add multiple `geom_*` layers
 
 Users can make plots with multiple `ggplot2::geom_*` layers. 
 
@@ -341,13 +354,12 @@ penguins2 |>
   ) 
 ```
 
-### 13. Arguments to customise setup with `set_blanket()`
+### 14. Arguments to customise setup with `set_blanket()`
 
 The `set_blanket` function sets customisable defaults for the:
 
 * mode (i.e. a theme added with side-effects)
-* geom colour (i.e. colour/fill where `col = NULL` for most geoms)
-* annotation colour  (i.e. colour/fill where `col = NULL` for other geoms often used for annotation)
+* geom defaults (i.e. colour/fill used where no colour aesthetic scale)
 * discrete colour palette (and NA colour)
 * continuous colour palette (and NA colour)
 * theme (i.e. a theme added with no side-effects)
@@ -359,8 +371,8 @@ The `ggplot2::update_geom_defaults()` function can be used to further fine-tune 
 ```{r}
 set_blanket(
   mode = dark_mode_r(), 
-  geom_colour = "#E7298AFF",
-  annotate_colour = darkness[1],
+  colour = "#E7298AFF",
+  colour_text = darkness[1],
   col_palette_d = c("#1B9E77FF", "#D95F02FF", "#7570b3FF", "#E7298AFF", "#66A61EFF", 
                     "#E6AB02FF", "#A6761DFF", "#666666FF"), #RColorBrewer Dark2 
 )
@@ -369,7 +381,7 @@ p1 <- penguins2 |>
   gg_point(
     x = flipper_length_mm, 
     y = body_mass_g,
-    x_breaks = breaks_extended(n = 4, only.loose = TRUE),
+    x_breaks_n = 4, 
   ) +
   geom_vline(xintercept = 200) +
   annotate("text", x = I(0.25), y = I(0.75), label = "Here")
@@ -378,7 +390,7 @@ p2 <- penguins2 |>
   gg_histogram(
     x = flipper_length_mm,
     col = species,
-    x_breaks = breaks_extended(n = 4, only.loose = TRUE),
+    x_breaks_n = 4, 
   ) +
   geom_vline(xintercept = 200) +
   annotate("text", x = I(0.75), y = I(0.75), label = "Here")
@@ -388,7 +400,7 @@ p1 + p2
 set_blanket()
 ```
 
-### 14. A `gg_blanket()` function with `geom` flexibility
+### 15. A `gg_blanket()` function with `geom` flexibility
 
 The package is driven by the `gg_blanket` function, which has a `geom` argument with `ggplot2::geom_blank` defaults for `geom`, `stat` and `position`.
 

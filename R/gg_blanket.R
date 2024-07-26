@@ -8,18 +8,19 @@
 #' @param stat A statistical transformation to use on the data. A snakecase character string of a ggproto Stat subclass object minus the Stat prefix (e.g. `"identity"`).
 #' @param position A position adjustment. A snakecase character string of a ggproto Position subclass object minus the Position prefix (e.g. `"identity"`), or a `position_*()` function that outputs a ggproto Position subclass object (e.g. `ggplot2::position_identity()`).
 #' @param coord A coordinate system. A `coord_*()` function that outputs a constructed ggproto Coord subclass object (e.g. [ggplot2::coord_cartesian()]).
-#' @param mode A ggplot2 theme (e.g. [light_mode_t()], [grey_mode_r()], or [dark_mode_r()]). This argument adds the theme with side-effects of removing relevant axis line/ticks and gridlines per the orientation. To avoid these side-effects, `+` the theme on to the output of `gg_*`.
+#' @param mode A ggplot2 theme (e.g. [light_mode_t()] or [dark_mode_r()]) that anticipates side-effects of removing relevant axis line/ticks and gridlines per the `mode_orientation`.
+#' @param mode_orientation The orientation of plot, which affects the theme components that are removed from the mode. Either "x" or "y".
 #' @param x,xmin,xmax,xend,y,ymin,ymax,yend,z,col,facet,facet2,group,subgroup,label,text,sample An unquoted aesthetic variable.
 #' @param mapping A set of additional aesthetic mappings in [ggplot2::aes()]. Intended primarily for non-supported aesthetics (e.g. `shape`, `linetype`, `linewidth`, or `size`), but can also be used for delayed evaluation etc.
 #' @param x_breaks,y_breaks,col_breaks A `scales::breaks_*` function (e.g. `scales::breaks_*()`), or a vector of breaks.
+#' @param x_breaks_n,y_breaks_n,col_breaks_n A number of desired breaks for when `*_breaks = NULL`.
 #' @param x_expand,y_expand Padding to the limits with the [ggplot2::expansion()] function, or a vector of length 2 (e.g. `c(0, 0)`).
 #' @param x_expand_limits,y_expand_limits,col_expand_limits For a continuous variable, any values that the limits should encompass (e.g. `0`). For a discrete scale, manipulate the data instead with `forcats::fct_expand`.
 #' @param x_label,y_label,col_label Label for the axis or legend title. Use `+ ggplot2::labs(... = NULL)` for no title.
 #' @param x_labels,y_labels,col_labels,facet_labels A function that takes the breaks as inputs (e.g. `\(x) stringr::str_to_sentence(x)` or `scales::label_*()`), or a vector of labels. (Note this must be named for `facet_labels`).
-#' @param x_limits,y_limits,col_limits For a continuous scale, a vector of length 2 to determine the limits of the scale. For a discrete scale, manipulate the data instead with `factor`, `forcats::fct_expand` or `forcats::fct_drop`.
-#' @param x_oob,y_oob,col_oob For a continuous scale, a `scales::oob_*` function of how to handle values outside of limits. Defaults to `scales::oob_keep`.
 #' @param x_position,y_position The position of the axis (i.e. `"left"`, `"right"`, `"bottom"` or `"top"`).If using `y_position = "top"` with a `*_mode_*` theme, add `caption = ""` or `caption = "\n"`.
-#' @param x_orientation,y_orientation `TRUE` or `FALSE` of whether the mode and scales orientation should be to x or y. Note, these arguments do not affect the orientation of the layer itself.
+#' @param x_sec_axis,y_sec_axis A secondary axis with [ggplot2::dup_axis()] or  [ggplot2::sec_axis()].
+#' @param x_symmetric,y_symmetric `TRUE` or `FALSE` of whether a symmetric scale.
 #' @param x_transform,y_transform,col_transform For a continuous scale, a transformation object (e.g. [scales::transform_log10()]) or character string of this minus the `transform_` prefix (e.g. `"log10"`).
 #' @param col_drop,facet_drop For a discrete variable, FALSE or TRUE of whether to drop unused levels.
 #' @param col_legend_ncol,col_legend_nrow The number of columns and rows in a legend guide.
@@ -49,17 +50,13 @@
 #' set_blanket()
 #'
 #' penguins %>%
-#'   tidyr::drop_na(sex) %>%
-#'   mutate(across(sex, \(x) stringr::str_to_sentence(x))) %>%
 #'   gg_blanket(
 #'     geom = "violin",
 #'     stat = "ydensity",
 #'     position = "dodge",
-#'     x = sex,
+#'     x = species,
 #'     y = body_mass_g,
 #'     col = sex,
-#'     facet = species,
-#'     mode = grey_mode_b(),
 #'   )
 #'
 gg_blanket <- function(data = NULL,
@@ -68,7 +65,7 @@ gg_blanket <- function(data = NULL,
                        stat = "identity",
                        position = "identity",
                        coord = NULL,
-                       mode = NULL,
+                       mode = NULL, mode_orientation = NULL,
                        x = NULL,
                        xmin = NULL,
                        xmax = NULL,
@@ -87,38 +84,38 @@ gg_blanket <- function(data = NULL,
                        text = NULL,
                        sample = NULL,
                        mapping = NULL,
-                       x_breaks = NULL,
+                       x_breaks = NULL, x_breaks_n = NULL,
                        x_expand = NULL,
                        x_expand_limits = NULL,
-                       x_labels = NULL,
-                       x_limits = NULL,
-                       x_oob = scales::oob_keep,
-                       x_orientation = NULL, x_position = "bottom",
-                       x_label = NULL,
-                       x_transform = NULL,
-                       y_breaks = NULL,
+                       x_label = NULL, x_labels = NULL,
+
+
+                       x_position = "bottom",
+
+                       x_sec_axis = ggplot2::waiver(), x_symmetric = NULL, x_transform = NULL,
+                       y_breaks = NULL, y_breaks_n = NULL,
                        y_expand = NULL,
                        y_expand_limits = NULL,
-                       y_labels = NULL,
-                       y_limits = NULL,
-                       y_oob = scales::oob_keep,
-                       y_orientation = NULL, y_position = "left",
-                       y_label = NULL,
+                       y_label = NULL, y_labels = NULL,
+                        y_position = "left",
+                       y_sec_axis = ggplot2::waiver(),
+                       y_symmetric = NULL,
+
                        y_transform = NULL,
-                       col_breaks = NULL,
+                       col_breaks = NULL, col_breaks_n = 5,
                        col_drop = FALSE,
                        col_expand_limits = NULL,
-                       col_labels = NULL,
+                       col_label = NULL, col_labels = NULL,
                        col_legend_ncol = NULL,
                        col_legend_nrow = NULL,
                        col_legend_rev = FALSE,
-                       col_limits = NULL,
-                       col_oob = scales::oob_keep,
+
+
                        col_palette = NULL,
                        col_palette_na = NULL,
                        col_rescale = scales::rescale(),
                        col_steps = FALSE,
-                       col_label = NULL,
+
                        col_transform = NULL,
                        facet_axes = NULL,
                        facet_axis_labels = "margins",
@@ -157,23 +154,13 @@ gg_blanket <- function(data = NULL,
   sample <- rlang::enquo(sample)
 
   ##############################################################################
-  #stop, warn and inform
-  ##############################################################################
-
-  if (!rlang::is_null(mapping)) {
-    if (any(names(unlist(mapping)) %in% c("facet", "facet2"))) {
-      rlang::abort("mapping argument does not support facet or facet2")
-    }
-  }
-
-  ##############################################################################
   #make gg_function work
   ##############################################################################
 
   if (rlang::is_null(data)) data <- data.frame(x = NA)
 
   ##############################################################################
-  #get geom, stat, transform & position strings
+  #get geom, stat & position strings
   ##############################################################################
 
   if (ggplot2::is.ggproto(geom)) {
@@ -192,7 +179,7 @@ gg_blanket <- function(data = NULL,
   else if (is.character(position)) position_name <- position
 
   ##############################################################################
-  # determine scale types using a plot build with raw data
+  # determine scale type
   ##############################################################################
 
   plot <- get_base(
@@ -246,23 +233,10 @@ gg_blanket <- function(data = NULL,
       coord
   }
 
-  if (!rlang::is_null(x_expand_limits)) {
-    plot <- plot +
-      ggplot2::expand_limits(x = x_expand_limits)
-  }
-
-  if (!rlang::is_null(y_expand_limits)) {
-    plot <- plot +
-      ggplot2::expand_limits(y = y_expand_limits)
-  }
-
   suppressMessages({
     suppressWarnings({
       plot_build <- ggplot2::ggplot_build(plot)
       plot_data <- plot_build$data[[1]]
-
-      facet_nrows <- length(unique(plot_build$layout$layout$ROW))
-      facet_ncols <- length(unique(plot_build$layout$layout$COL))
     })
   })
 
@@ -300,23 +274,69 @@ gg_blanket <- function(data = NULL,
   }
 
   ##############################################################################
-  # determine flipped or not
+  # get more defaults
   ##############################################################################
 
-  if (!rlang::is_null(x_orientation)) {
-    if (x_orientation) flipped <- FALSE
-    else flipped <- TRUE
+  #get x_transform if NULL
+  if (rlang::is_null(x_transform)) {
+    if (x_scale_type == "time") x_transform <- scales::transform_hms()
+    else if (x_scale_type == "datetime") x_transform <- scales::transform_time()
+    else if (x_scale_type == "date") x_transform <- scales::transform_date()
+    else x_transform <- scales::transform_identity()
   }
-  else if (!rlang::is_null(y_orientation)) {
-    if (y_orientation) flipped <- TRUE
-    else flipped <- FALSE
+  #get y_transform if NULL
+  if (rlang::is_null(y_transform)) {
+    if (y_scale_type == "time") y_transform <- scales::transform_hms()
+    else if (y_scale_type == "datetime")  y_transform <- scales::transform_time()
+    else if (y_scale_type == "date")  y_transform <- scales::transform_date()
+    else y_transform <- scales::transform_identity()
   }
-  else {
-    if (x_scale_type %in% c("numeric", "date", "datetime", "time") &
-        y_scale_type == "discrete") {
-      flipped <- TRUE
+
+  #make drop appropriate to facet scales
+  x_drop <- ifelse(facet_scales %in% c("free_x", "free"), TRUE, FALSE)
+  y_drop <- ifelse(facet_scales %in% c("free_y", "free"), TRUE, FALSE)
+
+  #get mode if NULL
+  if (rlang::is_null(mode)) {
+    mode <- get_mode()
+  }
+
+  #determine *_symmetric
+  if (rlang::is_null(x_symmetric)) {
+    if (stringr::str_detect(stat_name, "sf")) x_symmetric <- FALSE
+    else if (facet_scales %in% c("free", "free_x")) x_symmetric <- FALSE
+    else if (y_scale_type == "discrete" & x_scale_type != "discrete") x_symmetric <- TRUE
+    else x_symmetric <- FALSE
+  }
+
+  if (rlang::is_null(y_symmetric)) {
+    if (stringr::str_detect(stat_name, "sf")) y_symmetric <- FALSE
+    else if (facet_scales %in% c("free", "free_y")) y_symmetric <- FALSE
+    else if (y_scale_type == "discrete" & x_scale_type != "discrete") y_symmetric <- FALSE
+    else y_symmetric <- TRUE
+  }
+
+  if (rlang::is_null(mode_orientation)) {
+    if (y_scale_type == "discrete" & x_scale_type != "discrete") {
+      mode_orientation <- "y"
     }
-    else flipped <- FALSE
+    else {
+      mode_orientation <- "x"
+    }
+  }
+
+  ##############################################################################
+  #abort if necessary
+  ##############################################################################
+
+  if (!rlang::is_null(mapping)) {
+    if (any(names(unlist(mapping)) %in% c("facet", "facet2"))) {
+      rlang::abort("mapping argument does not support facet or facet2")
+    }
+  }
+
+  if (x_symmetric & y_symmetric) {
+    rlang::abort("Both x_symmetric and y_symmetric are not supported: please make one FALSE.")
   }
 
   ##############################################################################
@@ -338,80 +358,10 @@ gg_blanket <- function(data = NULL,
                                 function(x) forcats::fct_rev(x)))
 
   #if flipped, order col correctly
-  if ((!identical(rlang::eval_tidy(y, data), rlang::eval_tidy(col, data))) &
-      flipped) {
+  if ((!identical(rlang::eval_tidy(y, data), rlang::eval_tidy(col, data))) & x_symmetric) {
     data <- data %>%
       dplyr::mutate(dplyr::across(!!col & tidyselect::where(is.factor),
                                   function(x) forcats::fct_rev(x)))
-  }
-
-  ##############################################################################
-  # get more defaults
-  ##############################################################################
-
-  #get x_transform if NULL
-  if (rlang::is_null(x_transform)) {
-    if (x_scale_type == "time") x_transform <- scales::transform_hms()
-    else if (x_scale_type == "datetime") x_transform <- scales::transform_time()
-    else if (x_scale_type == "date") x_transform <- scales::transform_date()
-    else x_transform <- scales::transform_identity()
-  }
-
-  #make a tidy name to deal with composed transforms
-  if (is.character(x_transform)) x_transform_name <- x_transform
-  else if (inherits(x_transform, what = "transform")) {
-    x_transform_name <- x_transform$name %>%
-      stringr::str_remove("composition") %>%
-      stringr::str_remove("\\(") %>%
-      stringr::str_remove("\\)") %>%
-      stringr::str_split(",") %>%
-      unlist()
-  }
-
-  #get y_transform if NULL
-  if (rlang::is_null(y_transform)) {
-    if (y_scale_type == "time") y_transform <- scales::transform_hms()
-    else if (y_scale_type == "datetime")  y_transform <- scales::transform_time()
-    else if (y_scale_type == "date")  y_transform <- scales::transform_date()
-    else y_transform <- scales::transform_identity()
-  }
-
-  #make a tidy name to deal with composed transforms
-  if (is.character(y_transform)) y_transform_name <- y_transform
-  else if (inherits(y_transform, what = "transform")) {
-    y_transform_name <- y_transform$name %>%
-      stringr::str_remove("composition") %>%
-      stringr::str_remove("\\(") %>%
-      stringr::str_remove("\\)") %>%
-      stringr::str_split(",") %>%
-      unlist()
-  }
-
-  #make drop appropriate to facet scales
-  x_drop <- ifelse(facet_scales %in% c("free_x", "free"), TRUE, FALSE)
-  y_drop <- ifelse(facet_scales %in% c("free_y", "free"), TRUE, FALSE)
-
-  #get mode if NULL
-  if (rlang::is_null(mode)) {
-    mode <- get_mode()
-  }
-
-  ##############################################################################
-  #stop, warn and inform
-  ##############################################################################
-
-  if (!flipped & stat_name != "sf" & (!rlang::is_null(y_limits) | !rlang::is_null(y_expand))) {
-    rlang::inform("y 'symmetric' scale cannot be constructed unless `y_limits = NULL` & `y_expand = NULL`")
-  }
-  if (!any(y_transform_name %in% c("identity", "reverse", "date", "time", "hms")) & !flipped) {
-    rlang::inform("y 'symmetric' scale cannot be constructed with non-linear y_transform`")
-  }
-
-  if (flipped & stat_name != "sf" & (!rlang::is_null(x_limits) | !rlang::is_null(x_expand))) {
-    rlang::inform("x 'symmetric' scale cannot be constructed unless `x_limits = NULL` & `x_expand = NULL`")
-  }
-  if (!any(x_transform_name %in% c("identity", "reverse", "date", "time", "hms")) & flipped) {
-    rlang::inform("x 'symmetric' scale cannot be constructed with non-linear x_transform`")
   }
 
   ##############################################################################
@@ -436,7 +386,54 @@ gg_blanket <- function(data = NULL,
     label = !!label,
     text = !!text,
   ) +
-  mode
+    mode
+
+  ##############################################################################
+  # Add geom layer
+  ##############################################################################
+
+  if (geom_name == "blank") show_legend <- FALSE
+  else show_legend <- TRUE
+
+  if (stringr::str_detect(stat_name, "sf")) {
+    if (rlang::is_null(coord)) coord <- ggplot2::coord_sf(clip = "off")
+
+    plot <- plot +
+      ggplot2::layer_sf(
+        geom = geom,
+        stat = stat,
+        position = position,
+        mapping = ggplot2::aes(!!!mapping),
+        params = rlang::list2(...),
+        show.legend = show_legend,
+      ) +
+      coord
+  }
+  else {
+    if (rlang::is_null(coord)) coord <- ggplot2::coord_cartesian(clip = "off")
+
+    plot <- plot +
+      ggplot2::layer(
+        geom = geom,
+        stat = stat,
+        position = position,
+        mapping = ggplot2::aes(!!!mapping),
+        params = rlang::list2(...),
+        show.legend = show_legend,
+      ) +
+      coord
+  }
+
+  if (!rlang::is_null(x_expand_limits)) {
+    plot <- plot +
+      ggplot2::expand_limits(x = x_expand_limits)
+  }
+
+  if (!rlang::is_null(y_expand_limits)) {
+    plot <- plot +
+      ggplot2::expand_limits(y = y_expand_limits)
+  }
+
 
   ##############################################################################
   # Add facet layer
@@ -451,7 +448,7 @@ gg_blanket <- function(data = NULL,
   }
 
   if (rlang::is_null(facet_axes)) {
-    if (flipped) facet_axes <- "all_y"
+    if (x_symmetric) facet_axes <- "all_y"
     else facet_axes <- "all_x"
   }
 
@@ -615,114 +612,17 @@ gg_blanket <- function(data = NULL,
     }
   }
 
-  ##############################################################################
-  # Add positional scales
-  ##############################################################################
+  #so that col_n can identify complete set of required non-NA colours
+  #and work even if col_palette_d sets insufficient colours
 
-  suppressMessages({
-      suppressWarnings({
-
-      if (!rlang::is_null(x_limits)) {
-        if (any(x_transform_name %in% "reverse")) x_limits1 <- rev(x_limits)
-        else x_limits1 <- x_limits
-
-        if (any(plot_scales %in% "scale_x_discrete")) x_scale_type <- "discrete"
-        else if (any(plot_scales %in% "scale_x_date")) x_scale_type <- "date"
-        else if (any(plot_scales %in% "scale_x_datetime")) x_scale_type <- "datetime"
-        else if (any(plot_scales %in% "scale_x_time")) x_scale_type <- "time"
-        else if (any(plot_scales %in% "scale_x_continuous")) x_scale_type <- "numeric"
-        else x_scale_type <- "numeric"
-
-        if (x_scale_type == "discrete") {
-          plot <- plot +
-            ggplot2::scale_x_discrete(limits = x_limits1)
-        }
-        else if (x_scale_type == "date") {
-          plot <- plot +
-            ggplot2::scale_x_date(limits = x_limits1)
-        }
-        else if (x_scale_type %in% c("datetime", "time")) {
-          plot <- plot +
-            ggplot2::scale_x_datetime(limits = x_limits1)
-        }
-        else {
-          plot <- plot +
-            ggplot2::scale_x_continuous(limits = x_limits1)
-        }
-    }
-
-      if (!rlang::is_null(y_limits)) {
-        if (any(y_transform_name %in% "reverse")) y_limits1 <- rev(y_limits)
-        else y_limits1 <- y_limits
-
-        if (y_scale_type == "discrete") {
-          plot <- plot +
-            ggplot2::scale_y_discrete(limits = y_limits1)
-        }
-        else if (y_scale_type == "date") {
-          plot <- plot +
-            ggplot2::scale_y_date(limits = y_limits1)
-        }
-        else if (y_scale_type %in% c("datetime", "time")) {
-          plot <- plot +
-            ggplot2::scale_y_datetime(limits = y_limits1)
-        }
-        else {
-          plot <- plot +
-            ggplot2::scale_y_continuous(limits = y_limits1)
-        }
-      }
-    })
-  })
-
-  ##############################################################################
-  # Add geom layer
-  ##############################################################################
-
-  if (geom_name == "blank") show_legend <- FALSE
-  else show_legend <- TRUE
-
-  if (stringr::str_detect(stat_name, "sf")) {
-    if (rlang::is_null(coord)) coord <- ggplot2::coord_sf(clip = "off")
-
+  if (col_scale_type %in% c("discrete", "ordinal")) {
     plot <- plot +
-      ggplot2::layer_sf(
-        geom = geom,
-        stat = stat,
-        position = position,
-        mapping = ggplot2::aes(!!!mapping),
-        params = rlang::list2(...),
-        show.legend = show_legend,
-      ) +
-      coord
-  }
-  else {
-    if (rlang::is_null(coord)) coord <- ggplot2::coord_cartesian(clip = "off")
-
-    plot <- plot +
-      ggplot2::layer(
-        geom = geom,
-        stat = stat,
-        position = position,
-        mapping = ggplot2::aes(!!!mapping),
-        params = rlang::list2(...),
-        show.legend = show_legend,
-      ) +
-      coord
-  }
-
-  if (!rlang::is_null(x_expand_limits)) {
-    plot <- plot +
-      ggplot2::expand_limits(x = x_expand_limits)
-  }
-
-  if (!rlang::is_null(y_expand_limits)) {
-    plot <- plot +
-      ggplot2::expand_limits(y = y_expand_limits)
+      ggplot2::scale_colour_hue(na.value = "grey50") +
+      ggplot2::scale_fill_hue(na.value = "grey50")
   }
 
   ##############################################################################
-  # get the plot build and data
+  # get the plot build and plot data
   ##############################################################################
 
   suppressMessages({
@@ -756,16 +656,15 @@ gg_blanket <- function(data = NULL,
 
       #get col_transform if NULL
       if (rlang::is_null(col_transform)) {
-        if (inherits(rlang::eval_tidy(col, data), what = "hms")) col_transform <- scales::transform_hms()
-        else if (inherits(rlang::eval_tidy(col, data), what = "POSIXct")) col_transform <- scales::transform_time()
-        else if (inherits(rlang::eval_tidy(col, data), what = "Date")) col_transform <- scales::transform_date()
+        if (col_scale_type == "time") col_transform <- scales::transform_hms()
+        else if (col_scale_type == "datetime") col_transform <- scales::transform_time()
+        else if (col_scale_type == "date") col_transform <- scales::transform_date()
         else col_transform <- scales::transform_identity()
       }
 
       #make a tidy name to deal with composed transforms
-      if (is.character(col_transform)) col_transform_name <- col_transform
-      else if (inherits(col_transform, what = "transform")) {
-        col_transform_name <- col_transform$name %>%
+      if (inherits(col_transform, what = "transform")) {
+        col_transform <- col_transform$name %>%
           stringr::str_remove("composition") %>%
           stringr::str_remove("\\(") %>%
           stringr::str_remove("\\)") %>%
@@ -774,23 +673,17 @@ gg_blanket <- function(data = NULL,
       }
 
       if (rlang::is_null(col_breaks)) {
-        if (any(stringr::str_detect(col_transform_name, "log-")) |
-            any(col_transform_name %in% c("log", "log2", "log10"))
-        ) {
-          col_breaks <- scales::breaks_log(n = 5)
+        if (any(col_transform %in% c("hms", "time", "datetime", "date"))) {
+          col_breaks <- scales::breaks_pretty(n = col_breaks_n)
         }
-        else if (!any(col_transform_name %in% c("identity", "reverse"))) col_breaks <- ggplot2::waiver()
-        else col_breaks <- scales::breaks_extended(n = 5, only.loose = TRUE)
+        else {
+          col_breaks <- scales::breaks_extended(n = col_breaks_n, only.loose = FALSE)
+        }
       }
 
       if (rlang::is_null(col_labels)) {
-        if (any(col_transform_name %in% c("hms"))) col_labels <- scales::label_time()
-        else if (any(col_transform_name %in% c("date", "time"))) col_labels <- scales::label_date_short()
-        else if (any(stringr::str_detect(col_transform_name, "log-")) |
-                 any(col_transform_name %in% c("log", "log2", "log10"))) {
-          col_labels <- scales::label_log()
-        }
-        else if (!any(col_transform_name %in% c("identity", "reverse"))) col_labels <- ggplot2::waiver()
+        if (any(col_transform %in% c("hms"))) col_labels <- scales::label_time()
+        else if (any(col_transform %in% c("date", "datetime", "time"))) col_labels <- scales::label_date_short()
         else col_labels <- scales::label_comma(drop0trailing = TRUE)
       }
 
@@ -799,11 +692,10 @@ gg_blanket <- function(data = NULL,
           ggplot2::scale_colour_gradientn(
             colours = col_palette,
             values = col_rescale,
-            limits = col_limits,
             breaks = col_breaks,
             labels = col_labels,
             transform = col_transform,
-            oob = col_oob,
+            oob = scales::oob_keep,
             na.value = col_palette_na,
             aesthetics = c("colour", "fill")
           ) +
@@ -817,11 +709,10 @@ gg_blanket <- function(data = NULL,
           ggplot2::scale_colour_stepsn(
             colours = col_palette,
             values = col_rescale,
-            limits = col_limits,
             breaks = col_breaks,
             labels = col_labels,
             transform = col_transform,
-            oob = col_oob,
+            oob = scales::oob_keep,
             na.value = col_palette_na,
             aesthetics = c("colour", "fill")
           ) +
@@ -836,14 +727,47 @@ gg_blanket <- function(data = NULL,
       }
     }
     else if (col_scale_type %in% c("discrete", "ordinal")) {
-      if (col_scale_type == "discrete") {
-        if (!rlang::quo_is_null(col)) {
-          col_n <- data %>%
-            dplyr::pull(!!col) %>%
-            levels() %>%
-            length()
-        } else col_n <- NULL
-      } else col_n <- NULL
+
+      if (rlang::is_null(col_palette_na)) {
+        if (col_scale_type == "discrete") {
+          if (rlang::is_null(get_col_palette_na_d())) col_palette_na <- "grey50"
+          else col_palette_na <- get_col_palette_na_d()
+        }
+        else if (col_scale_type == "ordinal") {
+          if (rlang::is_null(get_col_palette_na_o())) col_palette_na <- "grey50"
+          else col_palette_na <- get_col_palette_na_o()
+        }
+      }
+
+      if (!rlang::quo_is_null(col)) {
+        if (inherits(rlang::eval_tidy(col, data), what = c("factor"))) {
+          col_n_factor <- length(levels(rlang::eval_tidy(col, data)))
+        }
+      } else col_n_factor <- NA
+
+      colour_distinct <- plot_data %>%
+        dplyr::select(tidyselect::any_of("colour")) %>%
+        dplyr::distinct()
+
+      if (ncol(colour_distinct) > 0) {
+        colour_n <- colour_distinct %>%
+          dplyr::filter(.data$colour != "grey50") |>
+          dplyr::count() |>
+          dplyr::pull()
+      } else colour_n <- 1
+
+      fill_distinct <- plot_data %>%
+        dplyr::select(tidyselect::any_of("fill")) %>%
+        dplyr::distinct()
+
+      if (ncol(fill_distinct) > 0) {
+        fill_n <- fill_distinct %>%
+          dplyr::filter(.data$fill != "grey50") |>
+          dplyr::count() |>
+          dplyr::pull()
+      } else fill_n <- 1
+
+      col_n <- max(col_n_factor, colour_n, fill_n, na.rm = TRUE)
 
       if (rlang::is_null(col_palette)) {
         if (col_scale_type == "discrete") col_palette <- get_col_palette_d()
@@ -855,17 +779,14 @@ gg_blanket <- function(data = NULL,
         else if (!any(rlang::have_name(col_palette))) col_palette <- col_palette[1:col_n]
       }
 
-      if (flipped) {
+      if (x_symmetric) {
         col_legend_rev <- !col_legend_rev
-        if (col_scale_type == "discrete") col_palette <- rev(col_palette)
+        if (col_scale_type == "discrete") {
+          col_palette <- rev(col_palette)
+        }
       }
 
       if (col_scale_type == "ordinal") col_legend_rev <- !col_legend_rev
-
-      if (rlang::is_null(col_palette_na)) {
-        if (col_scale_type == "discrete") col_palette_na <- get_col_palette_na_d()
-        else if (col_scale_type == "ordinal") col_palette_na <- get_col_palette_na_o()
-      }
 
       if (rlang::is_null(col_labels)) col_labels <- ggplot2::waiver()
 
@@ -877,7 +798,6 @@ gg_blanket <- function(data = NULL,
           plot <- plot +
             ggplot2::scale_colour_manual(
               values = col_palette,
-              limits = col_limits,
               breaks = col_breaks,
               labels = col_labels,
               na.value = col_palette_na,
@@ -901,7 +821,6 @@ gg_blanket <- function(data = NULL,
           plot <- plot +
             ggplot2::discrete_scale(
               palette = col_palette,
-              limits = col_limits,
               breaks = col_breaks,
               labels = col_labels,
               na.value = col_palette_na,
@@ -928,7 +847,6 @@ gg_blanket <- function(data = NULL,
         if (col_scale_type == "discrete") {
           plot <- plot +
             ggplot2::scale_colour_hue(
-              limits = col_limits,
               breaks = col_breaks,
               labels = col_labels,
               na.value = col_palette_na,
@@ -951,7 +869,6 @@ gg_blanket <- function(data = NULL,
         else if (col_scale_type == "ordinal") {
           plot <- plot +
             ggplot2::scale_colour_viridis_d(
-              limits = col_limits,
               breaks = col_breaks,
               labels = col_labels,
               na.value = col_palette_na,
@@ -1149,32 +1066,14 @@ gg_blanket <- function(data = NULL,
   # add positional scales
   ##############################################################################
 
-  #Make x scale based on plot_data
-  if (stringr::str_detect(stat_name, "sf")) {
-    if (rlang::is_null(x_expand)) x_expand <- ggplot2::waiver()
-    if (rlang::is_null(x_labels)) x_labels <- ggplot2::waiver()
-    if (rlang::is_null(x_breaks)) x_breaks <- ggplot2::waiver()
-    if (rlang::is_null(x_transform)) x_transform <- scales::transform_identity()
-
-    plot <- plot +
-      ggplot2::scale_x_continuous(
-        limits = x_limits,
-        expand = x_expand,
-        breaks = x_breaks,
-        labels = x_labels,
-        oob = x_oob,
-        position = x_position,
-        transform = x_transform
-      )
-  }
-  else if (x_scale_type  == "discrete") {
+  #Make x scale
+  if (x_scale_type  == "discrete") {
     if (rlang::is_null(x_expand)) x_expand <- ggplot2::waiver()
     if (rlang::is_null(x_labels)) x_labels <- ggplot2::waiver()
     if (rlang::is_null(x_breaks)) x_breaks <- ggplot2::waiver()
 
     plot <- plot +
       ggplot2::scale_x_discrete(
-        limits = x_limits,
         expand = x_expand,
         breaks = x_breaks,
         labels = x_labels,
@@ -1183,188 +1082,63 @@ gg_blanket <- function(data = NULL,
       )
   }
   else {
-    #get x_labels if NULL
-    if (rlang::is_null(x_labels)) {
-      if (any(x_transform_name %in% c("hms"))) x_labels <- scales::label_time()
-      else if (any(x_transform_name %in% c("date", "time"))) x_labels <- scales::label_date_short()
-      else if (any(stringr::str_detect(x_transform_name, "log-")) |
-               any(x_transform_name %in% c("log", "log2", "log10"))) {
-        x_labels <- scales::label_log()
-      }
-      else if (!any(x_transform_name %in% c("identity", "reverse"))) x_labels <- ggplot2::waiver()
-      else x_labels <- scales::label_comma(drop0trailing = TRUE)
+    if (stringr::str_detect(stat_name, "sf")) {
+      if (rlang::is_null(x_breaks)) x_breaks <- ggplot2::waiver()
+      if (rlang::is_null(x_labels)) x_labels <- ggplot2::waiver()
     }
 
-    #get x_breaks_n
-    if (facet_ncols == 1) x_breaks_n <- 6
-    else if (facet_ncols == 2) x_breaks_n <- 5
-    else if (facet_ncols == 3) x_breaks_n <- 4
-    else x_breaks_n <- 3
-
-    #get x_expand and x_breaks for non-'symmetric' scales situation
-    if (!flipped |
-        stringr::str_detect(stat_name, "sf") |
-        facet_scales %in% c("free", "free_x") |
-        length(x_transform_name) > 1 |
-        !any(x_transform_name %in% c("identity", "reverse", "date", "time", "hms")) |
-        !rlang::is_null(x_expand)) {
-
-      # x_breaks_n <- x_breaks_n + 1
-
-      if (rlang::is_null(x_expand)) {
-        if (any(colnames(plot_data) %in% "xmin")) {
-          if (all(plot_data["xmin"] == 0)) x_expand <- ggplot2::expansion(c(0, 0.05))
-          else if (all(plot_data["xmax"] == 0)) x_expand <- ggplot2::expansion(c(0.05, 0))
-          else x_expand <- ggplot2::waiver()
-        } else x_expand <- ggplot2::waiver()
-      }
-
-      if (rlang::is_null(x_breaks)) {
-        if (any(stringr::str_detect(x_transform_name, "log-")) |
-            any(x_transform_name %in% c("log", "log2", "log10"))) {
-          x_breaks <- scales::breaks_log(n = x_breaks_n)
-        }
-        else if (any(x_transform_name %in% c("date", "time", "hms"))) {
-          x_breaks <- scales::breaks_pretty(n = x_breaks_n)
-        }
-        else {
-          x_breaks <- scales::breaks_extended(n = x_breaks_n, only.loose = FALSE)
-          }
-      }
+    if (rlang::is_null(x_breaks_n)) {
+      if (facet_ncols == 1) x_breaks_n <- 6
+      else if (facet_ncols == 2) x_breaks_n <- 5
+      else if (facet_ncols == 3) x_breaks_n <- 4
+      else x_breaks_n <- 3
     }
-    #get x_limits and x_breaks for 'symmetric'
+
+    if (x_symmetric) {
+      data_x <- plot_data %>%
+        dplyr::select(tidyselect::matches(stringr::regex("^(?!xid|xbin)x.*"))) %>%
+        tidyr::pivot_longer(cols = tidyselect::everything(), values_to = "x") %>%
+        dplyr::filter(!is.na(.data$x))
+
+      plot <- plot +
+        scale_x_symmetric(
+          data = data_x,
+          x = x,
+          symmetric = TRUE,
+          breaks = x_breaks,
+          breaks_n = x_breaks_n,
+          expand = x_expand,
+          expand_limits = x_expand_limits,
+          labels = x_labels,
+          position = x_position,
+          sec_axis = x_sec_axis,
+          transform = x_transform
+        )
+    }
     else {
-      if (!rlang::is_null(x_limits)) {
-        if (rlang::is_null(x_breaks)) {
-          if (any(x_transform_name %in% c("date", "time", "hms"))) {
-            x_breaks <- scales::breaks_pretty(n = x_breaks_n)
-          }
-          else {
-            x_breaks <- scales::breaks_extended(n = x_breaks_n, only.loose = TRUE)
-          }
-        }
-      }
-      else {
-        x_vars_str <- "^(?!xid|xbin)x.*" #starts with x & not xid & not xbin
-
-        x_vctr <- plot_data %>%
-          dplyr::select(tidyselect::matches(stringr::regex(x_vars_str)))
-
-        if (ncol(x_vctr) != 0) {
-          x_vctr <- x_vctr %>%
-            tidyr::pivot_longer(cols = tidyselect::everything()) %>%
-            dplyr::filter(!is.na(.data$value)) %>%
-            dplyr::pull(.data$value)
-        } else {
-          x_vctr <- c(-Inf, Inf)
-        }
-
-        if (!rlang::is_null(x_expand_limits)) {
-          x_vctr <- c(x_vctr, x_expand_limits)
-        }
-
-        if (x_scale_type == "time") x_vctr <- hms::as_hms(x_vctr)
-        else if (x_scale_type == "datetime") x_vctr <- lubridate::as_datetime(x_vctr, origin = "1970-01-01")
-        else if (x_scale_type == "date") x_vctr <- lubridate::as_date(x_vctr, origin = "1970-01-01")
-
-        #get the range from the vctr
-        x_range <- range(x_vctr, na.rm = TRUE)
-        if (x_scale_type == "time") x_range <- hms::as_hms(x_range)
-
-        if (any(x_transform_name %in% "reverse")) {
-          x_range <- sort(x_range, decreasing = TRUE)
-        }
-
-        if (position_name == "fill") {
-          if (rlang::is_null(x_breaks)) x_breaks <- ggplot2::waiver()
-        }
-        else if (rlang::is_null(x_breaks)) {
-          if (any(x_transform_name %in% c("date", "time", "hms"))) {
-            x_breaks <- scales::breaks_pretty(n = x_breaks_n)(x_range)
-          }
-          else {
-            x_breaks <- scales::breaks_extended(n = x_breaks_n, only.loose = TRUE)(x_range)
-          }
-
-          if (rlang::is_null(x_limits)) x_limits <- sort(range(x_breaks))
-        }
-        else {
-          if (rlang::is_null(x_limits)) {
-            if (is.function(x_breaks)) {
-              x_breaks <- x_breaks(x_range)
-              x_limits <- range(x_breaks)
-            }
-            else if (is.vector(x_breaks)) x_limits <- sort(range(x_breaks))
-          }
-        }
-
-        if (any(x_transform_name %in% "reverse")) {
-          if (!rlang::is_null(x_limits)) {
-            x_limits <- sort(x_limits, decreasing = TRUE)
-          }
-        }
-      }
-
-      #and x_expand
-      if (rlang::is_null(x_expand)) {
-        if (!rlang::is_null(x_limits)) {
-          if (identical(x_limits, c(NA, NA))) {
-            x_expand <- ggplot2::waiver()
-          }
-          else if (identical(x_limits, c(0, NA))) {
-            x_expand <- ggplot2::expansion(mult = c(0, 0.05))
-          }
-          else if (identical(x_limits, c(NA, 0))) {
-            x_expand <- ggplot2::expansion(mult = c(0.05, 0))
-          }
-          else if (identical(x_limits, c(lubridate::NA_Date_, lubridate::NA_Date_))) {
-            x_expand <- ggplot2::waiver()
-          }
-          else x_expand <- c(0, 0)
-        }
-        else x_expand <- c(0, 0)
-      }
+      plot <- plot +
+        scale_x_symmetric(
+          symmetric = FALSE,
+          breaks = x_breaks,
+          breaks_n = x_breaks_n,
+          expand = x_expand,
+          expand_limits = x_expand_limits,
+          labels = x_labels,
+          position = x_position,
+          sec_axis = x_sec_axis,
+          transform = x_transform
+        )
     }
-
-    #make the x_scale
-    plot <- plot +
-      ggplot2::scale_x_continuous(
-        limits = x_limits,
-        expand = x_expand,
-        breaks = x_breaks,
-        labels = x_labels,
-        oob = x_oob,
-        position = x_position,
-        transform = x_transform
-      )
   }
 
-  #Make y scale based on plot_data
-  if (stringr::str_detect(stat_name, "sf")) {
-    if (rlang::is_null(y_expand)) y_expand <- ggplot2::waiver()
-    if (rlang::is_null(y_labels)) y_labels <- ggplot2::waiver()
-    if (rlang::is_null(y_breaks)) y_breaks <- ggplot2::waiver()
-    if (rlang::is_null(y_transform)) y_transform <- scales::transform_identity()
-
-    plot <- plot +
-      ggplot2::scale_y_continuous(
-        limits = y_limits,
-        expand = y_expand,
-        labels = y_labels,
-        breaks = y_breaks,
-        oob = y_oob,
-        position = y_position,
-        transform = y_transform
-      )
-  }
-  else if (y_scale_type  == "discrete") {
+  #Make y scale
+  if (y_scale_type  == "discrete") {
     if (rlang::is_null(y_expand)) y_expand <- ggplot2::waiver()
     if (rlang::is_null(y_labels)) y_labels <- ggplot2::waiver()
     if (rlang::is_null(y_breaks)) y_breaks <- ggplot2::waiver()
 
     plot <- plot +
       ggplot2::scale_y_discrete(
-        limits = y_limits,
         expand = y_expand,
         breaks = y_breaks,
         labels = y_labels,
@@ -1373,169 +1147,53 @@ gg_blanket <- function(data = NULL,
       )
   }
   else {
-    #get y_labels if NULL
-    if (rlang::is_null(y_labels)) {
-      if (any(y_transform_name %in% c("hms"))) y_labels <- scales::label_time()
-      else if (any(y_transform_name %in% c("date", "time"))) y_labels <- scales::label_date_short()
-      else if (any(stringr::str_detect(y_transform_name, "log-")) |
-               any(y_transform_name %in% c("log", "log2", "log10"))) {
-        y_labels <- scales::label_log()
-      }
-      else if (!any(y_transform_name %in% c("identity", "reverse"))) y_labels <- ggplot2::waiver()
-      else y_labels <- scales::label_comma(drop0trailing = TRUE)
+    if (stringr::str_detect(stat_name, "sf")) {
+      if (rlang::is_null(y_breaks)) y_breaks <- ggplot2::waiver()
+      if (rlang::is_null(y_labels)) y_labels <- ggplot2::waiver()
     }
 
-    #get y_breaks_n
-    if (facet_nrows == 1) y_breaks_n <- 6
-    else if (facet_nrows == 2) y_breaks_n <- 5
-    else if (facet_nrows == 3) y_breaks_n <- 4
-    else y_breaks_n <- 3
-
-    #get y_expand and y_breaks for non-'symmetric' scales situation
-    if (flipped |
-        stringr::str_detect(stat_name, "sf") |
-        facet_scales %in% c("free", "free_y") |
-        length(y_transform_name) > 1 |
-        !any(y_transform_name %in% c("identity", "reverse", "date", "time", "hms")) |
-        !rlang::is_null(y_expand)) {
-
-      # y_breaks_n <- y_breaks_n + 1
-
-      if (rlang::is_null(y_expand)) {
-        if (any(colnames(plot_data) %in% "ymin")) {
-          if (all(plot_data["ymin"] == 0)) y_expand <- ggplot2::expansion(c(0, 0.05))
-          else if (all(plot_data["ymax"] == 0)) y_expand <- ggplot2::expansion(c(0.05, 0))
-          else y_expand <- ggplot2::waiver()
-        } else y_expand <- ggplot2::waiver()
-      }
-
-      if (rlang::is_null(y_breaks)) {
-        if (any(stringr::str_detect(y_transform_name, "log-")) |
-            any(y_transform_name %in% c("log", "log2", "log10"))) {
-          y_breaks <- scales::breaks_log(n = y_breaks_n)
-        }
-        else if (any(y_transform_name %in% c("date", "time", "hms"))) {
-          y_breaks <- scales::breaks_pretty(n = y_breaks_n)
-        }
-        else {
-          y_breaks <- scales::breaks_extended(n = y_breaks_n, only.loose = FALSE)
-        }
-      }
+    if (rlang::is_null(y_breaks_n)) {
+      if (facet_nrows == 1) y_breaks_n <- 6
+      else if (facet_nrows == 2) y_breaks_n <- 5
+      else if (facet_nrows == 3) y_breaks_n <- 4
+      else y_breaks_n <- 3
     }
-    #get y_limits and y_breaks for 'symmetric'
+
+    if (y_symmetric) {
+      data_y <- plot_data %>%
+        dplyr::select(tidyselect::matches(stringr::regex("^(?!yid|ybin)y.*"))) %>%
+        tidyr::pivot_longer(cols = tidyselect::everything(), values_to = "y") %>%
+        dplyr::filter(!is.na(.data$y))
+
+      plot <- plot +
+        scale_y_symmetric(
+          data = data_y,
+          y = y,
+          symmetric = TRUE,
+          breaks = y_breaks,
+          breaks_n = y_breaks_n,
+          expand = y_expand,
+          expand_limits = y_expand_limits,
+          labels = y_labels,
+          position = y_position,
+          sec_axis = y_sec_axis,
+          transform = y_transform
+        )
+    }
     else {
-      if (!rlang::is_null(y_limits)) {
-        if (rlang::is_null(y_breaks)) {
-          if (any(y_transform_name %in% c("date", "time", "hms"))) {
-            y_breaks <- scales::breaks_pretty(n = y_breaks_n)
-          }
-          else {
-            y_breaks <- scales::breaks_extended(n = y_breaks_n, only.loose = TRUE)
-          }
-        }
-      }
-      else {
-        y_vars_str <- "^(?!yid|ybin)y.*" #starts with y & not yid & not ybin
-
-        y_vctr <- plot_data %>%
-          dplyr::select(tidyselect::matches(stringr::regex(y_vars_str)))
-
-        if (ncol(y_vctr) != 0) {
-          y_vctr <- y_vctr %>%
-            tidyr::pivot_longer(cols = tidyselect::everything()) %>%
-            dplyr::filter(!is.na(.data$value)) %>%
-            dplyr::pull(.data$value)
-        } else {
-          y_vctr <- c(-Inf, Inf)
-        }
-
-        if (!rlang::is_null(y_expand_limits)) {
-          y_vctr <- c(y_vctr, y_expand_limits)
-        }
-
-        if (y_scale_type == "time") y_vctr <- hms::as_hms(y_vctr)
-        else if (y_scale_type == "datetime")  y_vctr <- lubridate::as_datetime(y_vctr, origin = "1970-01-01")
-        else if (y_scale_type == "date")  y_vctr <- lubridate::as_date(y_vctr, origin = "1970-01-01")
-
-        #get the range from the vctr
-        y_range <- range(y_vctr, na.rm = TRUE)
-        if (y_scale_type == "time") y_range <- hms::as_hms(y_range)
-
-        if (any(y_transform_name %in% "reverse")) {
-          y_range <- sort(y_range, decreasing = TRUE)
-        }
-
-        if (position_name == "fill") {
-          if (rlang::is_null(y_breaks)) y_breaks <- ggplot2::waiver()
-        }
-        else if (rlang::is_null(y_breaks)) {
-          if (any(y_transform_name %in% c("date", "time", "hms"))) {
-            y_breaks <- scales::breaks_pretty(n = y_breaks_n)(y_range)
-          }
-          else {
-            y_breaks <- scales::breaks_extended(n = y_breaks_n, only.loose = TRUE)(y_range)
-          }
-
-          if (rlang::is_null(y_limits)) y_limits <- sort(range(y_breaks))
-        }
-        else {
-          if (rlang::is_null(y_limits)) {
-            if (is.function(y_breaks)) {
-              y_breaks <- y_breaks(y_range)
-              y_limits <- range(y_breaks)
-            }
-            else if (is.vector(y_breaks)) y_limits <- sort(range(y_breaks))
-          }
-        }
-
-        if (any(y_transform_name %in% "reverse")) {
-          if (!rlang::is_null(y_limits)) {
-            y_limits <- sort(y_limits, decreasing = TRUE)
-          }
-        }
-      }
-
-      #and y_expand
-      if (rlang::is_null(y_expand)) {
-        if (!rlang::is_null(y_limits)) {
-          if (identical(y_limits, c(NA, NA))) {
-            y_expand <- ggplot2::waiver()
-          }
-          else if (identical(y_limits, c(0, NA))) {
-            y_expand <- ggplot2::expansion(mult = c(0, 0.05))
-          }
-          else if (identical(y_limits, c(NA, 0))) {
-            y_expand <- ggplot2::expansion(mult = c(0.05, 0))
-          }
-          else if (identical(y_limits, c(lubridate::NA_Date_, lubridate::NA_Date_))) {
-            y_expand <- ggplot2::waiver()
-          }
-          else y_expand <- c(0, 0)
-        }
-        else y_expand <- c(0, 0)
-      }
+      plot <- plot +
+        scale_y_symmetric(
+          symmetric = FALSE,
+          breaks = y_breaks,
+          breaks_n = y_breaks_n,
+          expand = y_expand,
+          expand_limits = y_expand_limits,
+          labels = y_labels,
+          position = y_position,
+          sec_axis = y_sec_axis,
+          transform = y_transform
+        )
     }
-
-    plot <- plot +
-      ggplot2::scale_y_continuous(
-        limits = y_limits,
-        expand = y_expand,
-        breaks = y_breaks,
-        labels = y_labels,
-        oob = y_oob,
-        position = y_position,
-        transform = y_transform
-      )
-  }
-
-  #expand limits if necessary
-  if (!rlang::is_null(x_expand_limits)) {
-    plot <- plot +
-      ggplot2::expand_limits(x = x_expand_limits)
-  }
-  if (!rlang::is_null(y_expand_limits)) {
-    plot <- plot +
-      ggplot2::expand_limits(y = y_expand_limits)
   }
 
   #############################################################################
@@ -1743,71 +1401,92 @@ gg_blanket <- function(data = NULL,
     mode
 
   ##############################################################################
-  # mode removal of theme components
+  # mode make transparent some theme components
   ##############################################################################
 
-  if (stringr::str_detect(stat_name, "sf")) {
+  if (mode_orientation == "x") {
     plot <- plot +
       ggplot2::theme(
-        axis.line.x.top = ggplot2::element_blank(),
-        axis.line.x.bottom = ggplot2::element_blank(),
-        axis.ticks.x.top = ggplot2::element_blank(),
-        axis.ticks.x.bottom = ggplot2::element_blank(),
-        axis.minor.ticks.x.top = ggplot2::element_blank(),
-        axis.minor.ticks.x.bottom = ggplot2::element_blank(),
-        axis.text.x.top = ggplot2::element_blank(),
-        axis.text.x.bottom = ggplot2::element_blank(),
+        panel.grid.major.x = ggplot2::element_line(colour = "transparent"),
+        panel.grid.minor.x = ggplot2::element_line(colour = "transparent"),
+        axis.line.y = ggplot2::element_line(colour = "transparent"),
+        axis.ticks.y = ggplot2::element_line(colour = "transparent")
+      )
 
-        axis.line.y.left = ggplot2::element_blank(),
-        axis.line.y.right = ggplot2::element_blank(),
-        axis.ticks.y.left = ggplot2::element_blank(),
-        axis.ticks.y.right = ggplot2::element_blank(),
-        axis.minor.ticks.y.left = ggplot2::element_blank(),
-        axis.minor.ticks.y.right = ggplot2::element_blank(),
-        axis.text.y.left = ggplot2::element_blank(),
-        axis.text.y.right = ggplot2::element_blank()
-      )
+    if (x_scale_type == "discrete") {
+      plot <- plot +
+        ggplot2::theme(
+          axis.ticks.x = ggplot2::element_line(colour = "transparent")
+        )
+    }
   }
-  else if (flipped) {
+  else if (mode_orientation == "y") {
     plot <- plot +
       ggplot2::theme(
-        panel.grid.major.y = ggplot2::element_blank(),
-        panel.grid.minor.y = ggplot2::element_blank(),
-        axis.line.x.top = ggplot2::element_blank(),
-        axis.line.x.bottom = ggplot2::element_blank(),
-        axis.ticks.x.top = ggplot2::element_blank(),
-        axis.ticks.x.bottom = ggplot2::element_blank(),
-        axis.minor.ticks.x.top = ggplot2::element_blank(),
-        axis.minor.ticks.x.bottom = ggplot2::element_blank()
+        panel.grid.major.y = ggplot2::element_line(colour = "transparent"),
+        panel.grid.minor.y = ggplot2::element_line(colour = "transparent"),
+        axis.line.x = ggplot2::element_line(colour = "transparent"),
+        axis.ticks.x = ggplot2::element_line(colour = "transparent")
       )
-  }
-  else {
-    plot <- plot +
-      ggplot2::theme(
-        panel.grid.major.x = ggplot2::element_blank(),
-        panel.grid.minor.x = ggplot2::element_blank(),
-        axis.line.y.left = ggplot2::element_blank(),
-        axis.line.y.right = ggplot2::element_blank(),
-        axis.ticks.y.left = ggplot2::element_blank(),
-        axis.ticks.y.right = ggplot2::element_blank(),
-        axis.minor.ticks.y.left = ggplot2::element_blank(),
-        axis.minor.ticks.y.right = ggplot2::element_blank()
-      )
+
+    if (y_scale_type == "discrete") {
+      plot <- plot +
+        ggplot2::theme(
+          axis.ticks.y = ggplot2::element_line(colour = "transparent")
+        )
+    }
   }
 
   ##############################################################################
   # add the theme if globally set
   ##############################################################################
 
-  if (rlang::is_null(mode) & rlang::is_null(get_mode())) {
-    if (!rlang::is_null(get_theme())) {
-      plot <- plot +
-        get_theme()
-    } else {
-      plot <- plot +
-        ggplot2::theme_grey()
+  if (rlang::is_null(mode)) {
+    if (rlang::is_null(get_mode())) {
+      if (!rlang::is_null(get_theme())) {
+        plot <- plot +
+          get_theme()
+      }
+      else {
+        plot <- plot +
+          ggplot2::theme_grey()
+
+        if (mode_orientation == "x") {
+          plot <- plot +
+            ggplot2::theme(
+              panel.grid.major.x = ggplot2::element_line(colour = "transparent"),
+              panel.grid.minor.x = ggplot2::element_line(colour = "transparent"),
+              axis.line.y = ggplot2::element_line(colour = "transparent"),
+              axis.ticks.y = ggplot2::element_line(colour = "transparent")
+            )
+
+          if (x_scale_type == "discrete") {
+            plot <- plot +
+              ggplot2::theme(
+                axis.ticks.x = ggplot2::element_line(colour = "transparent")
+              )
+          }
+        }
+        else if (mode_orientation == "y") {
+          plot <- plot +
+            ggplot2::theme(
+              panel.grid.major.y = ggplot2::element_line(colour = "transparent"),
+              panel.grid.minor.y = ggplot2::element_line(colour = "transparent"),
+              axis.line.x = ggplot2::element_line(colour = "transparent"),
+              axis.ticks.x = ggplot2::element_line(colour = "transparent")
+            )
+
+          if (y_scale_type == "discrete") {
+            plot <- plot +
+              ggplot2::theme(
+                axis.ticks.y = ggplot2::element_line(colour = "transparent")
+              )
+          }
+        }
+      }
     }
   }
+
 
   return(plot)
 }
