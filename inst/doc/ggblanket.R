@@ -39,9 +39,9 @@ penguins2 |>
     y = body_mass_g,
   )
 
-## ----fig.asp=0.45-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 penguins2 |>
-  gg_boxplot(
+  gg_violin(
     x = flipper_length_mm,
     y = island,
     col = sex, 
@@ -77,13 +77,14 @@ penguins2 |>
   gg_jitter(
     x = flipper_length_mm,
     y = body_mass_g,
-    col = flipper_length_mm,
+    col = bill_length_mm,
     x_breaks_n = 4,
-    x_labels = \(x) stringr::str_sub(x, 1, 1),
+    x_label = "Flipper length",
+    x_labels = \(x) paste0(x, " mm"),
     y_expand_limits = 1000,
     y_labels = label_number(big.mark = " "), 
     y_transform = "sqrt",
-    col_label = "Flipper\nlength (mm)",
+    col_label = "Bill\nlength (mm)",
     col_steps = TRUE,
     col_breaks = \(x) quantile(x, seq(0, 1, 0.25)),
     col_palette = viridis::rocket(n = 9, direction = -1),
@@ -107,8 +108,8 @@ penguins2 |>
     linewidth = 1, 
     linetype = "dashed",
     alpha = 1, 
-    se = TRUE, 
     level = 0.999, 
+    se = TRUE,
   ) 
 
 ## ----fig.asp=0.65-------------------------------------------------------------
@@ -174,7 +175,6 @@ penguins2 |>
   geom_col(
     width = 0.75,
     position = position_dodge(width = 0.75),
-    alpha = 0.9,
   ) +
   geom_errorbar(
     width = 0.1, 
@@ -184,11 +184,12 @@ penguins2 |>
 
 ## -----------------------------------------------------------------------------
 set_blanket(
-  mode = dark_mode_r(), 
+  mode = dark_mode_r(),  
   colour = "#E7298AFF",
-  colour_text = darkness[1],
-  col_palette_d = c("#1B9E77FF", "#D95F02FF", "#7570b3FF", "#E7298AFF", "#66A61EFF", 
-                    "#E6AB02FF", "#A6761DFF", "#666666FF"), #RColorBrewer Dark2 
+  text_colour = darkness[1],
+  reference_line_colour = darkness[1],
+  col_palette_d = c("#1B9E77FF", "#D95F02FF", "#7570b3FF", "#E7298AFF",
+                    "#66A61EFF", "#E6AB02FF", "#A6761DFF", "#666666FF"),
 )
 
 p1 <- penguins2 |>

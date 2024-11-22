@@ -6,101 +6,31 @@
 \usage{
 weave_geom_defaults(
   colour = "#357BA2FF",
-  colour_text = "#121B24FF",
-  colour_label = colour_text,
-  colour_reference_line = colour_text,
-  colour_curve = colour_reference_line,
   fill = colour,
-  fill_label = colour_label,
-  alpha = 1,
-  alpha_area = 0.9,
-  alpha_bar = 0.9,
-  alpha_boxplot = 0.6,
-  alpha_crossbar = 0.6,
-  alpha_density = 0.6,
-  alpha_label = 0.05,
-  alpha_polygon = 0.9,
-  alpha_rect = 0.9,
-  alpha_ribbon = 0.6,
-  alpha_smooth = 0.6,
-  alpha_tile = 0.9,
-  alpha_violin = 0.9,
-  alpha_recursive = NULL,
-  linewidth = 0.66,
-  linewidth_reference_line = 0.33,
-  linewidth_curve = linewidth_reference_line,
-  size_point = 1.5,
-  size_pointrange = 0.2,
-  size_sf = 1.5,
-  size_text = 11/2.835052,
-  size_label = size_text,
-  family_text = "",
-  family_label = family_text
+  text_colour = "#121B24FF",
+  text_size = 11/2.835052,
+  text_family = "",
+  reference_line_colour = "#121B24FF",
+  reference_line_linewidth = 0.33
 )
 }
 \arguments{
-\item{colour}{A default hex colour for the colour of geoms without a more specific \verb{colour_*} argument.}
+\item{colour}{A default hex colour for the colour of geoms (other than text or reference line geoms).}
 
-\item{colour_text}{A default hex colour for the colour of the "text" geom.}
+\item{fill}{A default hex colour for the fill of geoms (other than text or reference line geoms).}
 
-\item{colour_label}{A default hex colour for the colour of the "label" geom.}
+\item{text_colour}{A default hex colour for the colour (and fill) of the "text" and "label" geoms.}
 
-\item{colour_reference_line}{A default hex colour for the colour of the "hline", "vline" and "abline" geoms.}
+\item{text_size}{A default size for the "text" and "label" geoms.}
 
-\item{colour_curve}{A default hex colour for the colour of the "curve" geom.}
+\item{text_family}{A default family for the "text" and "label" geoms.}
 
-\item{fill}{A default hex colour for the fill of geoms without a more specific \verb{fill_*} argument.}
+\item{reference_line_colour}{A default hex colour for the colour of the "hline", "vline", "abline" and "curve" geoms.}
 
-\item{fill_label}{A default hex colour for the fill of the "label" geom.}
-
-\item{alpha}{A default alpha for geoms without a more specific \verb{alpha_*} argument.}
-
-\item{alpha_area}{A default alpha for the "area" geom.}
-
-\item{alpha_bar}{A default alpha for the "bar" geom.}
-
-\item{alpha_boxplot}{A default alpha for the "boxplot" geom.}
-
-\item{alpha_crossbar}{A default alpha for the "crossbar" geom.}
-
-\item{alpha_density}{A default alpha for the "density" geom.}
-
-\item{alpha_label}{A default alpha for the "label" geom.}
-
-\item{alpha_polygon}{A default alpha for the "polygon" geom.}
-
-\item{alpha_rect}{A default alpha for the "rect" geom.}
-
-\item{alpha_ribbon}{A default alpha for the "ribbon" geom.}
-
-\item{alpha_smooth}{A default alpha for the "smooth" geom.}
-
-\item{alpha_tile}{A default alpha for the "tile" geom.}
-
-\item{alpha_violin}{A default alpha for the "violin" geom.}
-
-\item{alpha_recursive}{A default alpha applied to all geoms.}
-
-\item{linewidth}{A default linewidth for geoms.}
-
-\item{linewidth_reference_line}{A default linewidth for the the "hline", "vline" and "abline" geoms.}
-
-\item{linewidth_curve}{A default linewidth for the the "curve" geom.}
-
-\item{size_point}{A default size for the "point" geom.}
-
-\item{size_pointrange}{A default size for the "pointrange" geom.}
-
-\item{size_sf}{A default size for the "sf" geom.}
-
-\item{size_text}{A default size for the "text" geom.}
-
-\item{size_label}{A default size for the "label" geom.}
-
-\item{family_text}{A default family for the "text" geom.}
-
-\item{family_label}{A default family for the "text" geom.}
+\item{reference_line_linewidth}{A default linewidth for the the "hline", "vline", "abline" and "curve" geoms.}
 }
 \description{
-Update all geom defaults.
+Update the colour/fill geom default, and update other defaults for text and reference line geoms.
+
+\code{\link[ggplot2:update_defaults]{ggplot2::update_geom_defaults()}} can be used to further fine-tune geom defaults.
 }
