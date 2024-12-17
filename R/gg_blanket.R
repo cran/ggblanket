@@ -10,6 +10,7 @@
 #' @param coord A coordinate system. A `coord_*()` function that outputs a constructed ggproto Coord subclass object (e.g. [ggplot2::coord_cartesian()]).
 #' @param mode A ggplot2 theme (e.g. [light_mode_t()] or [dark_mode_r()]) that anticipates side-effects of removing relevant axis line/ticks and gridlines per the `mode_orientation`.
 #' @param mode_orientation The orientation of plot, which affects the theme components that are removed from the mode. Either "x" or "y".
+#' @param blend The blending mode per [ggblend::blend()] (e.g. "multiply").
 #' @param x,xmin,xmax,xend,y,ymin,ymax,yend,z,col,facet,facet2,group,subgroup,label,text,sample An unquoted aesthetic variable.
 #' @param mapping A set of additional aesthetic mappings in [ggplot2::aes()]. Intended primarily for non-supported aesthetics (e.g. `shape`, `linetype`, `linewidth`, or `size`), but can also be used for delayed evaluation etc.
 #' @param x_breaks,y_breaks,col_breaks A `scales::breaks_*` function (e.g. `scales::breaks_*()`), or a vector of breaks.
@@ -49,7 +50,7 @@
 #'
 #' set_blanket()
 #'
-#' penguins %>%
+#' penguins |>
 #'   gg_blanket(
 #'     geom = "violin",
 #'     stat = "ydensity",
@@ -65,7 +66,7 @@ gg_blanket <- function(data = NULL,
                        stat = "identity",
                        position = "identity",
                        coord = NULL,
-                       mode = NULL, mode_orientation = NULL,
+                       mode = NULL, mode_orientation = NULL, blend = NULL,
                        x = NULL,
                        xmin = NULL,
                        xmax = NULL,
@@ -130,6 +131,8 @@ gg_blanket <- function(data = NULL,
                        subtitle = NULL,
                        caption = NULL,
                        label_to_case = snakecase::to_sentence_case) {
+
+  options(ggblend.check_blend = FALSE)
 
   ##############################################################################
   #quote
@@ -207,30 +210,58 @@ gg_blanket <- function(data = NULL,
   if (stringr::str_detect(stat_name, "sf")) {
     if (rlang::is_null(coord)) coord <- ggplot2::coord_sf(clip = "off")
 
-    plot <- plot +
-      ggplot2::layer_sf(
-        geom = geom,
-        stat = stat,
-        position = position,
-        mapping = ggplot2::aes(!!!mapping),
-        params = rlang::list2(...),
-        show.legend = show_legend,
-      ) +
-      coord
+    if (rlang::is_null(blend)) {
+      plot <- plot +
+        ggplot2::layer_sf(
+          geom = geom,
+          stat = stat,
+          position = position,
+          mapping = ggplot2::aes(!!!mapping),
+          params = rlang::list2(...),
+          show.legend = show_legend,
+        ) +
+        coord
+    }
+    else {
+      plot <- plot +
+        ggplot2::layer_sf(
+          geom = geom,
+          stat = stat,
+          position = position,
+          mapping = ggplot2::aes(!!!mapping),
+          params = rlang::list2(...),
+          show.legend = show_legend,
+        ) |> ggblend::blend(blend = blend) +
+        coord
+    }
   }
   else {
     if (rlang::is_null(coord)) coord <- ggplot2::coord_cartesian(clip = "off")
 
-    plot <- plot +
-      ggplot2::layer(
-        geom = geom,
-        stat = stat,
-        position = position,
-        mapping = ggplot2::aes(!!!mapping),
-        params = rlang::list2(outlier.alpha = 1, ...),
-        show.legend = show_legend,
-      ) +
-      coord
+    if (rlang::is_null(blend)) {
+      plot <- plot +
+        ggplot2::layer(
+          geom = geom,
+          stat = stat,
+          position = position,
+          mapping = ggplot2::aes(!!!mapping),
+          params = rlang::list2(...),
+          show.legend = show_legend,
+        ) +
+        coord
+    }
+    else {
+      plot <- plot +
+        ggplot2::layer(
+          geom = geom,
+          stat = stat,
+          position = position,
+          mapping = ggplot2::aes(!!!mapping),
+          params = rlang::list2(...),
+          show.legend = show_legend,
+        ) |> ggblend::blend(blend = blend) +
+        coord
+    }
   }
 
   suppressMessages({
@@ -343,15 +374,15 @@ gg_blanket <- function(data = NULL,
   # process the data
   ##############################################################################
 
-  data <- data %>%
+  data <- data |>
     #ungroup the data
-    dplyr::ungroup() %>%
+    dplyr::ungroup() |>
     #convert to factors class that can handle labels
     dplyr::mutate(dplyr::across(c(!!x, !!xmin, !!xmax, !!xend,
                                   !!y, !!ymin, !!ymax, !!yend,
                                   !!col, !!facet, !!facet2) &
                                   (tidyselect::where(is.character) | tidyselect::where(is.factor) | tidyselect::where(is.logical)),
-                                function(x) labelled::to_factor(x))) %>%
+                                function(x) labelled::to_factor(x))) |>
     #reverse y*, so that reads top low-levels to bottom high-levels
     dplyr::mutate(dplyr::across(c(!!y, !!ymin, !!ymax, !!yend) &
                                   tidyselect::where(is.factor),
@@ -359,7 +390,7 @@ gg_blanket <- function(data = NULL,
 
   #if flipped, order col correctly
   if ((!identical(rlang::eval_tidy(y, data), rlang::eval_tidy(col, data))) & x_symmetric) {
-    data <- data %>%
+    data <- data |>
       dplyr::mutate(dplyr::across(!!col & tidyselect::where(is.factor),
                                   function(x) forcats::fct_rev(x)))
   }
@@ -398,30 +429,58 @@ gg_blanket <- function(data = NULL,
   if (stringr::str_detect(stat_name, "sf")) {
     if (rlang::is_null(coord)) coord <- ggplot2::coord_sf(clip = "off")
 
-    plot <- plot +
-      ggplot2::layer_sf(
-        geom = geom,
-        stat = stat,
-        position = position,
-        mapping = ggplot2::aes(!!!mapping),
-        params = rlang::list2(...),
-        show.legend = show_legend,
-      ) +
-      coord
+    if (rlang::is_null(blend)) {
+      plot <- plot +
+        ggplot2::layer_sf(
+          geom = geom,
+          stat = stat,
+          position = position,
+          mapping = ggplot2::aes(!!!mapping),
+          params = rlang::list2(...),
+          show.legend = show_legend,
+        ) +
+        coord
+    }
+    else {
+      plot <- plot +
+        ggplot2::layer_sf(
+          geom = geom,
+          stat = stat,
+          position = position,
+          mapping = ggplot2::aes(!!!mapping),
+          params = rlang::list2(...),
+          show.legend = show_legend,
+        ) |> ggblend::blend(blend = blend) +
+        coord
+    }
   }
   else {
     if (rlang::is_null(coord)) coord <- ggplot2::coord_cartesian(clip = "off")
 
-    plot <- plot +
-      ggplot2::layer(
-        geom = geom,
-        stat = stat,
-        position = position,
-        mapping = ggplot2::aes(!!!mapping),
-        params = rlang::list2(outlier.alpha = 1, ...),
-        show.legend = show_legend,
-      ) +
-      coord
+    if (rlang::is_null(blend)) {
+      plot <- plot +
+        ggplot2::layer(
+          geom = geom,
+          stat = stat,
+          position = position,
+          mapping = ggplot2::aes(!!!mapping),
+          params = rlang::list2(...),
+          show.legend = show_legend,
+        ) +
+        coord
+    }
+    else {
+      plot <- plot +
+        ggplot2::layer(
+          geom = geom,
+          stat = stat,
+          position = position,
+          mapping = ggplot2::aes(!!!mapping),
+          params = rlang::list2(...),
+          show.legend = show_legend,
+        ) |> ggblend::blend(blend = blend) +
+        coord
+    }
   }
 
   if (!rlang::is_null(x_expand_limits)) {
@@ -670,11 +729,11 @@ gg_blanket <- function(data = NULL,
 
       #make a tidy name to deal with composed transforms
       if (inherits(col_transform, what = "transform")) {
-        col_transform <- col_transform$name %>%
-          stringr::str_remove("composition") %>%
-          stringr::str_remove("\\(") %>%
-          stringr::str_remove("\\)") %>%
-          stringr::str_split(",") %>%
+        col_transform <- col_transform$name |>
+          stringr::str_remove("composition") |>
+          stringr::str_remove("\\(") |>
+          stringr::str_remove("\\)") |>
+          stringr::str_split(",") |>
           unlist()
       }
 
@@ -751,23 +810,23 @@ gg_blanket <- function(data = NULL,
         }
       } else col_n_factor <- NA
 
-      colour_distinct <- plot_data %>%
-        dplyr::select(tidyselect::any_of("colour")) %>%
+      colour_distinct <- plot_data |>
+        dplyr::select(tidyselect::any_of("colour")) |>
         dplyr::distinct()
 
       if (ncol(colour_distinct) > 0) {
-        colour_n <- colour_distinct %>%
+        colour_n <- colour_distinct |>
           dplyr::filter(.data$colour != "grey50") |>
           dplyr::count() |>
           dplyr::pull()
       } else colour_n <- 1
 
-      fill_distinct <- plot_data %>%
-        dplyr::select(tidyselect::any_of("fill")) %>%
+      fill_distinct <- plot_data |>
+        dplyr::select(tidyselect::any_of("fill")) |>
         dplyr::distinct()
 
       if (ncol(fill_distinct) > 0) {
-        fill_n <- fill_distinct %>%
+        fill_n <- fill_distinct |>
           dplyr::filter(.data$fill != "grey50") |>
           dplyr::count() |>
           dplyr::pull()
@@ -1101,9 +1160,9 @@ gg_blanket <- function(data = NULL,
     }
 
     if (x_symmetric) {
-      data_x <- plot_data %>%
-        dplyr::select(tidyselect::matches(stringr::regex("^(?!xid|xbin)x.*"))) %>%
-        tidyr::pivot_longer(cols = tidyselect::everything(), values_to = "x") %>%
+      data_x <- plot_data |>
+        dplyr::select(tidyselect::matches(stringr::regex("^(?!xid|xbin)x.*"))) |>
+        tidyr::pivot_longer(cols = tidyselect::everything(), values_to = "x") |>
         dplyr::filter(!is.na(.data$x))
 
       plot <- plot +
@@ -1166,9 +1225,9 @@ gg_blanket <- function(data = NULL,
     }
 
     if (y_symmetric) {
-      data_y <- plot_data %>%
-        dplyr::select(tidyselect::matches(stringr::regex("^(?!yid|ybin)y.*"))) %>%
-        tidyr::pivot_longer(cols = tidyselect::everything(), values_to = "y") %>%
+      data_y <- plot_data |>
+        dplyr::select(tidyselect::matches(stringr::regex("^(?!yid|ybin)y.*"))) |>
+        tidyr::pivot_longer(cols = tidyselect::everything(), values_to = "y") |>
         dplyr::filter(!is.na(.data$y))
 
       plot <- plot +

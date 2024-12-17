@@ -1,3 +1,14 @@
+# ggblanket 11.1.0
+
+* Breaking: removed `aes_colour_darken`, `aes_colour_lighten`, `aes_fill_darken` and `aes_colour_lighten`.
+* Breaking: in `set_blanket`, renamed `reference_line_*` arguments to `reference_*`.
+* Added R 4.2.0 dependency.
+* Added colour blending (e.g. `blend = "multiply`).
+* Removed `gg_ribbon`, `gg_boxplot`, `gg_crossbar` and `gg_smooth` alpha default to `NA`.
+* Added `gg_ribbon_line`.
+* Updated `*_mode_*` themes to default to `axis_line_linewidth = 0.25`. 
+* In `set_blanket`, removed `theme` argument - and updated `weave_theme` to apply `weave_mode(mode = NULL)`.
+
 # ggblanket 11.0.0
 
 * Breaking: in `set_blanket`, changed default to use `alpha = NA`, and used `linewidth = 0` generally for polygons.

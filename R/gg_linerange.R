@@ -35,7 +35,7 @@ gg_linerange <- function(data = NULL,
                          stat = "identity",
                          position = "identity",
                          coord = ggplot2::coord_cartesian(clip = "off"),
-                         mode = NULL, mode_orientation = NULL,
+                         mode = NULL, mode_orientation = NULL, blend = NULL,
                          x = NULL,
                          xmin = NULL,
                          xmax = NULL,
@@ -54,23 +54,23 @@ gg_linerange <- function(data = NULL,
                          text = NULL,
                          sample = NULL,
                          mapping = NULL,
-                         x_breaks = NULL, x_breaks_n = NULL, 
+                         x_breaks = NULL, x_breaks_n = NULL,
                          x_expand = NULL,
                          x_expand_limits = NULL,
-                         x_label = NULL, x_labels = NULL, 
-                         
-                         
-                         x_position = "bottom", 
-                         
+                         x_label = NULL, x_labels = NULL,
+
+
+                         x_position = "bottom",
+
                          x_sec_axis = ggplot2::waiver(), x_symmetric = NULL, x_transform = NULL,
                          y_breaks = NULL, y_breaks_n = NULL,
                          y_expand = NULL,
                          y_expand_limits = NULL,
                          y_label = NULL, y_labels = NULL,
-                          y_position = "left",
+                         y_position = "left",
                          y_sec_axis = ggplot2::waiver(),
-                         y_symmetric = NULL, 
-                         
+                         y_symmetric = NULL,
+
                          y_transform = NULL,
                          col_breaks = NULL, col_breaks_n = 5,
                          col_drop = FALSE,
@@ -79,13 +79,13 @@ gg_linerange <- function(data = NULL,
                          col_legend_ncol = NULL,
                          col_legend_nrow = NULL,
                          col_legend_rev = FALSE,
-                         
-                         
+
+
                          col_palette = NULL,
                          col_palette_na = NULL,
                          col_rescale = scales::rescale(),
                          col_steps = FALSE,
-                         
+
                          col_transform = NULL,
                          facet_axes = NULL,
                          facet_axis_labels = "margins",
@@ -106,7 +106,7 @@ gg_linerange <- function(data = NULL,
     stat = stat,
     position = position,
     coord = coord,
-    mode = mode, mode_orientation = mode_orientation,
+    mode = mode, mode_orientation = mode_orientation, blend = blend,
     x = {{ x }},
     y = {{ y }},
     xmin = {{ xmin }},
@@ -151,7 +151,7 @@ gg_linerange <- function(data = NULL,
     col_legend_nrow = col_legend_nrow,
     col_legend_rev = col_legend_rev,
     col_breaks_n = col_breaks_n,
-    
+
     col_palette = col_palette,
     col_palette_na = col_palette_na,
     col_rescale = col_rescale,

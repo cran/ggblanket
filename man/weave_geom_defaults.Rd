@@ -10,27 +10,27 @@ weave_geom_defaults(
   text_colour = "#121B24FF",
   text_size = 11/2.835052,
   text_family = "",
-  reference_line_colour = "#121B24FF",
-  reference_line_linewidth = 0.33
+  reference_colour = "#121B24FF",
+  reference_linewidth = 0.25
 )
 }
 \arguments{
-\item{colour}{A default hex colour for the colour of geoms (other than text or reference line geoms).}
+\item{colour}{A default hex colour for the colour of geoms (other than "text", "label", "hline", "vline" and "abline" geoms).}
 
-\item{fill}{A default hex colour for the fill of geoms (other than text or reference line geoms).}
+\item{fill}{A default hex colour for the fill of geoms (other than "text", "label", "hline", "vline" and "abline" geoms).}
 
-\item{text_colour}{A default hex colour for the colour (and fill) of the "text" and "label" geoms.}
+\item{text_colour}{A default hex colour for the colour of the "text" and "label" geoms.}
 
 \item{text_size}{A default size for the "text" and "label" geoms.}
 
 \item{text_family}{A default family for the "text" and "label" geoms.}
 
-\item{reference_line_colour}{A default hex colour for the colour of the "hline", "vline", "abline" and "curve" geoms.}
+\item{reference_colour}{A default hex colour for the colour of the "hline", "vline" and "abline" geoms.}
 
-\item{reference_line_linewidth}{A default linewidth for the the "hline", "vline", "abline" and "curve" geoms.}
+\item{reference_linewidth}{A default hex colour for the colour of the "hline", "vline" and "abline" geoms.}
 }
 \description{
-Update the colour/fill geom default, and update other defaults for text and reference line geoms.
+Update all the geom defaults.
 
-\code{\link[ggplot2:update_defaults]{ggplot2::update_geom_defaults()}} can be used to further fine-tune geom defaults.
+\code{\link[ggplot2:update_defaults]{ggplot2::update_geom_defaults()}} can be used to further fine-tune individual geom defaults.
 }

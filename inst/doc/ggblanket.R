@@ -102,14 +102,11 @@ penguins2 |>
   gg_smooth(
     x = flipper_length_mm,
     y = body_mass_g,
-    col = sex, 
-    col_palette = c("#003F5CFF", "#FFA600FF"),
-    colour = "#BC5090FF", 
     linewidth = 1, 
     linetype = "dashed",
-    alpha = 1, 
     level = 0.999, 
     se = TRUE,
+    blend = "multiply",
   ) 
 
 ## ----fig.asp=0.65-------------------------------------------------------------
@@ -187,7 +184,7 @@ set_blanket(
   mode = dark_mode_r(),  
   colour = "#E7298AFF",
   text_colour = darkness[1],
-  reference_line_colour = darkness[1],
+  reference_colour = darkness[1],
   col_palette_d = c("#1B9E77FF", "#D95F02FF", "#7570b3FF", "#E7298AFF",
                     "#66A61EFF", "#E6AB02FF", "#A6761DFF", "#666666FF"),
 )

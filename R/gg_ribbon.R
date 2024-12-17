@@ -20,16 +20,14 @@
 #'     ymin = level_min,
 #'     ymax = level_max,
 #'     x_labels = \(x) x,
-#'     y_label = "Level",
-#'   ) +
-#'   geom_line(mapping = aes(y = level))
+#'   )
 #'
 gg_ribbon <- function(data = NULL,
                       ...,
                       stat = "identity",
                       position = "identity",
                       coord = ggplot2::coord_cartesian(clip = "off"),
-                      mode = NULL, mode_orientation = NULL,
+                      mode = NULL, mode_orientation = NULL, blend = NULL,
                       x = NULL,
                       xmin = NULL,
                       xmax = NULL,
@@ -100,7 +98,7 @@ gg_ribbon <- function(data = NULL,
     stat = stat,
     position = position,
     coord = coord,
-    mode = mode, mode_orientation = mode_orientation,
+    mode = mode, mode_orientation = mode_orientation, blend = blend,
     x = {{ x }},
     y = {{ y }},
     xmin = {{ xmin }},

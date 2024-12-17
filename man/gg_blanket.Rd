@@ -13,6 +13,7 @@ gg_blanket(
   coord = NULL,
   mode = NULL,
   mode_orientation = NULL,
+  blend = NULL,
   x = NULL,
   xmin = NULL,
   xmax = NULL,
@@ -97,6 +98,8 @@ gg_blanket(
 
 \item{mode_orientation}{The orientation of plot, which affects the theme components that are removed from the mode. Either "x" or "y".}
 
+\item{blend}{The blending mode per \code{\link[ggblend:blend]{ggblend::blend()}} (e.g. "multiply").}
+
 \item{x, xmin, xmax, xend, y, ymin, ymax, yend, z, col, facet, facet2, group, subgroup, label, text, sample}{An unquoted aesthetic variable.}
 
 \item{mapping}{A set of additional aesthetic mappings in \code{\link[ggplot2:aes]{ggplot2::aes()}}. Intended primarily for non-supported aesthetics (e.g. \code{shape}, \code{linetype}, \code{linewidth}, or \code{size}), but can also be used for delayed evaluation etc.}
@@ -168,7 +171,7 @@ library(palmerpenguins)
 
 set_blanket()
 
-penguins \%>\%
+penguins |>
   gg_blanket(
     geom = "violin",
     stat = "ydensity",

@@ -12,8 +12,8 @@ test_that(test_name, {
 
   set_blanket(
     mode = NULL,
-    theme = theme_grey(),
   )
+  weave_theme(theme = theme_grey())
 
   p <- penguins |>
     mutate(across(sex, \(x) stringr::str_to_sentence(x))) |>
@@ -36,7 +36,7 @@ test_that(test_name, {
     mode = light_mode_r(),
     colour = red,
     text_colour = teal,
-    reference_line_colour = teal,
+    reference_colour = teal,
   )
 
   p <- penguins |>
@@ -57,9 +57,9 @@ set_blanket(
   mode = dark_mode_r(base_size = 15),
   colour = red,
   text_colour = "red",
-  reference_line_colour = "red",
-  reference_line_linewidth = 5,
   text_size = 15 / 2.83505,
+  reference_colour = "red",
+  reference_linewidth = 5,
   col_palette_d = c(navy, red, "green"),
   col_palette_c = c(navy, purple, red, orange)
 )
