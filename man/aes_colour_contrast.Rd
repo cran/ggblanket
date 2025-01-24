@@ -7,7 +7,7 @@
 aes_colour_contrast(..., dark = "#121B24FF", light = "#FFFFFFFF")
 }
 \arguments{
-\item{...}{Provided to force user argument naming etc.}
+\item{...}{Provided to require argument naming, support trailing commas etc.}
 
 \item{dark}{A dark colour.}
 
@@ -54,7 +54,7 @@ penguins |>
     position = position_dodge(preserve = "single"),
     width = 0.75,
     x_labels = \(x) str_to_sentence(x),
-    mode = dark_mode_r(),
+    theme = dark_mode_r(),
   ) +
   geom_text(
     mapping = aes(label = n, !!!aes_colour_contrast(dark = darkness[3], light = darkness[1])),

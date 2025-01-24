@@ -6,40 +6,25 @@
 \usage{
 set_blanket(
   ...,
-  mode = light_mode_r(),
   colour = "#357BA2FF",
-  fill = colour,
-  text_colour = "#121B24FF",
-  text_size = 11/2.835052,
-  text_family = "",
-  reference_colour = "#121B24FF",
-  reference_linewidth = 0.25,
   col_palette_d = jumble,
   col_palette_c = viridisLite::mako(n = 9, direction = -1),
   col_palette_o = scales::pal_viridis(option = "G", direction = -1),
   col_palette_na_d = "#CDC5BFFF",
   col_palette_na_c = "#988F88FF",
-  col_palette_na_o = "#988F88FF"
+  col_palette_na_o = "#988F88FF",
+  theme = light_mode_r(),
+  theme_orientation = NULL,
+  theme_axis_line_rm = TRUE,
+  theme_axis_ticks_rm = TRUE,
+  theme_panel_grid_rm = TRUE,
+  label_case = snakecase::to_sentence_case
 )
 }
 \arguments{
-\item{...}{Provided to force user argument naming etc.}
+\item{...}{Provided to require argument naming, support trailing commas etc.}
 
-\item{mode}{A ggplot2 theme (e.g. \code{\link[=light_mode_t]{light_mode_t()}} or \code{\link[=dark_mode_r]{dark_mode_r()}}) that anticipates \verb{gg_*} side-effects of removing relevant axis line/ticks and gridlines per the \code{mode_orientation}.}
-
-\item{colour}{A default hex colour for the colour of geoms (other than "text", "label", "hline", "vline" and "abline" geoms).}
-
-\item{fill}{A default hex colour for the fill of geoms (other than "text", "label", "hline", "vline" and "abline" geoms).}
-
-\item{text_colour}{A default hex colour for the colour of the "text" and "label" geoms.}
-
-\item{text_size}{A default size for the "text" and "label" geoms.}
-
-\item{text_family}{A default family for the "text" and "label" geoms.}
-
-\item{reference_colour}{A default hex colour for the colour of the "hline", "vline" and "abline" geoms.}
-
-\item{reference_linewidth}{A default hex colour for the colour of the "hline", "vline" and "abline" geoms.}
+\item{colour}{For most geoms, a default hex code for the colour of geoms (i.e. geoms other than "text", "label", "hline", "vline" and "abline"). Note "fill" inherits from this argument.}
 
 \item{col_palette_d}{For a discrete scale, a character vector of hex codes.}
 
@@ -52,20 +37,33 @@ set_blanket(
 \item{col_palette_na_c}{For a continuous scale, a hex code.}
 
 \item{col_palette_na_o}{For an ordinal scale, a hex code.}
+
+\item{theme}{A ggplot2 theme (e.g. \code{\link[=light_mode_t]{light_mode_t()}} or \code{\link[=dark_mode_r]{dark_mode_r()}}).}
+
+\item{theme_orientation}{The orientation of plot, which affects the theme components that can be removed by the \verb{gg_*} function. Either \code{"x"} or \code{"y"}. Defaults to \code{NULL}, which lets the \verb{gg_*} function guess it based on the data.}
+
+\item{theme_axis_line_rm}{\code{TRUE} or \code{FALSE} of whether the \verb{gg_*} function should remove the relevant axis line per the \code{theme_orientation} of the plot.}
+
+\item{theme_axis_ticks_rm}{\code{TRUE} or \code{FALSE} of whether the \verb{gg_*} function should remove the relevant axis ticks per the \code{theme_orientation} of the plot.}
+
+\item{theme_panel_grid_rm}{\code{TRUE} or \code{FALSE} of whether the \verb{gg_*} function should remove the relevant panel grid per the \code{theme_orientation} of the plot.}
+
+\item{label_case}{A function to apply to a unspecified/unlabelled \code{x_label}, \code{y_label}, \code{col_label} etc. Defaults to \code{snakecase::to_sentence_case}.}
 }
 \value{
 A globally set style.
 }
 \description{
-Weave the style by setting:
+Set the style by setting:
 \enumerate{
-\item the mode to be added by default
-\item the geom defaults (e.g. colour/fill), and text and reference line defaults
-\item the col_palettes for discrete, continuous and ordinal colour/fill scales
+\item the geom defaults, including the colour (and fill) of geoms (i.e. \code{weave_geom_defaults})
+\item the colour (and fill) palettes (i.e. discrete, continuous and ordinal) (i.e. \code{weave_col_palette})
+\item the theme, and how/what side-effects are to be applied (i.e. \code{weave_theme})
+\item the function to apply to a unspecified/unlabelled \code{x_label}, \code{y_label}, \code{col_label} etc (i.e. \code{weave_label_case}).
 }
 
-Alternatively, use the \verb{weave_*} functions to only apply a subset of these.
-A \code{weave_theme} function is also provided to set a theme \emph{without} \verb{gg_*} side-effects.
+\code{weave_font_defaults()} and \code{weave_reference_defaults()} can be used to customise "text", "label",  "abline, "vline" and "hline" geom defaults.
+
 \code{\link[ggplot2:update_defaults]{ggplot2::update_geom_defaults()}} can be used to further fine-tune geom defaults.
 }
 \examples{
@@ -74,11 +72,8 @@ library(ggblanket)
 library(palmerpenguins)
 
 set_blanket(
-  mode = dark_mode_r(),
+  theme = dark_mode_r(),
   colour = "#E7298AFF",
-  colour_text = darkness[1],
-  colour_hline = darkness[1],
-  colour_vline = darkness[1],
   col_palette_d = c("#1B9E77FF", "#D95F02FF", "#7570b3FF", "#E7298AFF",
                     "#66A61EFF", "#E6AB02FF", "#A6761DFF", "#666666FF"),
 )
@@ -87,16 +82,12 @@ penguins |>
   gg_point(
     x = flipper_length_mm,
     y = body_mass_g,
-  ) +
-  geom_vline(xintercept = 200) +
-  annotate("text", x = I(0.25), y = I(0.75), label = "Here")
+  )
 
 penguins |>
   gg_histogram(
     x = flipper_length_mm,
     col = species,
-  ) +
-  geom_vline(xintercept = 200) +
-  annotate("text", x = I(0.75), y = I(0.75), label = "Here")
+  )
 
 }

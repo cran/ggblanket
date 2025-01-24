@@ -47,7 +47,7 @@ Computational speed has been traded-off.
 8.  Smart `*_label` defaults for axis and legend titles
 9.  Other `ggplot2::geom_*` arguments via `...`
 10. Families of `*_mode_*` themes with legend variants
-11.  Side-effects to the `mode` based on the `mode_orientation`
+11.  Side-effects to the `theme` based on the `theme_orientation`
 12.  One `*_symmetric` continuous scale
 13. Ability to add multiple `geom_*` layers
 14. Arguments to customise setup with `set_blanket()`
@@ -234,7 +234,7 @@ penguins2 |>
 
 ### 10.  Families of `*_mode_*` themes with legend variants 
 
-`light_mode_*` and `dark_mode_*` theme families are provided with variants that differ based on legend placement with suffix `r` (right), `b` (bottom), and `t` (top). These functions were built for use with the `mode` argument - and have flexibility to adjust colours, linewidths etc. 
+`light_mode_*` and `dark_mode_*` theme families are provided with variants that differ based on legend placement with suffix `r` (right), `b` (bottom), and `t` (top). These functions were built for use with the `theme` argument - and have flexibility to adjust colours, linewidths etc. 
 
 ```{r, fig.asp=0.65}
 penguins2 |>
@@ -244,19 +244,24 @@ penguins2 |>
     title = "Penguin flipper length by species",
     subtitle = "Palmer Archipelago, Antarctica",
     caption = "Source: Gorman, 2020", 
-    mode = dark_mode_t() + theme(legend.title = element_blank()),
+    theme = dark_mode_t() + theme(legend.title = element_blank()),
   ) 
 ```
 
-### 11.  Side-effects to the `mode` based on the `mode_orientation`
+### 11.  Side-effects to the `theme` based on the `theme_orientation`
 
-The `gg_*` function adds helpful side-effects to the mode. 
+The `gg_*` function adds helpful side-effects to the theme based on the `theme_orientation`, `theme_axis_line_rm`, `theme_axis_ticks_rm` and , `theme_panel_grid_rm` arguments. 
 
-Where `mode_orientation = "x"`, the `gg_*` function will remove the y axis line/ticks and the x gridlines from the `mode` (by changing their colour to "transparent"). Where it is  `mode_orientation = "y"`, the opposite will occur. If the `gg_*` guesses an incorrect `mode_orientation`, then the user can change this.
+For the default where `theme_axis_line_rm`, `theme_axis_ticks_rm` and , `theme_panel_grid_rm` all equal `TRUE`:
 
-Additionally, the `gg_*` function will remove ticks from discrete scales.
+* Where `theme_orientation = "x"`, the `gg_*` function will remove the y axis line/ticks and the x gridlines from the `theme` (by changing their colour to "transparent"). 
+* Where `theme_orientation = "y"`, the opposite will occur. 
 
-Any `mode` used should be designed to anticipate these side-effects. To avoid these side-effects, instead `+` the theme on to the `gg_*` output (or use the `theme` argument in `set_blanket`).
+If the `gg_*` guesses an incorrect `theme_orientation`, then the user can change this. The user can change any of these side-effects by setting `theme_axis_line_rm`, `theme_axis_ticks_rm` or , `theme_panel_grid_rm` to `FALSE`.
+
+Any `theme` used should be designed to anticipate the side-effects desired. 
+
+The effect of this is to enable _one_ theme to be used across all plots whether the plot is vertical or horizontal. 
 
 ```{r}
 p1 <- penguins2 |>
@@ -276,11 +281,13 @@ p1 + p2
 
 ### 12.  One `*_symmetric` continuous scale
 
-One `*_symmetric` continuous scale can be made where:
+A `*_symmetric` continuous scale can be made where:
 
-* `*_transform` is linear
+* `x_transform` and `y_transform` are NULL
 * the `stat` is not "sf"
-* if faceted, the relevant scale is fixed 
+* if faceted, the relevant scale is "fixed" 
+
+Both symmetric continuous scales cannot be made where the stat is not 'identity'.
 
 By default, the gg_* function will make a `x_symmetric` scale if there is a y discrete axis and a x continuous axis. Otherwise, it will make a `y_symmetric` scale. 
 
@@ -337,12 +344,12 @@ penguins2 |>
     xmin = lower, 
     xmax = upper,
     col = sex,
-    position = position_dodge(width = 0.75),
+    position = position_dodge(),
     x_expand_limits = 0,
   ) +
   geom_col(
     width = 0.75,
-    position = position_dodge(width = 0.75),
+    position = position_dodge(),
   ) +
   geom_errorbar(
     width = 0.1, 
@@ -355,28 +362,30 @@ penguins2 |>
 
 The `set_blanket` function sets customisable defaults for the:
 
-* mode (i.e. a theme added with side-effects)
-* geom defaults (e.g. colour/fill), and text and reference line defaults
-* discrete colour palette (and NA colour)
-* continuous colour palette (and NA colour)
-* ordinal colour palette (and NA colour)
-* theme (i.e. a theme added with no side-effects).
+* the geom defaults, including the colour (and fill) of geoms
+* the colour (and fill) palettes (i.e. discrete, continuous and ordinal)
+* the theme, and how/what side-effects are to be applied
+* the function to apply to a unspecified/unlabelled `x_label`, `y_label`, `col_label` etc.
 
-Note the `mode` argument in `set_blanket` can also be used to default a `*_label` to `NULL` (e.g. `set_blanket(mode = list(dark_mode_r(), labs(colour = NULL, fill = NULL)))`).
+`weave_font_defaults()` and `weave_reference_defaults()` can be used to customise the "text", "label", "abline, "vline" and "hline" geom defaults.
 
-The `ggplot2::update_geom_defaults()` function can be used to further fine-tune geom defaults. 
+Note the `theme` argument in `set_blanket` can also be used to default a `*_label` to `NULL` (e.g. `set_blanket(theme = list(dark_mode_r(), labs(colour = NULL, fill = NULL)))`).
 
-`set_blanket()` also works on ggplot2 code. 
+Users should try to do as much as possible in these set-up functions, rather than continually adding arguments to their `gg_*` functions.
 
 ```{r}
 set_blanket(
-  mode = dark_mode_r(),  
   colour = "#E7298AFF",
-  text_colour = darkness[1],
-  reference_colour = darkness[1],
   col_palette_d = c("#1B9E77FF", "#D95F02FF", "#7570b3FF", "#E7298AFF",
                     "#66A61EFF", "#E6AB02FF", "#A6761DFF", "#666666FF"),
+  theme = dark_mode_r(),  
+  theme_axis_line_rm = FALSE,
+  theme_axis_ticks_rm = FALSE,
 )
+
+weave_font_defaults(colour = darkness[1], fill = darkness[3])
+
+weave_reference_defaults(colour = darkness[1])
 
 p1 <- penguins2 |>
   gg_point(
@@ -394,7 +403,7 @@ p2 <- penguins2 |>
     x_breaks_n = 4, 
   ) +
   geom_vline(xintercept = 200) +
-  annotate("text", x = I(0.75), y = I(0.75), label = "Here")
+  annotate("label", x = I(0.75), y = I(0.75), label = "Here")
 
 p1 + p2
 

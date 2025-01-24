@@ -11,9 +11,13 @@ test_name <- "1"
 test_that(test_name, {
 
   set_blanket(
-    mode = NULL,
+    theme = theme_grey(),
+    theme_axis_line_rm = FALSE,
+    theme_axis_ticks_rm = FALSE,
+    theme_panel_grid_rm = FALSE
   )
-  weave_theme(theme = theme_grey())
+  weave_font_defaults()
+  weave_reference_defaults()
 
   p <- penguins |>
     mutate(across(sex, \(x) stringr::str_to_sentence(x))) |>
@@ -33,11 +37,13 @@ test_name <- "2"
 test_that(test_name, {
 
   set_blanket(
-    mode = light_mode_r(),
+    theme = light_mode_r(),
     colour = red,
-    text_colour = teal,
-    reference_colour = teal,
   )
+
+  weave_font_defaults(colour = teal)
+
+  weave_reference_defaults(colour = teal)
 
   p <- penguins |>
     mutate(across(sex, \(x) stringr::str_to_sentence(x))) |>
@@ -54,15 +60,15 @@ test_that(test_name, {
 ###
 
 set_blanket(
-  mode = dark_mode_r(base_size = 15),
+  theme = dark_mode_r(base_size = 15),
   colour = red,
-  text_colour = "red",
-  text_size = 15 / 2.83505,
-  reference_colour = "red",
-  reference_linewidth = 5,
   col_palette_d = c(navy, red, "green"),
   col_palette_c = c(navy, purple, red, orange)
 )
+
+weave_font_defaults(colour = "red", size = 15 / 2.83505)
+
+weave_reference_defaults(colour = "red", linewidth = 5)
 
 ###
 test_name <- "3"

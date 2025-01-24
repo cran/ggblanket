@@ -117,7 +117,7 @@ penguins2 |>
     title = "Penguin flipper length by species",
     subtitle = "Palmer Archipelago, Antarctica",
     caption = "Source: Gorman, 2020", 
-    mode = dark_mode_t() + theme(legend.title = element_blank()),
+    theme = dark_mode_t() + theme(legend.title = element_blank()),
   ) 
 
 ## -----------------------------------------------------------------------------
@@ -166,12 +166,12 @@ penguins2 |>
     xmin = lower, 
     xmax = upper,
     col = sex,
-    position = position_dodge(width = 0.75),
+    position = position_dodge(),
     x_expand_limits = 0,
   ) +
   geom_col(
     width = 0.75,
-    position = position_dodge(width = 0.75),
+    position = position_dodge(),
   ) +
   geom_errorbar(
     width = 0.1, 
@@ -181,13 +181,17 @@ penguins2 |>
 
 ## -----------------------------------------------------------------------------
 set_blanket(
-  mode = dark_mode_r(),  
   colour = "#E7298AFF",
-  text_colour = darkness[1],
-  reference_colour = darkness[1],
   col_palette_d = c("#1B9E77FF", "#D95F02FF", "#7570b3FF", "#E7298AFF",
                     "#66A61EFF", "#E6AB02FF", "#A6761DFF", "#666666FF"),
+  theme = dark_mode_r(),  
+  theme_axis_line_rm = FALSE,
+  theme_axis_ticks_rm = FALSE,
 )
+
+weave_font_defaults(colour = darkness[1], fill = darkness[3])
+
+weave_reference_defaults(colour = darkness[1])
 
 p1 <- penguins2 |>
   gg_point(
@@ -205,7 +209,7 @@ p2 <- penguins2 |>
     x_breaks_n = 4, 
   ) +
   geom_vline(xintercept = 200) +
-  annotate("text", x = I(0.75), y = I(0.75), label = "Here")
+  annotate("label", x = I(0.75), y = I(0.75), label = "Here")
 
 p1 + p2
 
