@@ -189,9 +189,9 @@ set_blanket(
   theme_axis_ticks_rm = FALSE,
 )
 
-weave_font_defaults(colour = darkness[1], fill = darkness[3])
+set_font_defaults(colour = darkness[1], fill = darkness[3])
 
-weave_reference_defaults(colour = darkness[1])
+set_reference_defaults(colour = darkness[1])
 
 p1 <- penguins2 |>
   gg_point(
