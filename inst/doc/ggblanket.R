@@ -181,35 +181,34 @@ penguins2 |>
 
 ## -----------------------------------------------------------------------------
 set_blanket(
-  colour = "#E7298AFF",
-  col_palette_d = c("#1B9E77FF", "#D95F02FF", "#7570b3FF", "#E7298AFF",
-                    "#66A61EFF", "#E6AB02FF", "#A6761DFF", "#666666FF"),
-  theme = dark_mode_r(),  
-  theme_axis_line_rm = FALSE,
-  theme_axis_ticks_rm = FALSE,
+  theme = rlang::list2(
+    light_mode_t(
+      base_size = 9,
+      axis_line_colour = "#78909C",
+      panel_grid_colour = "#C8D7DF",
+      panel_background_fill = "#E8EFF2",
+      axis_line_linewidth = 0.25, 
+      panel_grid_linewidth = 0.25, 
+    ),
+    labs(colour = NULL, fill = NULL),
+  ),
+  colour = "tan", 
+  col_palette_d = c("#003f5c", "#bc5090", "#ffa600", "#357BA2"),
+  col_palette_na_d = "#78909C",
 )
-
-set_font_defaults(colour = darkness[1], fill = darkness[3])
-
-set_reference_defaults(colour = darkness[1])
 
 p1 <- penguins2 |>
   gg_point(
-    x = flipper_length_mm, 
-    y = body_mass_g,
-    x_breaks_n = 4, 
-  ) +
-  geom_vline(xintercept = 200) +
-  annotate("text", x = I(0.25), y = I(0.75), label = "Here")
+    x = bill_depth_mm, 
+    y = flipper_length_mm,
+  ) 
 
 p2 <- penguins2 |> 
-  gg_histogram(
-    x = flipper_length_mm,
+  gg_bar(
+    y = sex,
     col = species,
-    x_breaks_n = 4, 
-  ) +
-  geom_vline(xintercept = 200) +
-  annotate("label", x = I(0.75), y = I(0.75), label = "Here")
+    position = "dodge",
+  ) 
 
 p1 + p2
 

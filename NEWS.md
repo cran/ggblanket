@@ -1,3 +1,13 @@
+# ggblanket 12.2.0
+
+* Breaking: made `weave_*` functions internal.
+* Breaking: renamed `set_font_defaults` to `set_geom_font`.
+* Breaking: renamed `set_reference_defaults` to `set_geom_reference_line`.
+* Made `set_blanket` with ggplot2 code.
+* Exported `scale_x_symmetric` and `scale_y_symmetric`.
+* For `*_mode_*` themes, added `axis_ticks_length` argument. 
+* Minor documentation updates.
+
 # ggblanket 12.1.0
 
 * Breaking: renamed `weave_font_defaults` to `set_font_defaults`.
