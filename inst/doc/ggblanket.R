@@ -70,7 +70,7 @@ penguins2 |>
     col = island,
     mapping = aes(shape = sex),
   ) +
-  guides(shape = guide_legend(override.aes = list(colour = grey)))
+  guides_shape_grey()
 
 ## -----------------------------------------------------------------------------
 penguins2 |>

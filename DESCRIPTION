@@ -1,6 +1,6 @@
 Package: ggblanket
 Title: Simplify 'ggplot2' Visualisation
-Version: 12.2.0
+Version: 12.3.0
 Authors@R: 
     person("David", "Hodge", , "davidhodge931@gmail.com", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0002-3868-7501"))
@@ -29,8 +29,8 @@ Encoding: UTF-8
 Language: en-GB
 RoxygenNote: 7.3.2
 NeedsCompilation: no
-Packaged: 2025-03-10 23:24:59 UTC; david
+Packaged: 2025-04-28 02:53:54 UTC; david
 Author: David Hodge [aut, cre, cph] (<https://orcid.org/0000-0002-3868-7501>)
 Maintainer: David Hodge <davidhodge931@gmail.com>
 Repository: CRAN
-Date/Publication: 2025-03-10 23:40:02 UTC
+Date/Publication: 2025-04-28 03:10:02 UTC
