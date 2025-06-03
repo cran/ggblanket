@@ -1,3 +1,11 @@
+# ggblanket 12.4.0
+
+* Breaking: removed `set_geom_font` and `set_geom_reference_line`.
+* Breaking: renamed `*_expand_limits` to `*_limits_include`.
+* Breaking: removed `gg_ribbon_line`. Use `gg_smooth(stat = "identity", ...)` instead.
+* Added `bind_each_all` function to assist with plotting groups alongside the total.
+* `set_blanket` now sets hline, vline, text, and label defaults based on the theme. 
+
 # ggblanket 12.3.0
 
 * Breaking: renamed `aes_colour_contrast` to `aes_contrast`.
@@ -7,7 +15,7 @@
 Note, symmetric uses `only.loose = TRUE` whereas `FALSE` for non-symmetric.
 * Added guides functions to over-ride legend colour.
 
-# ggblanket 12.3.0
+# ggblanket 12.2.0
 
 * Breaking: made `weave_*` functions internal.
 * Breaking: renamed `set_font_defaults` to `set_geom_font`.

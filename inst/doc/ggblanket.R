@@ -26,7 +26,7 @@ penguins2 <- penguins |>
     flipper_length_mm = "Flipper length (mm)",
     body_mass_g = "Body mass (g)",
   ) |> 
-  mutate(sex = factor(sex, labels = c("Female", "Male"))) |> 
+  mutate(sex = str_to_sentence(sex)) |> 
   tidyr::drop_na(sex) 
 
 ## -----------------------------------------------------------------------------
@@ -81,7 +81,7 @@ penguins2 |>
     x_breaks_n = 4,
     x_label = "Flipper length",
     x_labels = \(x) paste0(x, " mm"),
-    y_expand_limits = 1000,
+    y_limits_include = 1000,
     y_labels = label_number(big.mark = " "), 
     y_transform = "sqrt",
     col_label = "Bill\nlength (mm)",
@@ -167,7 +167,7 @@ penguins2 |>
     xmax = upper,
     col = sex,
     position = position_dodge(),
-    x_expand_limits = 0,
+    x_limits_include = 0,
   ) +
   geom_col(
     width = 0.75,

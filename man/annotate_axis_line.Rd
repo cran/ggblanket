@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotate_axis_line.R
 \name{annotate_axis_line}
 \alias{annotate_axis_line}
-\title{Replace a axis line with an annotated segment}
+\title{Annotated axis line segment}
 \usage{
 annotate_axis_line(
   axis = "x",
@@ -39,7 +39,6 @@ library(ggblanket)
 library(palmerpenguins)
 
 set_blanket()
-set_geom_reference_line()
 
 d <- penguins |>
   add_row(
